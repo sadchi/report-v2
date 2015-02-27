@@ -14,19 +14,21 @@
                 :compiler     {:output-to     "target/report.js"
                                :output-dir    "target/out"
                                :source-map    "target/out.js.map"
-                               :optimizations :whitespace
+                               :optimizations :none
                                :pretty-print  true}}}}
   :profiles {:dev
              {:plugins      [[com.cemerick/austin "0.1.6"]]
               :source-paths ["src"]
-              :cljsbuild    {:builds {:reporter
-                                      {:compiler
-                                       {:preamble ["reagent/react.js"]}}}}}
+              :cljsbuild {:builds {:report
+                                   {:compiler {:source-map true
+                                               :main "report-v2.main"
+                                               :asset-path "out"
+                                               :optimizations :none
+                                               :pretty-print true}}}}}
              :prod
              {:cljsbuild {:builds
-                          {:reporter
-                           {:compiler {:preamble      ["reagent/react.min.js"]
-                                       :optimizations :advanced
+                          {:report
+                           {:compiler {:optimizations :advanced
                                        :pretty-print  false}}}}}}
 
   :aliases {"bj"     ["do" ["cljsbuild" "once"]]
