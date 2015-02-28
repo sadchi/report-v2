@@ -1,20 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Test Report</title>
-    <link href='report.css' rel='stylesheet' type='text/css'>
-    <script src='data.js'></script>
-    <style>
-        .viewport {
-        height : 300px;
-        }
-    </style>
-</head>
-<body >
-<div id="app">
-    <div class="viewport">
-    <div class="viewport__content">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
+(ns report.components.app)
+
+(defn app [test-results-data]
+  (fn []
+    [:div.viewport
+     [:div.viewport__content
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
     faucibus, erat vitae luctus posuere, quam nibh pretium nunc, eu euismod erat velit et velit. Proin lacinia leo non
     dictum scelerisque. Aliquam mollis enim mauris, a interdum arcu posuere vitae. Vivamus eu luctus libero, eu
     fermentum ipsum. Integer et ornare erat. Nulla maximus neque orci. In ornare purus nibh, at hendrerit justo bibendum
@@ -127,19 +117,4 @@
     Vivamus quis auctor metus, ut mollis nisl. Etiam convallis hendrerit diam, a finibus velit molestie id. Etiam id
     lacinia neque. Suspendisse id varius urna, id iaculis quam. Etiam lacinia magna bibendum metus convallis, maximus
     feugiat odio condimentum. Ut non eros odio. Nunc euismod iaculis erat. Pellentesque accumsan, ligula a suscipit
-    placerat, turpis sem finibus mauris, at feugiat mauris nisl et arcu.
-    </div>
-    </div>
-</div>
-<script src="report.js"></script>
-<script src="../externs/jquery-1.11.2.min.js"></script>
-<script src="../externs/jquery.nicescroll.min.js "></script>
-<script>
-$(document).ready(
-  function() {
-    $(".viewport").niceScroll(".viewport__content",{cursorcolor:"#ccc"});
-  }
-);
-</script>
-</body>
-</html>
+    placerat, turpis sem finibus mauris, at feugiat mauris nisl et arcu."]]))

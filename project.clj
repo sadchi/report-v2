@@ -15,16 +15,17 @@
                                :output-dir    "target/out"
                                :source-map    "target/out.js.map"
                                :optimizations :none
-                               :pretty-print  true}}}}
+                               :pretty-print  true }}}}
+
   :profiles {:dev
              {:plugins      [[com.cemerick/austin "0.1.6"]]
               :source-paths ["src"]
-              :cljsbuild {:builds {:report
-                                   {:compiler {:source-map true
-                                               :main "report-v2.main"
-                                               :asset-path "out"
-                                               :optimizations :none
-                                               :pretty-print true}}}}}
+              :cljsbuild    {:builds {:report
+                                      {:compiler {:source-map    "target/out.js.map"
+                                                  :main          "report.main"
+                                                  :asset-path    "out"
+                                                  :optimizations :none
+                                                  :pretty-print  true}}}}}
              :prod
              {:cljsbuild {:builds
                           {:report
