@@ -1,20 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Test Report</title>
-    <link href='report.css' rel='stylesheet' type='text/css'>
-    <script src='data.js'></script>
-    <style>
-        .viewport {
-        height : 300px;
-        }
-    </style>
-</head>
-<body >
-<div id="app">
-    <div class="viewport">
-    <div class="viewport__content">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
+(ns report.components.app-content
+  (:require [reagent.core :as r]
+            [report.utils.log :refer [log log-o]]))
+
+
+(defn app-content []
+  (fn []
+    [:div.app__content
+     "    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
     faucibus, erat vitae luctus posuere, quam nibh pretium nunc, eu euismod erat velit et velit. Proin lacinia leo non
     dictum scelerisque. Aliquam mollis enim mauris, a interdum arcu posuere vitae. Vivamus eu luctus libero, eu
     fermentum ipsum. Integer et ornare erat. Nulla maximus neque orci. In ornare purus nibh, at hendrerit justo bibendum
@@ -128,18 +120,10 @@
     lacinia neque. Suspendisse id varius urna, id iaculis quam. Etiam lacinia magna bibendum metus convallis, maximus
     feugiat odio condimentum. Ut non eros odio. Nunc euismod iaculis erat. Pellentesque accumsan, ligula a suscipit
     placerat, turpis sem finibus mauris, at feugiat mauris nisl et arcu.
-    </div>
-    </div>
-</div>
-<script src="report.js"></script>
-<!--script src="../externs/jquery-1.11.2.min.js"></script-->
-<!--script src="../externs/jquery.nicescroll.min.js "></script-->
-<script>
-$(document).ready(
-  function() {
-    $(".viewport").niceScroll(".viewport__content");
-  }
-);
-</script>
-</body>
-</html>
+"]))
+
+(def app-content-nicescroll
+  (with-meta app-content
+             {:component-did-mount (fn [this]
+                                     (log "Trying to attach nicescroll")
+                                     #_(.niceScroll (r/dom-node this)))}))

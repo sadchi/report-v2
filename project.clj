@@ -15,7 +15,7 @@
                                :output-dir    "target/out"
                                :source-map    "target/out.js.map"
                                :optimizations :none
-                               :pretty-print  true }}}}
+                               :pretty-print  true}}}}
 
   :profiles {:dev
              {:plugins      [[com.cemerick/austin "0.1.6"]]
@@ -29,8 +29,12 @@
              :prod
              {:cljsbuild {:builds
                           {:report
-                           {:compiler {:optimizations :advanced
-                                       :pretty-print  false}}}}}}
+                           {:compiler {:optimizations    :advanced
+                                       :libs             ["libs/jquery-1.11.2.min.js" "libs/jquery.nicescroll.min.js"]
+                                       :externs          ["libs/jquery-1.11.2.min.js" "libs/jquery.nicescroll.min.js"]
+                                       :closure-warnings {:externs-validation :off
+                                                          :non-standard-jsdoc :off}
+                                       :pretty-print     false}}}}}}
 
   :aliases {"bj"     ["do" ["cljsbuild" "once"]]
             "bjprod" ["with-profile" "prod" "cljsbuild" "once"]})

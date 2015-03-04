@@ -4,7 +4,7 @@ var data=[
 		"path" : ["A1", "Scenario t2"],
 		"status" : {
 						"SUCCESS" : 1, 
-						"FAIL>QUARANTINE" :1
+						"FAIL" :1
 					},
 		"runs" : [
 			{
@@ -41,7 +41,7 @@ var data=[
 			    ]
 			},
 						{
-				"status" : "FAIL>QUARANTINE",
+				"status" : "FAIL",
 				"fails" : [],
 				"errors" : [],
 				"meta" : [
