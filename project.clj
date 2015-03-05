@@ -15,11 +15,18 @@
                                :output-dir    "target/out"
                                :source-map    "target/out.js.map"
                                :optimizations :none
-                               :pretty-print  true}}}}
+                               :pretty-print  true
+                               :foreign-libs  [{:file     "libs/jquery-1.11.2.js"
+                                                :file-min "libs/jquery-1.11.2.min.js"
+                                                :provides ["jquery.main"]}
+                                               {:file     "libs/jquery.nicescroll.js"
+                                                :file-min "libs/jquery.nicescroll.min.js"
+                                                :requires ["jquery.main"]
+                                                :provides ["jquery.nicescroll"]}]
+                               :externs       ["libs/jquery-1.11.2.js" "libs/jquery.nicescroll.js"]}}}}
 
   :profiles {:dev
-             {:plugins      [[com.cemerick/austin "0.1.6"]]
-              :source-paths ["src"]
+             {:source-paths ["src"]
               :cljsbuild    {:builds {:report
                                       {:compiler {:source-map    "target/out.js.map"
                                                   :main          "report.main"
@@ -30,8 +37,7 @@
              {:cljsbuild {:builds
                           {:report
                            {:compiler {:optimizations    :advanced
-                                       :libs             ["libs/jquery-1.11.2.min.js" "libs/jquery.nicescroll.min.js"]
-                                       :externs          ["libs/jquery-1.11.2.min.js" "libs/jquery.nicescroll.min.js"]
+
                                        :closure-warnings {:externs-validation :off
                                                           :non-standard-jsdoc :off}
                                        :pretty-print     false}}}}}}

@@ -1,5 +1,6 @@
 /target/*
 !/target/report.html
+!/target/report-dev.html
 !/target/data.js
 /classes
 /checkouts
