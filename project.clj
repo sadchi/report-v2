@@ -36,11 +36,11 @@
              :prod
              {:cljsbuild {:builds
                           {:report
-                           {:compiler {:optimizations    :advanced
-
-                                       :closure-warnings {:externs-validation :off
-                                                          :non-standard-jsdoc :off}
-                                       :pretty-print     false}}}}}}
+                           {:compiler {:optimizations :advanced
+                                       :closure-warnings
+                                                      {:externs-validation :off
+                                                       :non-standard-jsdoc :off}
+                                       :pretty-print  false}}}}}}
 
   :aliases {"bj"     ["do" ["cljsbuild" "once"]]
             "bjprod" ["with-profile" "prod" "cljsbuild" "once"]})

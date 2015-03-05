@@ -10,7 +10,7 @@ $app-bar-height : 4*$unit !default
 
 .app__bar
   width  : 100%
-  height : $app-bar-height
+  flex   : 0 0 $app-bar-height
 
 
 .app__content
@@ -18,4 +18,5 @@ $app-bar-height : 4*$unit !default
   flex-grow : 1
 
 
-  
+.app > .app__content
+  overflow: auto

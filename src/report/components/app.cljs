@@ -4,6 +4,6 @@
 
 (defn app [test-results-data]
   (fn []
-    [:div
+    [:div.app
      [app-bar]
      [app-content-nicescroll]]))
