@@ -1,6 +1,13 @@
-@import layout
+@import fonts
 
-$app-bar-height : 4*$unit !default
+$app-bar-height      : 40px !default
+$app-bar-back        : grey !default
+$app-bar-color       : white !default
+$app-bar-padding     : 0 !default
+$app-content-back    : white !default
+$app-content-color   : grey !default
+$app-content-padding : 0 !default
+
 
 .app
   display        : flex
@@ -9,13 +16,22 @@ $app-bar-height : 4*$unit !default
   height         : 100%
 
 .app__bar
-  width  : 100%
-  flex   : 0 0 $app-bar-height
-
+  width      : 100%
+  flex       : 0 0 $app-bar-height
+  padding    : $app-bar-padding
+  background : $app-bar-back
+  color      : $app-bar-color
+  box-sizing : border-box
+  +heading-font
 
 .app__content
-  width     : 100%
-  flex-grow : 1
+  width      : 100%
+  flex-grow  : 1
+  padding    : $app-content-padding
+  background : $app-content-back
+  color      : $app-content-color
+  box-sizing : border-box
+  +content-font
 
 
 .app > .app__content

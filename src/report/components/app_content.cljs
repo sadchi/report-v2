@@ -5,7 +5,9 @@
 
 (defn app-content []
   (fn []
-    [:div.app__content
+    [:div.app__content [:div.circled-button [:span.icon-home]]
+     [:div.circled-button "X"]
+
      "    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
     faucibus, erat vitae luctus posuere, quam nibh pretium nunc, eu euismod erat velit et velit. Proin lacinia leo non
     dictum scelerisque. Aliquam mollis enim mauris, a interdum arcu posuere vitae. Vivamus eu luctus libero, eu

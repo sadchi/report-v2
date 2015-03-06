@@ -1,0 +1,16 @@
+@import layout
+
+$button-default-height : 2*$unit !default
+$button-default-border-width : 2px !default
+$button-default-border-color : grey !default
+
+.circled-button
+  height         : (-2*$button-default-border-width + $button-default-height)
+  width          : (-2*$button-default-border-width + $button-default-height)
+  line-height    : (-2*$button-default-border-width + $button-default-height)
+  text-align     : center
+  border         : $button-default-border-width solid $button-default-border-color
+  border-radius  : 0.5*$button-default-height
+  display        : inline-block
+
+
