@@ -4,6 +4,7 @@ $app-bar-height      : 40px !default
 $app-bar-back        : grey !default
 $app-bar-color       : white !default
 $app-bar-padding     : 0 !default
+$app-bar-line-height : $app-bar-height !default
 $app-content-back    : white !default
 $app-content-color   : grey !default
 $app-content-padding : 0 !default
@@ -16,12 +17,13 @@ $app-content-padding : 0 !default
   height         : 100%
 
 .app__bar
-  width      : 100%
-  flex       : 0 0 $app-bar-height
-  padding    : $app-bar-padding
-  background : $app-bar-back
-  color      : $app-bar-color
-  box-sizing : border-box
+  width       : 100%
+  flex        : 0 0 $app-bar-height
+  padding     : $app-bar-padding
+  background  : $app-bar-back
+  color       : $app-bar-color
+  line-height : $app-bar-line-height
+  box-sizing  : border-box
   +heading-font
 
 .app__content
@@ -30,7 +32,7 @@ $app-content-padding : 0 !default
   padding    : $app-content-padding
   background : $app-content-back
   color      : $app-content-color
-  box-sizing : border-box
+  box-sizing  : border-box
   +content-font
 
 

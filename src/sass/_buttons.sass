@@ -3,8 +3,43 @@
 $button-default-height : 2*$unit !default
 $button-default-border-width : 2px !default
 $button-default-border-color : grey !default
+$button-default-margin       : $v-space-hard-edge $h-space-hard-edge $v-space-hard-edge 0 !default 
+$button-default-margin-last  : $v-space-hard-edge 0 !default
 
-.circled-button
+$button-content-border-width   : 2px !default
+$button-content-border-color   : grey !default
+$button-content-border-color-disabled : lightgrey !default
+$button-content-back-normal    : transparent !default
+$button-content-back-hover     : rgba(grey, .1) !default
+$button-content-back-pressed   : grey !default
+$button-content-back-disabled  : transparent !default
+$button-content-color-normal   : grey !default
+$button-content-color-hover    : grey !default
+$button-content-color-pressed  : white !default
+$button-content-color-disabled : lightgrey !default
+
+$button-appbar-border-width   : 2px !default
+$button-appbar-border-color   : white !default
+$button-appbar-border-color-disabled : white !default
+$button-appbar-back-normal    : transparent !default
+$button-appbar-back-hover     : rgba(white, .2) !default
+$button-appbar-back-pressed   : white !default
+$button-appbar-back-disabled  : transparent !default
+$button-appbar-color-normal   : white !default
+$button-appbar-color-hover    : white !default
+$button-appbar-color-pressed  : grey !default
+$button-appbar-color-disabled : lightgrey !default
+
+$state-button-default-width : 4*$unit !default
+$state-button-default-back  : transparent !default
+$state-button-default-color : grey !default
+$state-button-active-color  : green !default
+$state-button-marker-width  : $unit !default
+$state-button-marker-height : $sub-unit !default
+
+
+
+.circled-button-defaults
   height         : (-2*$button-default-border-width + $button-default-height)
   width          : (-2*$button-default-border-width + $button-default-height)
   line-height    : (-2*$button-default-border-width + $button-default-height)
@@ -12,6 +47,71 @@ $button-default-border-color : grey !default
   border         : $button-default-border-width solid $button-default-border-color
   border-radius  : 0.5*$button-default-height
   display        : inline-block
-  margin         : $v-space-hard-edge $h-space-hard-edge
+  margin         : $button-default-margin 
+  &:last-child
+    margin         : $button-default-margin-last 
+    
+.circled-button-content
+  @extend .circled-button-defaults
+  border     : $button-content-border-width solid $button-content-border-color
+  background : $button-content-back-normal
+  color      : $button-content-color-normal
+  &:hover
+    background : $button-content-back-hover
+    color      : $button-content-color-hover
+  &:active
+    background : $button-content-back-pressed
+    color      : $button-content-color-pressed
 
+.circled-button-content--disabled
+  border     : $button-content-border-width solid $button-content-border-color-disabled
+  background : $button-content-back-disabled
+  color      : $button-content-color-disabled
+  &:hover, &:active
+    background : $button-content-back-disabled
+    color      : $button-content-color-disabled
+
+    
+.circled-button-appbar
+  @extend .circled-button-defaults
+  border     : $button-appbar-border-width solid $button-appbar-border-color
+  background : $button-appbar-back-normal
+  color      : $button-appbar-color-normal
+  &:hover
+    background : $button-appbar-back-hover
+    color      : $button-appbar-color-hover
+  &:active
+    background : $button-appbar-back-pressed
+    color      : $button-appbar-color-pressed
+
+.circled-button-appbar--disabled
+  border     : $button-appbar-border-width solid $button-appbar-border-color-disabled
+  background : $button-appbar-back-disabled
+  color      : $button-appbar-color-disabled
+  &:hover, &:active
+    background : $button-appbar-back-disabled
+    color      : $button-appbar-color-disabled
+
+.state-button-defaults
+  height      : (-2*$button-default-border-width + $button-default-height)
+  width       : (-2*$button-default-border-width + $state-button-default-width)
+  line-height : (-2*$button-default-border-width + $button-default-height)
+  text-align  : center
+  border      : $button-default-border-width solid $button-default-border-color
+  background  : $state-button-default-back
+  color       : $state-button-default-color
+  display     : inline-block
+  margin      : $button-default-margin
+  position : relative
+  &:last-child
+    margin : $button-default-margin-last
+  &:after
+    content     : " "
+    position    : absolute
+    top         : 100%
+    left        : 0
+    right       : 0
+    margin-top  : (-$state-button-marker-height + $button-default-border-width ) 
+    height      : $state-button-marker-height
+    background  : transparent 
 
