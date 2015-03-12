@@ -1,0 +1,24 @@
+@import common/_fonts 
+@import common/color-schemes/_defaults
+@import common/color-schemes/_schemes
+@import common/color-schemes/_colors
+@import common/decoration/_shadows
+@import common/space/_containers
+@import common/space/_defaults
+
+.app
+  @extend .full-size-column
+  @extend .default-color-scheme
+  @extend .content-font
+  overflow : hidden
+
+.app__bar
+  @extend .flex-single-special-row
+  @extend .default-shadow
+  @extend .greyish-theme
+  border  : 1px solid $grey-300 
+  padding : 0 $h-margin 0 $max-margin
+
+.app__content
+  flex-grow : 1
+  padding   : $v-margin $h-margin $v-margin $max-margin
