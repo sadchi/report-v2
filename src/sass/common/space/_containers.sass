@@ -1,28 +1,24 @@
 @import defaults
 
-.full-size-column
-	width   : 100%
-	height  : 100%
-	display : flex
-	flex-direction : column
+.whole
+  width  : 100%
+  height : 100%
 
-.single-special-row
+.top-bar
+  position : fixed
+  overflow : hidden
+  left   : 0
+  right  : 0
+  top    : 0
   height      : $special-row-height
   line-height : $special-row-height
-  overflow    : hidden
 
-.flex-single-special-row
-  height      : $special-row-height
-  line-height : $special-row-height
-  overflow    : hidden
-  display     : flex
-  align-items : center
-  flex        : 0 0 $special-row-height
-  
-.flex-filler
-  display   : inline-block
-  flex-grow : 1
-
+.content-area
+  position : fixed
+  left   : 0
+  right  : 0
+  top    : ($special-row-height + 1)
+  bottom : 0
 
 .square-unit
   height      : $block
@@ -31,3 +27,5 @@
   text-align  : center
   overflow    : hidden
   display     : inline-block
+
+

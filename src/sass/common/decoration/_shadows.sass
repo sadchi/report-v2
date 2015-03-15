@@ -1,9 +1,15 @@
-$default-shadow-hor-length : 0px !default
-$default-shadow-ver-length : 2px !default
-$default-shadow-blur       : 5px !default
-$default-shadow-spread     : 0px !default
-$default-shadow-color      : #000 !default
-$default-shadow-opacity    : 0.2 !default
+$default-shadow-hor-length      : 0px !default
+$default-shadow-ver-length      : 2px !default
+$default-shadow-blur            : 5px !default
+$default-shadow-control-blur    : 3px !default
+$default-shadow-spread          : 0px !default
+$default-shadow-control-spread  : 1px !default
+$default-shadow-color           : #000 !default
+$default-shadow-opacity         : 0.26 !default
+$default-shadow-control-opacity : 0.15 !default
 
 .default-shadow
   box-shadow: $default-shadow-hor-length $default-shadow-ver-length $default-shadow-blur $default-shadow-spread rgba($default-shadow-color, $default-shadow-opacity)
+
+.default-control-shadow
+  box-shadow: $default-shadow-hor-length $default-shadow-ver-length $default-shadow-control-blur $default-shadow-control-spread rgba($default-shadow-color, $default-shadow-control-opacity)

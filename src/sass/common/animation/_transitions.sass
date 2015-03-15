@@ -1,0 +1,15 @@
+$transition-duration        : 0.1s !default
+$transition-timing-function : ease-in-out !default
+$transition-delay           : 0 !default
+
+
+.default-transition
+  transition-duration : $transition-duration
+  transition-timing-function : $transition-timing-function
+  transition-delay : $transition-delay
+
+.default-all-transition
+  transition : all $transition-duration $transition-timing-function $transition-delay
+
+.default-transform-transition
+  transition : transform $transition-duration $transition-timing-function $transition-delay

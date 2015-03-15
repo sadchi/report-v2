@@ -1,6 +1,45 @@
 @import space/_containers
+@import space/_defaults
+@import decoration/_shadows
+@import animation/_transitions
 
+$button-height       : 36px !default
+$button-border-width : 2px !default
+$button-icon-size    : 17.5px !default
+$button-hover-opacity : 0.15 !default
 
 .circled-button
-  @extend .square-unit
-  
+  position      : relative
+  display       : inline-block
+  cursor        : pointer
+  width         : ($button-height - 2*$button-border-width)
+  height        : ($button-height - 2*$button-border-width)
+  line-height   : ($button-height - 2*$button-border-width) 
+  border-radius : ($button-height / 2)
+  border-width  : $button-border-width
+  border-style : solid
+  border-color : transparent
+  vertical-align : middle
+  text-align     : center
+  font-size : $button-icon-size
+  margin-right : $h-min-margin 
+  @extend .default-all-transition
+  &:last-child
+    margin-right : 0
+  &:hover::before
+    position : absolute
+    content  : " "
+    top      : 0
+    bottom   : 0
+    left     : 0
+    right    : 0
+    border-radius : ($button-height / 2)
+    background : rgba(white, $button-hover-opacity)
+  &:active
+    transform  : translateY(2px)
+    box-shadow : none
+
+.circled-button--dark-theme
+
+
+.circled-button--light-theme

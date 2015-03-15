@@ -3,22 +3,22 @@
 @import common/color-schemes/_schemes
 @import common/color-schemes/_colors
 @import common/decoration/_shadows
+@import common/decoration/_borders
 @import common/space/_containers
 @import common/space/_defaults
+@import common/animation/_transitions
 
 .app
-  @extend .full-size-column
-  @extend .default-color-scheme
+  @extend .whole
+  @extend .dark-greyish-theme
   @extend .content-font
-  overflow : hidden
 
 .app__bar
-  @extend .flex-single-special-row
+  @extend .top-bar
   @extend .default-shadow
-  @extend .greyish-theme
-  border  : 1px solid $grey-300 
+  @extend .neutral-back-theme
+  @extend .border-1px
   padding : 0 $h-margin 0 $max-margin
+  z-index : 2
 
-.app__content
-  flex-grow : 1
-  padding   : $v-margin $h-margin $v-margin $max-margin
+

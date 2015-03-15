@@ -1,9 +1,14 @@
+@import common/space/_sizes
 @import settings
 @import app
+@import content-pane
 @import common/_buttons
 
-html, body, .main
-  margin  : 0
-  padding : 0
-  height  : 100%
+html, body, #app
+  @extend .whole
+  position : relative
+  margin   : 0
+  padding  : 0
+  z-index  : 0
+  font-size : $font-size-0
 

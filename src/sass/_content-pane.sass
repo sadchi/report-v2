@@ -1,0 +1,24 @@
+@import common/_fonts 
+@import common/decoration/_shadows
+@import common/decoration/_borders
+@import common/color-schemes/_schemes
+
+.content-pane
+  @extend .content-area
+  @extend .white-theme
+  @extend .border-1px
+  @extend .default-shadow
+  @extend .default-transition
+  transition-property : transform
+  padding : $v-margin $h-margin $v-margin $max-margin
+  z-index : 1
+
+.content-pane--hidden-left
+  transform : translateX(-101%)
+
+.content-pane--hidden-right
+  transform : translateX(101%)
+
+
+.content-pane__title
+  

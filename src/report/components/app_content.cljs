@@ -5,9 +5,13 @@
 
 (defn app-content []
   (fn []
-    [:div.app__content [:div.state-button-defaults "TEST"]
-
-     "    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
+    [:div.content-pane "    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
+    faucibus, erat vitae luctus posuere, quam nibh pretium nunc, eu euismod erat velit et velit. Proin lacinia leo non
+    dictum scelerisque. Aliquam mollis enim mauris, a interdum arcu posuere vitae. Vivamus eu luctus libero, eu
+    fermentum ipsum. Integer et ornare erat. Nulla maximus neque orci. In ornare purus nibh, at hendrerit justo bibendum
+    quis. Phasellus eu ultrices justo, quis mattis nunc. Mauris vitae ullamcorper leo. Etiam rhoncus ornare metus. Donec
+    gravida velit in lectus sagittis fringilla. Pellentesque a interdum tortor. Fusce lacus elit, pharetra at feugiat
+    at, malesuada id mi. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
     faucibus, erat vitae luctus posuere, quam nibh pretium nunc, eu euismod erat velit et velit. Proin lacinia leo non
     dictum scelerisque. Aliquam mollis enim mauris, a interdum arcu posuere vitae. Vivamus eu luctus libero, eu
     fermentum ipsum. Integer et ornare erat. Nulla maximus neque orci. In ornare purus nibh, at hendrerit justo bibendum
