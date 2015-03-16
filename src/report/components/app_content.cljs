@@ -5,7 +5,9 @@
 
 (defn app-content []
   (fn []
-    [:div.content-pane "    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
+    [:div.content-pane
+     [:a {:href "#/234"} "TEST1"] [:a {:href "#/123/234"} "TEST2"]
+     "    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ac nisl tristique turpis commodo mattis. Sed
     faucibus, erat vitae luctus posuere, quam nibh pretium nunc, eu euismod erat velit et velit. Proin lacinia leo non
     dictum scelerisque. Aliquam mollis enim mauris, a interdum arcu posuere vitae. Vivamus eu luctus libero, eu
     fermentum ipsum. Integer et ornare erat. Nulla maximus neque orci. In ornare purus nibh, at hendrerit justo bibendum

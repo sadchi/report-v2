@@ -42,5 +42,5 @@
                                                        :non-standard-jsdoc :off}
                                        :pretty-print  false}}}}}}
 
-  :aliases {"bj"     ["do" ["cljsbuild" "once"]]
+  :aliases {"bj"     ["do" ["cljsbuild" "auto"]]
             "bjprod" ["with-profile" "prod" "cljsbuild" "once"]})
