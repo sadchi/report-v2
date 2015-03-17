@@ -20,7 +20,7 @@
             (if (empty? p)
               (conj acc [:span.breadcrumbs__item.icon-home {:on-click #(set-href "#/")}])
               (recur (pop p) (conj acc (bread-crumbs-item p idx)) (inc idx))))
-          (interpose [:span.breadcrumbs__item.icon-angle-right])))])
+          (interpose [:span.breadcrumbs__item.breadcrumbs__item--cursor-auto.icon-angle-right])))])
 
 (defn app-bar [get-status-fn a-nav-position]
   (fn []
