@@ -7,6 +7,7 @@ $button-height       : 36px !default
 $button-border-width : 2px !default
 $button-icon-size    : 17.5px !default
 $button-hover-opacity : 0.15 !default
+$button-margined-left : 24px !default
 
 .circled-button
   position      : relative
@@ -41,5 +42,8 @@ $button-hover-opacity : 0.15 !default
 
 .circled-button--dark-theme
 
-
 .circled-button--light-theme
+
+.circled-button--margined-left
+  margin-left  : - ($button-height + $button-margined-left )
+  margin-right : $button-margined-left

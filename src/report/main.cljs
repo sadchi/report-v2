@@ -14,7 +14,12 @@
 
 
 
-(r/render-component [app (app-bar (fn [x]
-                                    (let [c (count x)] (if (odd? c) :good :bad))) routing/nav-position) app-content-nicescroll]
+(r/render-component [app (app-bar (fn [x] (condp = (count x)
+                                            0 "SUCCESS"
+                                            1 "SUCCESS"
+                                            2 "FAIL"
+                                            3 "UNDEF"
+                                            4 "SUCCESS"
+                                            "UNDEF")) routing/nav-position) app-content-nicescroll]
                     (.getElementById js/document "app"))
 

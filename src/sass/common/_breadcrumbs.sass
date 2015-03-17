@@ -1,11 +1,14 @@
 @import fonts
 
-$breadcrum-font-size : 21px !default
+$breadcrum-font-size : 32px !default
 $breadcrum-item-margin : 8px !default
 
 .breadcrumbs
   @extend .heading-font
+  display   : inline-block
   font-size : $breadcrum-font-size
 
 .breadcrumbs__item
+  display : inline-block
+  cursor  : pointer
   margin-right : $breadcrum-item-margin
