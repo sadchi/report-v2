@@ -1,7 +1,7 @@
 var data=[
 	{
 		"category" : "Functional",
-		"path" : ["A1", "Scenario t2"],
+		"path" : ["A2", "A4", "A5", "Scenario t2"],
 		"status" : {
 						"SUCCESS" : 1, 
 						"FAIL" :1
@@ -127,8 +127,8 @@ var data=[
 	},
 	{
 		"category" : "Functional",
-		"path" : ["A1", "Scenario t3"],
-		"status" : {"SUCCESS" : 1},
+		"path" : ["A1", "A3", "Scenario t3"],
+		"status" : {"SUCCESS" : 1, "UNDEF" : 2},
 		"runs" : [
 			{
 				"status" : "SUCCESS",
