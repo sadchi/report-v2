@@ -1,6 +1,7 @@
 (ns report.main
   (:require [reagent.core :as r]
             [report.test-results.structure :as structure]
+            [report.test-results.path :as path]
             [report.components.app :refer [app]]
             [report.routing :as routing]
             [report.components.app-content :refer [app-content-nicescroll]]
@@ -15,21 +16,33 @@
 
 (def test-data (js->clj js/data :keywordize-keys true))
 
-
-(def path-category
-  (map #(let [{:keys [path category]} %] [path category]) test-data))
-
-(log-o "path-c" path-category)
-
 (log-o "td: " test-data)
 
+
+(def path-category-map
+  (let [f (fn [coll x]
+            (let [{:keys [path category]} x]
+              (update-in coll [category] #(conj % path))))]
+    (reduce f {} test-data)))
+
+(log-o "path-c-m" path-category-map)
+
+
 (def test-data-structure
-  (-> (structure/mk-tree (keys test-data))
-      (structure/collapse-poor-branches)))
+  (let [f (fn [coll x]
+            (let [[k v] x
+                  sub-tree (-> (structure/mk-tree v)
+                               (structure/collapse-poor-branches))]
+              (assoc coll k sub-tree)))]
+    (reduce f {} path-category-map)))
+
+
 
 (log-o "td-struct: " test-data-structure)
 
-(def status-map (structure/mk-status-lists test-data #(get % :status)))
+
+
+(def status-map (structure/mk-status-lists test-data #(get % :status) path/mk-path-combi))
 
 
 (log-o "status map: " status-map)
@@ -40,6 +53,6 @@
                                             2 "FAIL"
                                             3 "UNDEF"
                                             4 "SUCCESS"
-                                            "UNDEF")) routing/nav-position) app-content-nicescroll]
+                                            "UNDEF")) routing/nav-position) #(app-content-nicescroll test-data-structure status-map)]
                     (.getElementById js/document "app"))
 

@@ -89,8 +89,11 @@
                (assoc coll k (+ old-val v))))]
     (reduce f x y)))
 
-(defn mk-status-lists [test-data get-statuses-map-fn]
-  (let [path-status-map (map (fn [x] (let [[k v] x] [k (get-statuses-map-fn v)] )) test-data )
+(defn mk-status-lists [test-data get-statuses-map-fn mk-path-fn]
+  (let [path-status-map (map (fn [x]
+                               (let [path (mk-path-fn x)
+                                     status (get-statuses-map-fn x)]
+                                 [path status])) test-data)
 
         _ (log-o "path-status-map" path-status-map)
         f-add-status (fn [status-map coll x]

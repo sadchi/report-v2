@@ -8,10 +8,14 @@
 @import common/space/_defaults
 @import common/animation/_transitions
 
+$app-border : 1px solid $grey-600 !default
+
 .app
   @extend .whole
   @extend .dark-greyish-theme
   @extend .content-font
+  border : $app-border
+
 
 .app__bar
   @extend .top-bar
