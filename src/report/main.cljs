@@ -13,7 +13,13 @@
 
 
 
-(def test-data (structure/build-map-by (js->clj js/data :keywordize-keys true) :path))
+(def test-data (js->clj js/data :keywordize-keys true))
+
+
+(def path-category
+  (map #(let [{:keys [path category]} %] [path category]) test-data))
+
+(log-o "path-c" path-category)
 
 (log-o "td: " test-data)
 
