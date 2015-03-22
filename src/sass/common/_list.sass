@@ -1,0 +1,39 @@
+@import color-schemes/_schemes
+@import _fonts
+
+$list-caption-height : 80px !default
+$list-caption-fontsize : 40px !default
+$list-row-height     : 48px !default
+$list-caption-margin : 0 0 8px 0 !default
+$list-column-width   : 48px !default
+
+.list-row
+  @extend .white-theme
+  height : $list-row-height
+  line-height : $list-row-height
+  display : flex
+  margin-top : -1px
+  margin-bottom : -1px
+  border-top : 1px solid
+  border-bottom : 1px solid
+  
+
+.list-row--accent
+  @extend .greyish-theme
+
+.list-caption
+  @extend .heading-font
+  height : $list-caption-height
+  line-height : $list-caption-height 
+  width : 100%
+  display : flex
+  margin : $list-caption-margin
+  font-size : $list-caption-fontsize
+
+.list-column
+  flex-shrink : 0
+  flex-basis : $list-column-width
+
+.list-column--grow
+  flex-grow : 1
+  
