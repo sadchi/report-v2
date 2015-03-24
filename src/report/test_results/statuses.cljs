@@ -30,5 +30,27 @@
 (defn worse-status [s1 s2]
   (compare-status < s1 s2))
 
+
+
 (defn sort-statuses [comp coll]
   (sort-by status-weight comp coll))
+
+(defn get-worse [s-coll]
+  (-> (sort-statuses < s-coll)
+      (first)))
+
+(defn get-best [s-coll]
+  (-> (sort-statuses < s-coll)
+      (last)))
+
+(defn bad-status? [s]
+  (contains? bad-statuses s))
+
+(defn good-status? [s]
+  (contains? good-statuses s))
+
+(defn neutral-status? [s]
+  (not (and (bad-status? s) (good-status? s))))
+
+(defn common-status? [s]
+  (contains? common-statuses s))

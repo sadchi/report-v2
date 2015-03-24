@@ -6,7 +6,7 @@ $list-caption-fontsize : 40px !default
 $list-row-height     : 48px !default
 $list-row-padding    : 0 16px 0 16px !default 
 $list-caption-margin : 0 0 8px 0 !default
-$list-column-width   : 80px !default
+$list-column-width   : 104px !default
 
 
 
@@ -15,6 +15,7 @@ $list-row-accent-border-color : $grey-300 !default
 
 
 .list-row
+  +white-theme
   height : $list-row-height
   line-height : $list-row-height
   display : flex
@@ -32,6 +33,14 @@ $list-row-accent-border-color : $grey-300 !default
   +greyish-theme
   border-color : $list-row-accent-border-color
   font-weight  : bold
+
+.list-row--success
+  +success-color-theme
+
+.list-row--error
+  +error-color-theme
+
+
 
 .list-caption
   @extend .heading-font
