@@ -5,9 +5,18 @@
 
 $button-height       : 36px !default
 $button-border-width : 2px !default
+$button-font-size    : 14px !default
+$button-font-family  : Calibri , Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif !default
 $button-icon-size    : 17.5px !default
 $button-hover-opacity : 0.15 !default
 $button-margined-left : 24px !default
+
+
+
+$button-state-active-width   : 4px !default
+$button-state-inactive-width : 2px !default
+$button-state-inactive-color : grey !default
+$button-state-active-color   : green !default
 
 .circled-button
   position      : relative
@@ -43,3 +52,42 @@ $button-margined-left : 24px !default
 .circled-button--margined-left
   margin-left  : - ($button-height + $button-margined-left )
   margin-right : $button-margined-left
+
+
+.state-button
+  +greyish-theme
+  cursor : pointer
+  display     : inline-block
+  position    : relative
+  height      : $button-height
+  line-height : $button-height
+  font-family : $button-font-family
+  font-size   : $button-font-size
+  font-weight : bold
+  text-align  : center
+  width  : 100%
+  margin-left  : -1px
+  margin-right : -1px
+  &:hover::before
+    position : absolute
+    content  : " "
+    top      : 0
+    bottom   : 0
+    left     : 0
+    right    : 0
+    background : rgba(grey, $button-hover-opacity)
+  &:active
+    transform  : translateY(2px)
+  &:after
+    content : " "
+    z-index : 2
+    position : absolute
+    right  : 0
+    left   : 0
+    top    : 0
+    bottom : 0
+    box-sizing : border-box
+    border-style : solid
+    border-width : 0 1px $button-state-inactive-width 1px
+
+.state-button--activated

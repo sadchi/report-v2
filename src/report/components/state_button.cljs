@@ -1,5 +1,6 @@
 (ns report.components.state-button)
 
-(defn state-button [active? text]
+(defn state-button [{:keys [active? text on-click-f]}]
   (fn []
-    [:div.state-button-defaults text]))
+    (let [extra-class (when (active?) "state-button--activated")]
+      [:div.state-button {:class extra-class :on-click on-click-f} text])))

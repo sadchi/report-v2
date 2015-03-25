@@ -17,8 +17,9 @@ $list-row-accent-border-color : $grey-300 !default
 .list-row
   +white-theme
   height : $list-row-height
-  line-height : $list-row-height
+  // line-height : $list-row-height
   display : flex
+  align-items : center
   margin-top : -1px
   margin-bottom : -1px
   padding : $list-row-padding
@@ -52,8 +53,10 @@ $list-row-accent-border-color : $grey-300 !default
   font-size : $list-caption-fontsize
 
 .list-column
-  display     : inline-block
-  text-align  : center
+  display     : flex
+  flex-direction : column
+  justify-content : center
+  align-items : center
   flex-shrink : 0
   flex-basis  : $list-column-width
 
@@ -61,8 +64,8 @@ $list-row-accent-border-color : $grey-300 !default
   flex-grow : 1
 
 .list-column--left
-  text-align  : left
+  align-items : flex-start
 
 .list-column--right
-  text-align  : right
+  align-items : flex-end
 

@@ -4,7 +4,7 @@
             [report.test-results.path :as path]
             [report.components.app :refer [app]]
             [report.routing :as routing]
-            [report.components.app-content :refer [app-content-nicescroll]]
+            [report.components.app-content :refer [app-content-nicescroll app-content]]
             [report.components.app-bar :refer [app-bar]]
             [report.utils.log :refer [log log-o]]
             [jquery.main]
@@ -53,6 +53,6 @@
                                             2 "FAIL"
                                             3 "UNDEF"
                                             4 "SUCCESS"
-                                            "UNDEF")) routing/nav-position) #(app-content-nicescroll test-data-structure status-map)]
+                                            "UNDEF")) routing/nav-position) (app-content test-data-structure status-map)]
                     (.getElementById js/document "app"))
 
