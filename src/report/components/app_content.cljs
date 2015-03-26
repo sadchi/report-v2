@@ -74,6 +74,7 @@
 
 
 (def test-a (r/atom true))
+(def test-b (r/atom true))
 
 (defn home-view [struct status-map]
   (let [root-statuses (get status-map [])
@@ -86,12 +87,13 @@
       [:div
        [:div.list-caption
         [:div.list-column.list-column--grow.list-column--left "Overview"]
-        [:div.list-column [state-button {:active? #(deref test-a)
-                                         :text "SUCCESS"
-                                         :on-click-f #(swap! test-a not)}]]
-        [:div.list-column [state-button {:active? #(deref test-a)
-                                         :text "FAIL"
-                                         :on-click-f #(swap! test-a not)}]]]
+        [:div.buttons-group
+         [state-button {:active?    #(deref test-a)
+                        :text       "SUCCESS"
+                        :on-click-f #(swap! test-a not)}]
+         [state-button {:active?    #(deref test-b)
+                        :text       "FAIL"
+                        :on-click-f #(swap! test-b not)}]]]
 
        [list-row-status-names {:text     "Category:"
                                :statuses statuses

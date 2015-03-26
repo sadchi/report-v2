@@ -3,6 +3,7 @@
 
 $list-caption-height : 80px !default
 $list-caption-fontsize : 40px !default
+$list-caption-padding  : 0 16px 0 0 !default
 $list-row-height     : 48px !default
 $list-row-padding    : 0 16px 0 16px !default 
 $list-caption-margin : 0 0 8px 0 !default
@@ -17,7 +18,6 @@ $list-row-accent-border-color : $grey-300 !default
 .list-row
   +white-theme
   height : $list-row-height
-  // line-height : $list-row-height
   display : flex
   align-items : center
   margin-top : -1px
@@ -46,11 +46,11 @@ $list-row-accent-border-color : $grey-300 !default
 .list-caption
   @extend .heading-font
   height : $list-caption-height
-  line-height : $list-caption-height 
-  width : 100%
   display : flex
+  align-items : center
   margin : $list-caption-margin
   font-size : $list-caption-fontsize
+  padding : $list-caption-padding 
 
 .list-column
   display     : flex
