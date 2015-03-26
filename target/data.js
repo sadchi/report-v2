@@ -4,7 +4,7 @@ var data=[
 		"path" : ["A2", "A4", "A5", "Scenario t2"],
 		"status" : {
 						"SUCCESS" : 1, 
-						"FAIL" :1
+						"ERROR" :1
 					},
 		"runs" : [
 			{
@@ -41,7 +41,7 @@ var data=[
 			    ]
 			},
 						{
-				"status" : "FAIL",
+				"status" : "ERROR",
 				"fails" : [],
 				"errors" : [],
 				"meta" : [
@@ -128,7 +128,8 @@ var data=[
 		"category" : "Functional",
 		"path" : ["A3", "A4", "A6", "Scenario t6"],
 		"status" : {
-						"UNDEFINED" : 2
+						"UNDEFINED" : 1,
+						"FAIL" : 1
 					},
 		"runs" : [
 			{
@@ -165,7 +166,7 @@ var data=[
 			    ]
 			},
 						{
-				"status" : "UNDEFINED",
+				"status" : "FAIL",
 				"fails" : [],
 				"errors" : [],
 				"meta" : [
