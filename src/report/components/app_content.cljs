@@ -86,7 +86,7 @@
     (fn []
       [:div
        [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left "Overview"]
+        [:div.list-column.list-column--grow.list-column--left [:h1 "Overview"]]
         [:div.buttons-group
          [state-button {:active?    #(deref test-a)
                         :text       "SUCCESS"
