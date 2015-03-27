@@ -34,5 +34,5 @@
      (for [[idx status] (map-indexed vector statuses)
            :let [cnt  (get status-map status)]]
        ^{:key idx} [state-button {:active?    #(active? status a-val)
-                                  :sub-items  (list ^{:key 1} (str (name status) " ") ^{:key 2} [badged-count status cnt true])
+                                  :sub-items  (list ^{:key 1} (str (name status) "\u2007") ^{:key 2} [badged-count status cnt true])
                                   :on-click-f #(swap! a-val (partial switch-visibility status))}])]))
