@@ -3,6 +3,7 @@
             [report.test-results.structure :as structure]
             [report.test-results.path :as path]
             [report.components.app :refer [app]]
+            [report.components.status-filter :as status-filter]
             [report.routing :as routing]
             [report.components.app-content :refer [app-content-nicescroll app-content]]
             [report.components.app-bar :refer [app-bar]]
@@ -47,12 +48,16 @@
 
 (log-o "status map: " status-map)
 
+(def status-filter-a (r/atom {}))
+
+(status-filter/init-a-filter (keys (get status-map [])) status-filter-a)
+
 (r/render-component [app (app-bar (fn [x] (condp = (count x)
                                             0 "SUCCESS"
                                             1 "SUCCESS"
                                             2 "FAIL"
                                             3 "UNDEF"
                                             4 "SUCCESS"
-                                            "UNDEF")) routing/nav-position) (app-content test-data-structure status-map)]
+                                            "UNDEF")) routing/nav-position) (app-content test-data-structure status-map status-filter-a)]
                     (.getElementById js/document "app"))
 
