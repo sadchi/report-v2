@@ -23,17 +23,17 @@
 
 (defn path->uri [path]
   (->> path
-       (map encode-vec)
-       (map js/encodeURI)
-       (map js/encodeURIComponent)
+       (mapv encode-vec)
+       (mapv js/encodeURI)
+       (mapv js/encodeURIComponent)
        (string/join "/")
        (str "#/")))
 
 (defn- uri->path [uri]
   (->> (string/split uri #"/")
-       (map js/decodeURIComponent)
-       (map js/decodeURI)
-       (map decode-vec)))
+       (mapv js/decodeURIComponent)
+       (mapv js/decodeURI)
+       (mapv decode-vec)))
 
 (secretary/set-config! :prefix "#")
 

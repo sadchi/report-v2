@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [report.test-results.structure :as structure]
             [report.test-results.path :as path]
+            [report.test-results.statuses :as statuses]
             [report.components.app :refer [app]]
             [report.components.status-filter :as status-filter]
             [report.routing :as routing]
@@ -52,12 +53,31 @@
 
 (status-filter/init-a-filter (keys (get status-map [])) status-filter-a)
 
-(r/render-component [app (app-bar (fn [x] (condp = (count x)
-                                            0 "SUCCESS"
-                                            1 "SUCCESS"
-                                            2 "FAIL"
-                                            3 "UNDEF"
-                                            4 "SUCCESS"
-                                            "UNDEF")) routing/nav-position) (app-content test-data-structure status-map status-filter-a)]
+
+(defn- get-status [status-map path]
+  (let [
+        ;_ (log-o "path " path)
+        flat-path (path/flatten-path path)
+        ;_ (log-o "flat path " flat-path)
+        unit-status-map (get status-map flat-path)
+        statuses (map name (keys unit-status-map))
+        ;_ (log-o "status keys " statuses)
+        worse-status (statuses/get-worse statuses)
+        ;_ (log-o "worse status " worse-status)
+
+        best-status (statuses/get-best statuses)
+        ;_ (log-o "best status " best-status)
+        ;_ (log (statuses/good-status? best-status))
+        res-status (cond
+                     (statuses/bad-status? worse-status) worse-status
+                     (and
+                       (statuses/neutral-status? worse-status)
+                       (statuses/good-status? best-status)) best-status
+                     :else worse-status)
+        ;_ (log-o "res status " res-status)
+        ]
+    (name res-status)))
+
+(r/render-component [app (app-bar (partial get-status status-map) routing/nav-position) (app-content test-data-structure status-map status-filter-a)]
                     (.getElementById js/document "app"))
 
