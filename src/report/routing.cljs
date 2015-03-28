@@ -11,8 +11,19 @@
 (def nav-position (r/atom nil))
 
 
+(defn- encode-vec [x]
+  (if (vector? x)
+    (str "vec+" (string/join "+" x))
+    x))
+
+(defn- decode-vec [x]
+  (if (= "vec+" (subs x 0 4))
+    (string/split (subs x 4) #"\+")
+    x))
+
 (defn path->uri [path]
   (->> path
+       (map encode-vec)
        (map js/encodeURI)
        (map js/encodeURIComponent)
        (string/join "/")
@@ -21,7 +32,8 @@
 (defn- uri->path [uri]
   (->> (string/split uri #"/")
        (map js/decodeURIComponent)
-       (map js/decodeURI)))
+       (map js/decodeURI)
+       (map decode-vec)))
 
 (secretary/set-config! :prefix "#")
 

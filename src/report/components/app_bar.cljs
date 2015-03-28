@@ -2,12 +2,13 @@
   (:require [report.test-results.statuses :as statuses]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
+            [report.test-results.path :refer [path->str]]
             [report.utils.log :refer [log-o]]))
 
 
 (defn- bread-crumbs-item [path]
   (log-o "path: " path)
-  [:span.breadcrumbs__item {:on-click #(set-href! (path->uri path))} (peek path)])
+  [:span.breadcrumbs__item {:on-click #(set-href! (path->uri path))} (path->str (peek path))])
 
 (defn- bread-crumbs [path]
   ;(log-o "path: " path)
