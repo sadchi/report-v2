@@ -191,12 +191,11 @@ var data=[
 		"category" : "Statistical",
 		"path" : ["A1", "Scenario t1"],
 		"status" : {
-						"SUCCESS" :1 , 
-						"UNDEFINED" : 1
+						"UNDEFINED" : 2
 					},
 		"runs" : [
 			{
-				"status" : "SUCCESS",
+				"status" : "UNDEFINED",
 				"fails" : [],
 				"errors" : [],
 				"meta" : [
