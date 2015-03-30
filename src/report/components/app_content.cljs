@@ -1,6 +1,6 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
-            [report.test-results.statuses :refer [sort-statuses bad-status? good-status? neutral-status? get-worse get-best]]
+            [report.test-results.statuses :refer [sort-statuses sort-keyworded-statuses bad-status? good-status? neutral-status? get-worse get-best]]
             [report.components.badges :refer [badged-count]]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
@@ -71,14 +71,13 @@
                                             :statuses        item-statuses
                                             :parent-statuses parent-statuses
                                             :status-filter-a status-filter-a
-                                            :on-click-fn #(set-href! (path->uri [cat-name item]))
+                                            :on-click-fn     #(set-href! (path->uri [cat-name item]))
                                             :accent          false}])])))))
 
 
-(defn home-view [struct status-map status-filter-a]
-  (let [root-statuses (get status-map [])
-        statuses-unsorted (map name (keys root-statuses))
-        statuses (map keyword (sort-statuses > statuses-unsorted))
+(defn home-view [{:keys [struct status-map status-filter-a]}]
+  (let [root-status-map (get status-map [])
+        statuses (sort-keyworded-statuses > (keys root-status-map))
         categories (keys struct)
         ;_ (log-o "cats " categories)
         ]
@@ -86,7 +85,7 @@
       [:div
        [:div.list-caption
         [:div.list-column.list-column--grow.list-column--left [:h1 "Overview"]]
-        [status-filter statuses root-statuses status-filter-a]]
+        [status-filter statuses root-status-map status-filter-a]]
 
        [list-row-status-names {:text     "Category:"
                                :statuses statuses
@@ -106,17 +105,47 @@
        ])))
 
 
-(defn app-content [struct status-map status-filter-a]
+(defn node-view [{:keys [struct status-map status-filter-a nav-position-a]}]
+  (fn []
+    (let [path @nav-position-a
+          node-title (path->str (peek path))
+          node-status-map (get status-map (flatten-path path))
+          statuses (sort-keyworded-statuses > (keys node-status-map))
+          _ (log "node-view rendered")
+          _ (log-o "statuses " statuses)
+          _ (log-o "node-map " node-status-map)]
+      [:div
+       [:div.list-caption
+        [:div.list-column.list-column--grow.list-column--left [:h1 node-title]]
+        [status-filter statuses node-status-map status-filter-a]]])))
+
+
+(defn- is-node? [struct path]
+  (map? (get-in struct path)))
+
+(defn- is-scenario? [struct path]
+  (not (is-node? struct path)))
+
+(defn app-content [struct status-map status-filter-a nav-position-a]
   (r/create-class
     {
      :component-did-mount (fn [this]
                             ;(log "******* mounted ********")
                             (.niceScroll (js/$ (r/dom-node this))))
      :component-function  (fn []
-                            [:div.content-pane
-                             [home-view struct status-map status-filter-a]
-                             [:a {:href "#/234"} "TEST1"] [:a {:href "#/123/234"} "TEST2"] [:a {:href "#/123/234/34534"} "TEST3"]
-                             [:a {:href "#/123/234/123/1dd/dfg"} "TEST4"]])}))
+                            (let [path @nav-position-a]
+                              ;(log "app-content rerendered")
+                              [:div.content-pane
+                               (cond
+                                 (= path []) [home-view {:struct          struct
+                                                         :status-map      status-map
+                                                         :status-filter-a status-filter-a}]
+                                 (is-node? struct path) [node-view {:struct          struct
+                                                                    :status-map      status-map
+                                                                    :status-filter-a status-filter-a
+                                                                    :nav-position-a  nav-position-a}]
+                                 (is-scenario? struct path) [:div "Scenario"]
+                                 :else [:div])]))}))
 
 
 (def app-content-nicescroll

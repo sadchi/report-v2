@@ -10,6 +10,5 @@
                        :else "neutral-back-theme")
         small-class (when small "badge--small")
         class (str status-class " " small-class) ]
-    (fn []
-      [:div.badge {:class class} cnt])))
+    [:div.badge {:class class} cnt]))
 

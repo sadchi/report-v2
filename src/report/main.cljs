@@ -78,6 +78,6 @@
         ]
     (name res-status)))
 
-(r/render-component [app (app-bar (partial get-status status-map) routing/nav-position) (app-content test-data-structure status-map status-filter-a)]
+(r/render-component [app (app-bar (partial get-status status-map) routing/nav-position) (app-content test-data-structure status-map status-filter-a routing/nav-position)]
                     (.getElementById js/document "app"))
 

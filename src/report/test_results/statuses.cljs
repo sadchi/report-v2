@@ -35,6 +35,12 @@
 (defn sort-statuses [comp coll]
   (sort-by status-weight comp coll))
 
+(defn sort-keyworded-statuses [comp coll]
+  (->> (map name coll)
+       (sort-by status-weight comp)
+       (map keyword)))
+
+
 (defn get-worse [s-coll]
   (-> (sort-statuses < s-coll)
       (first)))

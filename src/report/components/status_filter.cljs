@@ -28,11 +28,10 @@
   (let [visibilities (map #(visibility->bool (get filter-val %)) statuses)]
     (reduce #(or %1 %2) false visibilities)))
 
-(defn status-filter [statuses status-map a-val]
-  (fn []
-    [:div.buttons-group
-     (for [[idx status] (map-indexed vector statuses)
-           :let [cnt  (get status-map status)]]
-       ^{:key idx} [state-button {:active?    #(active? status a-val)
-                                  :sub-items  (list ^{:key 1} (str (name status) "\u2007") ^{:key 2} [badged-count status cnt true])
-                                  :on-click-f #(swap! a-val (partial switch-visibility status))}])]))
+(defn status-filter [statuses status-map a-filter-val]
+  [:div.buttons-group
+   (for [[idx status] (map-indexed vector statuses)
+         :let [cnt (get status-map status)]]
+     ^{:key idx} [state-button {:active?    #(active? status a-filter-val)
+                                :sub-items  (list ^{:key 1} (str (name status) "\u2007") ^{:key 2} [badged-count status cnt true])
+                                :on-click-f #(swap! a-filter-val (partial switch-visibility status))}])])
