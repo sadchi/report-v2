@@ -6,7 +6,7 @@
             [report.components.app :refer [app]]
             [report.components.status-filter :as status-filter]
             [report.routing :as routing]
-            [report.components.app-content :refer [app-content-nicescroll app-content]]
+            [report.components.app-content :refer [app-content]]
             [report.components.app-bar :refer [app-bar]]
             [report.utils.log :refer [log log-o]]
             [jquery.main]
@@ -20,6 +20,9 @@
 
 (log-o "td: " test-data)
 
+(def test-data-map (structure/build-map-by test-data :path))
+
+(log-o "td map: " test-data-map)
 
 (def path-category-map
   (let [f (fn [coll x]
@@ -78,6 +81,11 @@
         ]
     (name res-status)))
 
-(r/render-component [app (app-bar (partial get-status status-map) routing/nav-position) (app-content test-data-structure status-map status-filter-a routing/nav-position)]
+(r/render-component [app (app-bar (partial get-status status-map) routing/nav-position)
+                     (app-content {:test-data test-data-map
+                                   :struct test-data-structure
+                                   :status-map status-map
+                                   :status-filter-a status-filter-a
+                                   :nav-position-a routing/nav-position})]
                     (.getElementById js/document "app"))
 

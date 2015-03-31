@@ -11,10 +11,10 @@
   [:span.breadcrumbs__item {:on-click #(set-href! (path->uri path))} (path->str (peek path))])
 
 (defn- bread-crumbs [path]
-  ;(log-o "path: " path)
+  ;(log-o "crumb path: " path)
   [:span
-   (when-not (empty? path)
-     (->> (loop [p (vec path)
+   (when (< 0 (count path))
+     (->> (loop [p (pop (vec path))
                  acc nil]
             (if (empty? p)
               (conj acc [:span.breadcrumbs__item.icon-home {:on-click #(set-href! "#/")}])
