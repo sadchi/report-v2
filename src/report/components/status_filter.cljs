@@ -1,6 +1,6 @@
 (ns report.components.status-filter
   (:require [report.components.state-button :refer [state-button]]
-            [report.components.badges :refer [badged-count]]
+            [report.components.badges :refer [badged-text]]
             [report.utils.log :refer [log log-o]]))
 
 
@@ -20,12 +20,16 @@
     :show true
     :hide false))
 
-(defn- active? [status-key a-val]
-  (let [ visibility (get @a-val status-key)]
+(defn- active? [status a-val]
+  (let [status-key (if-not (keyword? status)
+                     (keyword status)
+                     status)
+        visibility (get @a-val status-key)]
     (visibility->bool visibility)))
 
 (defn any-active? [statuses filter-val]
-  (let [visibilities (map #(visibility->bool (get filter-val %)) statuses)]
+  (let [statuses-processed (map #(if (keyword? %) % (keyword %)) statuses)
+        visibilities (map #(visibility->bool (get filter-val %)) statuses-processed)]
     (reduce #(or %1 %2) false visibilities)))
 
 (defn status-filter [statuses status-map a-filter-val]
@@ -33,5 +37,5 @@
    (for [[idx status] (map-indexed vector statuses)
          :let [cnt (get status-map status)]]
      ^{:key idx} [state-button {:active?    #(active? status a-filter-val)
-                                :sub-items  (list ^{:key 1} (str (name status) "\u2007") ^{:key 2} [badged-count status cnt true])
+                                :sub-items  (list ^{:key 1} (str (name status) "\u2007") ^{:key 2} [badged-text status cnt true])
                                 :on-click-f #(swap! a-filter-val (partial switch-visibility status))}])])

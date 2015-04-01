@@ -3,7 +3,7 @@
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
             [report.test-results.path :refer [path->str]]
-            [report.utils.log :refer [log-o]]))
+            [report.utils.log :refer [log log-o]]))
 
 
 (defn- bread-crumbs-item [path]
@@ -26,11 +26,13 @@
 (defn app-bar [get-status-fn a-nav-position]
   (fn []
     (let [path @a-nav-position
+          _ (log-o "path: " path)
           status (get-status-fn path)
+          _ (log "status aquired")
           extra-class (condp = (statuses/evaluate-status status)
                         :good "app-bar__content--success-marker"
                         :bad "app-bar__content--error-marker"
-                        "")]
+                        "app-bar__content--neutral-marker")]
       [:div.app-bar {:class extra-class}
        [:div.app-bar__content
         [:div.breadcrumbs

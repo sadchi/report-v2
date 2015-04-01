@@ -1,17 +1,20 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
             [report.test-results.statuses :refer [sort-statuses sort-keyworded-statuses bad-status? good-status? neutral-status? get-worse get-best]]
-            [report.test-results.structure :refer [leaf-content]]
-            [report.components.badges :refer [badged-count]]
+            [report.test-results.structure :refer [leaf-content is-node? is-scenario? is-run?]]
+            [report.components.badges :refer [badged-text]]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
-            [report.components.status-filter :refer [status-filter any-active?]]
+            [report.components.status-filter :refer [status-filter active? any-active?]]
             [report.test-results.path :refer [flatten-path path->str]]
             [report.components.state-button :refer [state-button]]
             [clojure.string :as string]))
 
 
+
+
+(def default-runs-limit 40)
 
 
 (defn- list-row-status-names [{:keys [text statuses accent]}]
@@ -46,7 +49,7 @@
                (for [[idx status] (map-indexed vector parent-statuses)
                      :let [status-count (get statuses status nil)]]
                  (if status-count
-                   ^{:key idx} [:div.list-column [badged-count status status-count]]
+                   ^{:key idx} [:div.list-column [badged-text status status-count]]
                    ^{:key idx} [:div.list-column]))])))
 
 
@@ -143,13 +146,37 @@
 
 
 
-(defn- scenario-runs [scenario-info status-filter-a]
-  (fn []
-    [:div.list-row.list-row--accent
-     [:div.list-column.list-column--grow.list-column--left "Target"]
-     [:div.list-column "Status"]]))
+(defn- extract-target-status [runs limit active?]
+  (let [
+        f (fn [coll x]
+            (let [{:keys [target status]} x
+                  old-list (get coll :list)
+                  old-limit-remains (get coll :limit-remains)]
+              (if (and (active? status) (pos? old-limit-remains))
+                (-> coll
+                    (assoc :list (conj old-list [target status]))
+                    (assoc :limit-remains (dec old-limit-remains)))
+                coll)))]
+    (-> (reduce f {:list [] :limit-remains limit} runs)
+        (get :list))))
 
-(defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a]}]
+(defn- scenario-runs [scenario-info status-filter-a path]
+  (let [runs-limit (r/atom default-runs-limit)
+        runs (get scenario-info :runs)]
+    (fn []
+      (let [target-status-coll (extract-target-status runs @runs-limit #(active? % status-filter-a))
+            _ (log-o "target-statuses: " target-status-coll)]
+        [:div
+         [:div.list-row.list-row--accent
+          [:div.list-column.list-column--grow.list-column--left "Target"]
+          [:div.list-column "Status"]]
+         (for [[idx target-status] (map-indexed vector target-status-coll)
+               :let [[target status] target-status]]
+           ^{:key idx} [:div.list-row {:style {:cursor "pointer" } :on-click #(set-href! (path->uri (conj path target)))}
+                        [:div.list-column.list-column--grow.list-column--left target]
+                        [:div.list-column [badged-text status status]]])]))))
+
+(defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a path]}]
   (fn []
     (let [statuses (sort-keyworded-statuses > (keys scenario-status-map))
           doc-strings (string/split (get scenario-info :doc) #"\n\n")
@@ -162,14 +189,10 @@
        [:div.text-block
         (for [[idx str] (map-indexed vector doc-strings)]
           ^{:key idx} [:p str])]
-       [scenario-runs scenario-info status-filter-a]])))
+       [scenario-runs scenario-info status-filter-a path]])))
 
 
-(defn- is-node? [struct path]
-  (map? (get-in struct path)))
 
-(defn- is-scenario? [struct path]
-  (= leaf-content (get-in struct path)))
 
 (defn app-content [{:keys [test-data struct status-map status-filter-a nav-position-a]}]
   (r/create-class
@@ -192,6 +215,8 @@
                                  (is-scenario? struct path) [scenario-view {:scenario-name       (path->str (peek path))
                                                                             :scenario-status-map (get status-map (flatten-path path))
                                                                             :status-filter-a     status-filter-a
-                                                                            :scenario-info       (get test-data (rest (flatten-path path)))}]
+                                                                            :scenario-info       (get test-data (rest (flatten-path path)))
+                                                                            :path path}]
+                                 (is-run? struct path) [:div "run"]
                                  :else [:div])]))}))
 

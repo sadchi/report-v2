@@ -106,3 +106,13 @@
                   branch (create-branch path)]
               (reduce (partial f-add-status statuses) coll branch)))]
     (reduce f {} path-status-map)))
+
+
+(defn- is-node? [struct path]
+  (map? (get-in struct path)))
+
+(defn- is-scenario? [struct path]
+  (= leaf-content (get-in struct path)))
+
+(defn- is-run? [struct path]
+  (is-scenario? struct (pop path)))
