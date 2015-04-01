@@ -28,11 +28,12 @@
     (let [path @a-nav-position
           status (get-status-fn path)
           extra-class (condp = (statuses/evaluate-status status)
-                        :good "success-back-theme"
-                        :bad "error-back-theme"
-                        "neutral-back-theme")]
-      [:div.app__bar {:class extra-class}
-       [:div.breadcrumbs
-        (if (= 0 (count path))
-          status
-          [bread-crumbs path])]])))
+                        :good "app-bar__content--success-marker"
+                        :bad "app-bar__content--error-marker"
+                        "")]
+      [:div.app-bar {:class extra-class}
+       [:div.app-bar__content
+        [:div.breadcrumbs
+         (if (= 0 (count path))
+           status
+           [bread-crumbs path])]]])))

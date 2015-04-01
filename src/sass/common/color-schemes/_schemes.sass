@@ -1,5 +1,8 @@
 @import colors
 
+$neutral-color : $grey-400
+$success-color : $teal-500
+$error-color   : $red-500
 
 .greyish-theme
   background   : $grey-200
@@ -7,9 +10,9 @@
   border-color : $grey-300
 
 .dark-greyish-theme
-  background   : $grey-500
+  background   : $neutral-color
   color        : white
-  border-color : $grey-600
+  border-color : darken($neutral-color, 10%) 
 
 .white-theme
   background   : $grey-50
@@ -17,33 +20,32 @@
   border-color : $grey-100
 
 .success-back-theme
-  background   : $teal-500
+  background   : $success-color
   color        : white
-  border-color : $teal-600
+  border-color : darken($success-color, 10%)
 
 .error-back-theme
   background   : $red-500
   color        : white
-  border-color : $red-600
+  border-color : darken($error-color, 10%)
 
 .success-color-theme
-  color        : $teal-500
+  color        : $success-color
 
 .error-color-theme
-  color        : $red-500
+  color        : $error-color
 
 .neutral-back-theme
-  background   : $grey-400
+  background   : $neutral-color
   color        : white
-  border-color : $grey-500
+  border-color : darken($neutral-color,10%)
 
 
 =success-color-theme
-  color        : $teal-500
+  color        : $success-color
 
 =error-color-theme
-  color        : $red-500
-
+  color        : $error-color
 
 
 =greyish-theme
@@ -52,9 +54,9 @@
   border-color : $grey-300
 
 =dark-greyish-theme
-  background   : $grey-500
+  background   : $neutral-color
   color        : white
-  border-color : $grey-600
+  border-color : darken($neutral-color,10%)
 
 =white-theme
   background   : $grey-50
@@ -62,17 +64,17 @@
   border-color : $grey-300
 
 =success-back-theme
-  background   : $teal-500
+  background   : $success-color
   color        : white
-  border-color : $teal-600
+  border-color : darken($success-color, 10%)
 
 =error-back-theme
-  background   : $red-500
+  background   : $error-color
   color        : white
-  border-color : $red-600
+  border-color : darken($error-color, 10%)
 
 =neutral-back-theme
-  background   : $grey-400
+  background   : $neutral-color
   color        : white
-  border-color : $grey-500
+  border-color : darken($neutral-color,10%)
 
