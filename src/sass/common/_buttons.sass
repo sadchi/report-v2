@@ -10,6 +10,7 @@ $button-font-family  : Calibri , Candara, Segoe, 'Segoe UI', Optima, Arial, sans
 $button-icon-size    : 17.5px !default
 $button-hover-opacity : 0.15 !default
 $button-margined-left : 24px !default
+$button-margins : 0 16px 0 16px !default
 $button-pressed-shadow : inset 0px 2px 5px 0px rgba(black,0.2) !default
 
 $buttons-group-back : #E0E0E0 !default
@@ -27,6 +28,34 @@ $button-delim-height : 24px !default
   border-color : $buttons-group-border-color 
   border-style : solid
   border-width : 1px 1px 1px 1px
+
+
+.button
+  +greyish-theme
+  cursor : pointer
+  display     : inline-block
+  position    : relative
+  height      : $button-height
+  line-height : $button-height
+  margin      : $button-margins
+  font-family : $button-font-family
+  font-size   : $button-font-size
+  font-weight : bold
+  text-align  : center
+  width  : $button-column-width
+  border-color : $buttons-group-border-color 
+  border-style : solid
+  border-width : 1px
+  &:hover::before
+    position : absolute
+    content  : " "
+    top      : 0
+    bottom   : 0
+    left     : 0
+    right    : 0
+    background : rgba(grey, $button-hover-opacity)
+  &:active
+    box-shadow : $button-pressed-shadow 
 
 
 .state-button

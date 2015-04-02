@@ -8,13 +8,14 @@
             [report.routing :refer [path->uri]]
             [report.components.status-filter :refer [status-filter active? any-active?]]
             [report.test-results.path :refer [flatten-path path->str]]
-            [report.components.state-button :refer [state-button]]
+            [report.components.buttons :refer [state-button button]]
             [clojure.string :as string]))
 
 
 
 
-(def default-runs-limit 40)
+(def default-runs-limit 5)
+(def default-runs-more-count 5)
 
 
 (defn- list-row-status-names [{:keys [text statuses accent]}]
@@ -126,11 +127,12 @@
           node-title (path->str (peek path))
           node-status-map (get status-map (flatten-path path))
           statuses (sort-keyworded-statuses > (keys node-status-map))
-          _ (log "node-view rendered")
-          _ (log-o "statuses " statuses)
-          _ (log-o "node-map " node-status-map)
+          ;_ (log "node-view rendered")
+          ;_ (log-o "statuses " statuses)
+          ;_ (log-o "node-map " node-status-map)
           sub-items (keys (get-in struct path))
-          _ (log-o "sub-items " sub-items)]
+          ;_ (log-o "sub-items " sub-items)
+          ]
       [:div
        [:div.list-caption
         [:div.list-column.list-column--grow.list-column--left [:h1 node-title]]
@@ -160,36 +162,48 @@
     (-> (reduce f {:list [] :limit-remains limit} runs)
         (get :list))))
 
-(defn- scenario-runs [scenario-info status-filter-a path]
-  (let [runs-limit (r/atom default-runs-limit)
-        runs (get scenario-info :runs)]
-    (fn []
-      (let [target-status-coll (extract-target-status runs @runs-limit #(active? % status-filter-a))
-            _ (log-o "target-statuses: " target-status-coll)]
-        [:div
-         [:div.list-row.list-row--accent
-          [:div.list-column.list-column--grow.list-column--left "Target"]
-          [:div.list-column "Status"]]
-         (for [[idx target-status] (map-indexed vector target-status-coll)
-               :let [[target status] target-status]]
-           ^{:key idx} [:div.list-row {:style {:cursor "pointer" } :on-click #(set-href! (path->uri (conj path target)))}
-                        [:div.list-column.list-column--grow.list-column--left target]
-                        [:div.list-column [badged-text status status]]])]))))
+(defn- scenario-runs [runs status-filter-a runs-limit path]
+  (r/create-class
+    {:component-did-update (fn [this]
+                             (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
+     :component-function   (fn []
+                             (let [target-status-coll (extract-target-status runs @runs-limit #(active? % status-filter-a))
+                                   ;_ (log-o "target-statuses: " target-status-coll)
+                                   ]
+                               [:div
+                                [:div.list-row.list-row--accent
+                                 [:div.list-column.list-column--grow.list-column--left "Target"]
+                                 [:div.list-column "Status"]]
+                                (for [[idx target-status] (map-indexed vector target-status-coll)
+                                      :let [[target status] target-status]]
+                                  ^{:key idx} [:div.list-row {:style {:cursor "pointer"} :on-click #(set-href! (path->uri (conj path target)))}
+                                               [:div.list-column.list-column--grow.list-column--left target]
+                                               [:div.list-column [badged-text status status]]])]))}))
 
 (defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a path]}]
-  (fn []
-    (let [statuses (sort-keyworded-statuses > (keys scenario-status-map))
-          doc-strings (string/split (get scenario-info :doc) #"\n\n")
-          _ (log-o "scenario-info: " scenario-info)
-          _ (log-o "doc strings: " doc-strings)]
-      [:div
-       [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1 scenario-name]]
-        [status-filter statuses scenario-status-map status-filter-a]]
-       [:div.text-block
-        (for [[idx str] (map-indexed vector doc-strings)]
-          ^{:key idx} [:p str])]
-       [scenario-runs scenario-info status-filter-a path]])))
+  (let [runs (get scenario-info :runs)
+        runs-limit (r/atom default-runs-limit)
+        extend-limit #(swap! runs-limit (partial + default-runs-more-count))
+        unlim #(reset! runs-limit (count runs))]
+    (fn []
+      (let [statuses (sort-keyworded-statuses > (keys scenario-status-map))
+            doc-strings (string/split (get scenario-info :doc) #"\n\n")
+            ;_ (log-o "scenario-info: " scenario-info)
+            ;_ (log-o "doc strings: " doc-strings)
+            ]
+        [:div
+         [:div.list-caption
+          [:div.list-column.list-column--grow.list-column--left [:h1 scenario-name]]
+          [status-filter statuses scenario-status-map status-filter-a]]
+         [:div.vertical-block
+          (for [[idx str] (map-indexed vector doc-strings)]
+            ^{:key idx} [:p str])]
+         [scenario-runs runs status-filter-a runs-limit path]
+         [:div.vertical-block
+          [:div.list-row.list-row--border-less
+           [:div.list-column.list-column--grow.list-column--right
+            [:div
+             [button extend-limit "More"] [button unlim "All"]]]]]]))))
 
 
 
@@ -199,6 +213,7 @@
     {
      :component-did-mount (fn [this]
                             ;(log "******* mounted ********")
+                            (.on (js/$ (r/dom-node this)) "refresh-scroll" #(.resize (.getNiceScroll (js/$ (r/dom-node this)))))
                             (.niceScroll (js/$ (r/dom-node this))))
      :component-function  (fn []
                             (let [path @nav-position-a]
@@ -216,7 +231,7 @@
                                                                             :scenario-status-map (get status-map (flatten-path path))
                                                                             :status-filter-a     status-filter-a
                                                                             :scenario-info       (get test-data (rest (flatten-path path)))
-                                                                            :path path}]
+                                                                            :path                path}]
                                  (is-run? struct path) [:div "run"]
                                  :else [:div])]))}))
 

@@ -115,7 +115,9 @@
   (= leaf-content (get-in struct path)))
 
 (defn is-run? [struct path]
-  (is-scenario? struct (pop path)))
+  (if (empty? path)
+    false
+    (is-scenario? struct (pop path))))
 
 
 (defn is-that-run? [target run]

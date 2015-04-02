@@ -1,5 +1,5 @@
 (ns report.components.status-filter
-  (:require [report.components.state-button :refer [state-button]]
+  (:require [report.components.buttons :refer [state-button]]
             [report.components.badges :refer [badged-text]]
             [report.utils.log :refer [log log-o]]))
 
