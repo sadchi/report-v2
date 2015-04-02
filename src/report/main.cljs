@@ -57,7 +57,38 @@
 (status-filter/init-a-filter (keys (get status-map [])) status-filter-a)
 
 
-(defn- get-status [status-map path]
+
+(defn- get-status [{:keys [test-data-map struct status-map path]}]
+  (let [run? (structure/is-run? struct path)
+        ;_ (log-o "run? " run?)
+        flat-path (path/flatten-path path)
+        ;_ (log-o "flat-path " flat-path)
+        ]
+    (if run?
+      (let [
+            ;_ (log-o "test-data-map " test-data-map)
+            scenario-info (get test-data-map (rest (pop flat-path)))
+            ;_ (log-o "scen info " scenario-info)
+            runs (get scenario-info :runs)
+            ;_ (log-o "runs " runs)
+            found-run (first (filter (partial structure/is-that-run? (peek flat-path)) runs))
+            ;_ (log-o "found run " found-run)
+            status (get found-run :status)
+            ]
+        status)
+      (let [unit-status-map (get status-map flat-path)
+            statuses (map name (keys unit-status-map))
+            worse-status (statuses/get-worse statuses)
+            best-status (statuses/get-best statuses)
+            res-status (cond
+                         (statuses/bad-status? worse-status) worse-status
+                         (and
+                           (statuses/neutral-status? worse-status)
+                           (statuses/good-status? best-status)) best-status
+                         :else worse-status)]
+        (name res-status)))))
+
+#_(defn- get-status-simple [status-map path]
   (let [
         ;_ (log-o "path " path)
         flat-path (path/flatten-path path)
@@ -81,11 +112,14 @@
         ]
     (name res-status)))
 
-(r/render-component [app (app-bar (partial get-status status-map) routing/nav-position)
-                     (app-content {:test-data test-data-map
-                                   :struct test-data-structure
-                                   :status-map status-map
+(r/render-component [app (app-bar #(get-status {:test-data-map test-data-map
+                                                :struct        test-data-structure
+                                                :status-map    status-map
+                                                :path          %}) routing/nav-position)
+                     (app-content {:test-data       test-data-map
+                                   :struct          test-data-structure
+                                   :status-map      status-map
                                    :status-filter-a status-filter-a
-                                   :nav-position-a routing/nav-position})]
+                                   :nav-position-a  routing/nav-position})]
                     (.getElementById js/document "app"))
 

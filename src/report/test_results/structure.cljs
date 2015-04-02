@@ -108,11 +108,16 @@
     (reduce f {} path-status-map)))
 
 
-(defn- is-node? [struct path]
+(defn is-node? [struct path]
   (map? (get-in struct path)))
 
-(defn- is-scenario? [struct path]
+(defn is-scenario? [struct path]
   (= leaf-content (get-in struct path)))
 
-(defn- is-run? [struct path]
+(defn is-run? [struct path]
   (is-scenario? struct (pop path)))
+
+
+(defn is-that-run? [target run]
+  (let [run-target (get run :target)]
+    (= target run-target)))

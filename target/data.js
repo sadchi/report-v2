@@ -12,7 +12,7 @@ var data=[
 				"status" : "SUCCESS",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\2.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -46,7 +46,7 @@ var data=[
 				"status" : "ERROR",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\3.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -77,7 +77,7 @@ var data=[
 				"status" : "SUCCESS",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\4.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -111,7 +111,7 @@ var data=[
 				"status" : "SUCCESS",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\5.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -143,7 +143,7 @@ var data=[
 				"status" : "UNDEFINED",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\6.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -177,7 +177,7 @@ var data=[
 				"status" : "FAIL",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\7.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -208,7 +208,7 @@ var data=[
 				"status" : "UNDEFINED",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\8.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -242,7 +242,7 @@ var data=[
 				"status" : "UNDEFINED",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\9.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -271,7 +271,7 @@ var data=[
 				"status" : "SUCCESS",
 				"fails" : [],
 				"errors" : [],
-				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\1.adf",
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\10.adf",
 				"meta" : [
             		{
             			"type" : "text",
@@ -300,9 +300,74 @@ var data=[
 			    	}
 
 			    ]
-			}
-						
+			},
+						{
+				"status" : "UNDEFINED",
+				"fails" : [],
+				"errors" : [],
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\11.adf",
+				"meta" : [
+            		{
+            			"type" : "text",
+			        	"data" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vel purus et neque elementum aliquet. Fusce in elementum turpis. Curabitur nec elementum libero. Donec sit amet arcu sit amet nisi elementum blandit a nec velit. Ut augue dui, viverra pulvinar ligula sed, blandit vulputate ante. Duis suscipit neque arcu, in consequat velit posuere vitae. Aliquam malesuada viverra risus non pharetra. Vivamus accumsan leo vel auctor placerat. Morbi interdum eget lacus at euismod. Nunc ornare semper congue. Nam nisi arcu, tempor nec nisi sed, vehicula efficitur massa. Mauris condimentum odio pulvinar pharetra faucibus. Duis hendrerit vitae augue a varius."
+			        },
+			        {
+			        	"type" : "table",
+				        "name" : "The first test table",
+				        "columns" : ["C1", "C2", "C3","C4"],
+				        "data" : [
+				            [1, 2, 3, 4, 5],
+				            [0, 1, 0, 0, 0],
+				            [0, 0, 1, 0, 0],
+				            [0, 0, 0, 1, 5]]}
+			    ],
+			    "assets" : [
+			    	{
+			    		"type" : "input",
+			    		"name" : "filename",
+			    		"value" : "4.adf"
+			    	},
+			    	{
+			    		"type" : "output",
+			    		"name" : "screenshot",
+			    		"value" : "1.jpg"
+			    	}
 
 			    ]
+			},			
+						{
+				"status" : "UNDEFINED",
+				"fails" : [],
+				"errors" : [],
+				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\13.adf",
+				"meta" : [
+            		{
+            			"type" : "text",
+			        	"data" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vel purus et neque elementum aliquet. Fusce in elementum turpis. Curabitur nec elementum libero. Donec sit amet arcu sit amet nisi elementum blandit a nec velit. Ut augue dui, viverra pulvinar ligula sed, blandit vulputate ante. Duis suscipit neque arcu, in consequat velit posuere vitae. Aliquam malesuada viverra risus non pharetra. Vivamus accumsan leo vel auctor placerat. Morbi interdum eget lacus at euismod. Nunc ornare semper congue. Nam nisi arcu, tempor nec nisi sed, vehicula efficitur massa. Mauris condimentum odio pulvinar pharetra faucibus. Duis hendrerit vitae augue a varius."
+			        },
+			        {
+			        	"type" : "table",
+				        "name" : "The first test table",
+				        "columns" : ["C1", "C2", "C3","C4"],
+				        "data" : [
+				            [1, 2, 3, 4, 5],
+				            [0, 1, 0, 0, 0],
+				            [0, 0, 1, 0, 0],
+				            [0, 0, 0, 1, 5]]}
+			    ],
+			    "assets" : [
+			    	{
+			    		"type" : "input",
+			    		"name" : "filename",
+			    		"value" : "4.adf"
+			    	},
+			    	{
+			    		"type" : "output",
+			    		"name" : "screenshot",
+			    		"value" : "1.jpg"
+			    	}
+
+			    ]
+			}]
 	}
 ]
