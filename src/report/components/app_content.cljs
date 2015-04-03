@@ -186,9 +186,10 @@
 
 
 (defn doc [doc-strings]
-  [:div.vertical-block
-   (for [[idx str] (map-indexed vector doc-strings)]
-     ^{:key idx} [:p str])])
+  (when-not (empty? doc-strings)
+    [:div.vertical-block
+    (for [[idx str] (map-indexed vector doc-strings)]
+      ^{:key idx} [:p str])]))
 
 (defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a path]}]
   (let [runs (get scenario-info :runs)
@@ -222,7 +223,6 @@
       [:div
        [:div.list-caption
         [:div.list-column.list-column--grow.list-column--left [:h1.margin-less target]]]
-       [:h3 "Scenario description:"]
        [doc doc-strings]
        [meta-data-render meta-data]
        [fails-list (get run :fails)]
