@@ -1,8 +1,12 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
             [report.test-results.statuses :refer [sort-statuses sort-keyworded-statuses bad-status? good-status? neutral-status? get-worse get-best]]
-            [report.test-results.structure :refer [leaf-content is-node? is-scenario? is-run?]]
+            [report.test-results.structure :refer [leaf-content is-that-run? is-node? is-scenario? is-run?]]
             [report.components.badges :refer [badged-text]]
+            [report.components.runs-meta :refer [meta-data-render]]
+            [report.components.fails-list :refer [fails-list]]
+            [report.components.errors-list :refer [errors-list]]
+            [report.components.assets-list :refer [assets-list]]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
@@ -105,7 +109,7 @@
     (fn []
       [:div
        [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1 "Overview"]]
+        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less "Overview"]]
         [status-filter statuses root-status-map status-filter-a]]
 
        [list-row-status-names {:text     "Path:"
@@ -135,7 +139,7 @@
           ]
       [:div
        [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1 node-title]]
+        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less node-title]]
         [status-filter statuses node-status-map status-filter-a]]
        [list-row-status-names {:text     "Path:"
                                :statuses statuses
@@ -180,6 +184,12 @@
                                                [:div.list-column.list-column--grow.list-column--left target]
                                                [:div.list-column [badged-text status status]]])]))}))
 
+
+(defn doc [doc-strings]
+  [:div.vertical-block
+   (for [[idx str] (map-indexed vector doc-strings)]
+     ^{:key idx} [:p str])])
+
 (defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a path]}]
   (let [runs (get scenario-info :runs)
         runs-limit (r/atom default-runs-limit)
@@ -193,19 +203,32 @@
             ]
         [:div
          [:div.list-caption
-          [:div.list-column.list-column--grow.list-column--left [:h1 scenario-name]]
+          [:div.list-column.list-column--grow.list-column--left [:h1.margin-less scenario-name]]
           [status-filter statuses scenario-status-map status-filter-a]]
-         [:div.vertical-block
-          (for [[idx str] (map-indexed vector doc-strings)]
-            ^{:key idx} [:p str])]
+         [doc doc-strings]
          [scenario-runs runs status-filter-a runs-limit path]
          [:div.vertical-block
-          [:div.list-row.list-row--border-less
+          [:div.list-row.list-row--border-less.list-row--no-padding
            [:div.list-column.list-column--grow.list-column--right
             [:div
              [button extend-limit "More"] [button unlim "All"]]]]]]))))
 
 
+
+(defn run-view [run doc-strings]
+  (fn []
+    (let [target (get run :target)
+          meta-data (get run :meta)]
+      [:div
+       [:div.list-caption
+        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less target]]]
+       [:h3 "Scenario description:"]
+       [doc doc-strings]
+       [meta-data-render meta-data]
+       [fails-list (get run :fails)]
+       [errors-list (get run :errors)]
+       [assets-list (cons {:name "target" :value target} (get run :assets))]
+       ])))
 
 
 (defn app-content [{:keys [test-data struct status-map status-filter-a nav-position-a]}]
@@ -232,6 +255,12 @@
                                                                             :status-filter-a     status-filter-a
                                                                             :scenario-info       (get test-data (rest (flatten-path path)))
                                                                             :path                path}]
-                                 (is-run? struct path) [:div "run"]
+                                 (is-run? struct path) (let [scenario-path (pop path)
+                                                             target (peek path)
+                                                             scenario-info (get test-data (rest (flatten-path scenario-path)))
+                                                             runs (get scenario-info :runs)
+                                                             run (first (filter (partial is-that-run? target) runs))
+                                                             doc-strings (string/split (get scenario-info :doc) #"\n\n")]
+                                                         [run-view run doc-strings])
                                  :else [:div])]))}))
 

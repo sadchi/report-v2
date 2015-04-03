@@ -1,0 +1,66 @@
+@import _fonts
+@import color-schemes/_schemes
+
+
+$simple-table-border-color : grey !default
+$simple-table-border       : 1px solid $simple-table-border-color !default
+$simple-table-tr-border    : 1px 0 !default
+$simple-table-tr-height    : 32px !default
+$simple-table-tr-border-color : grey !default
+$simple-table-th-font-size : 16px !default
+$simple-table-th-padding   : 0 16px !default
+$simple-table-td-padding   : 0 16px !default
+
+
+.simple-table
+  @extend .content-font
+  width  : 100%
+  border : $simple-table-border
+  border-collapse : collapse
+  border-spacing  : 0
+
+.simple-table__cell
+  &:not(:first-child)
+    border-color : $simple-table-tr-border-color
+    border-style : dotted
+    border-width : 0 0 0 1px
+
+.simple-table__th
+  @extend .heading-font
+  @extend .simple-table__cell
+  +dark-greyish-theme
+  font-weight : bold
+  text-align : left
+  padding    : $simple-table-th-padding
+  font-size  : $simple-table-th-font-size
+
+
+.simple-table__tr
+  +white-theme
+  height : $simple-table-tr-height 
+  border-color : $simple-table-tr-border-color
+  border-style : solid
+  border-width : $simple-table-tr-border
+
+.simple-table__tr--odd
+  +greyish-theme
+  border-color : $simple-table-tr-border-color
+
+
+.simple-table__td
+  @extend .simple-table__cell
+  padding    : $simple-table-td-padding
+
+
+.simple-table--10
+  width : 10%
+
+.simple-table--20
+  width : 20%
+
+.simple-table--no-borders
+  border : 0 solid transparent
+
+.simple-table--right
+  text-align : right
+

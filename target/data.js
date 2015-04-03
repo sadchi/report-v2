@@ -45,7 +45,7 @@ var data=[
 						{
 				"status" : "ERROR",
 				"fails" : [],
-				"errors" : [],
+				"errors" : [{"type": "OperationalError", "message": "cannot join using column tooth_id - column not present in both tables", "trace": "Traceback (most recent call last):\n  File \"D:\\agent-home\\xml-data\\build-dir\\TRTAUTO-TSQAAUTOPLAN-XGE\\trtauto\\tests\\biomech\\biomech_tests.py\", line 157, in generic_reporter\n    cursor = connection.execute(q)\nsqlite3.OperationalError: cannot join using column tooth_id - column not present in both tables\n"}],
 				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\3.adf",
 				"meta" : [
             		{
@@ -175,7 +175,7 @@ var data=[
 			},
 						{
 				"status" : "FAIL",
-				"fails" : [],
+				"fails" : [{"meta": [], "type": "AssertError.SpacingLeaveSpecificError.FixedSpaceError", "message": "Space mentioned in prescription is not set to Fixed in FiPos,                 or values don't match. Problem tooth: 9"}],
 				"errors" : [],
 				"target" : "\\\\dummy\\sub_path\\sub_sub_path\\7.adf",
 				"meta" : [
