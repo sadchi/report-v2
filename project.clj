@@ -6,7 +6,13 @@
                  [secretary "1.2.1"]]
 
 
-  :plugins [[lein-cljsbuild "1.0.5"]]
+  :plugins [[lein-cljsbuild "1.0.5"]
+            [lein-haml-sass "0.2.7-SNAPSHOT"]]
+
+  :sass {:src "sass"
+         :output-directory "target"
+         :output-extension "css"
+         :delete-output-dir true}
 
   :cljsbuild {:builds
               {:report
@@ -42,5 +48,6 @@
                                                        :non-standard-jsdoc :off}
                                        :pretty-print  false}}}}}}
 
-  :aliases {"bj"     ["do" ["cljsbuild" "auto"]]
+  :aliases {"bc" ["do" ["sass" "once"]]
+            "bj"     ["do" ["cljsbuild" "auto"]]
             "bjprod" ["with-profile" "prod" "cljsbuild" "once"]})
