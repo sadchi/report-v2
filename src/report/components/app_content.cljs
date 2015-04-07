@@ -18,8 +18,8 @@
 
 
 
-(def default-runs-limit 5)
-(def default-runs-more-count 5)
+(def default-runs-limit 40)
+(def default-runs-more-count 10)
 
 
 (defn- list-row-status-names [{:keys [text statuses accent]}]
@@ -35,13 +35,13 @@
   (let [status-names (map name (keys statuses))
         worse-status (get-worse status-names)
         best-status (get-best status-names)
-        ;_ (log-o "worse-status " worse-status)
+        _ (log-o "worse-status " worse-status)
         status-class (cond
                        (good-status? worse-status) "list-row--success"
                        (bad-status? worse-status) "list-row--error"
                        (and (neutral-status? worse-status) (good-status? best-status)) "list-row--success"
                        :else "")
-        ;_ (log-o "status-class " status-class)
+        _ (log-o "status-class " status-class)
 
         accent-class (when accent "list-row--accent")
         style (when on-click-fn {:cursor "pointer"})
@@ -227,7 +227,7 @@
        [meta-data-render meta-data]
        [fails-list (get run :fails)]
        [errors-list (get run :errors)]
-       [assets-list (cons {:name "target" :value target} (get run :assets))]
+       [assets-list (get run :assets)]
        ])))
 
 
@@ -240,7 +240,8 @@
                             (.niceScroll (js/$ (r/dom-node this))))
      :component-function  (fn []
                             (let [path @nav-position-a]
-                              ;(log "app-content rerendered")
+                              (log "app-content rerendered")
+                              (log-o "path " path)
                               [:div.content-pane
                                (cond
                                  (= path []) [home-view {:struct          struct
@@ -262,5 +263,5 @@
                                                              run (first (filter (partial is-that-run? target) runs))
                                                              doc-strings (string/split (get scenario-info :doc) #"\n\n")]
                                                          [run-view run doc-strings])
-                                 :else [:div])]))}))
+                                 :else nil)]))}))
 

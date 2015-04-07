@@ -1,6 +1,6 @@
 (ns report.test-results.statuses)
 
-(def ^:private status-weight-map (clj->js ["FAIL" "ERROR" "UNDEFINED" "SKIPPED" "SUCCESS"]))
+(def ^:private status-weight-map (clj->js ["FAIL" "ERROR" "UNDEFINED" "SKIPPED" "SUCCESS" "FAIL(q)" "ERROR(q)" "UNDEFINED(q)" "SKIPPED(q)" "SUCCESS(q)"]))
 
 (def ^:private bad-statuses #{"FAIL" "ERROR"})
 

@@ -24,6 +24,24 @@
 
 (log-o "td map: " test-data-map)
 
+
+(def quarantine
+  (structure/transform-quarantine
+    (try
+      (js->clj js/quarantine)
+      (catch js/Error _ []))))
+
+(log-o "quarantine " quarantine)
+
+
+
+
+(def test-data-quarantined
+  (structure/apply-quarantine test-data-map quarantine))
+
+
+(log-o "test-data-quarantine " test-data-quarantined)
+
 (def path-category-map
   (let [f (fn [coll x]
             (let [{:keys [path category]} x]
@@ -47,7 +65,7 @@
 
 
 
-(def status-map (structure/mk-status-lists test-data #(get % :status) path/mk-path-combi))
+(def status-map (structure/mk-status-lists (vals test-data-quarantined) #(get % :status) path/mk-path-combi))
 
 
 (log-o "status map: " status-map)
@@ -88,35 +106,11 @@
                          :else worse-status)]
         (name res-status)))))
 
-#_(defn- get-status-simple [status-map path]
-  (let [
-        ;_ (log-o "path " path)
-        flat-path (path/flatten-path path)
-        ;_ (log-o "flat path " flat-path)
-        unit-status-map (get status-map flat-path)
-        statuses (map name (keys unit-status-map))
-        ;_ (log-o "status keys " statuses)
-        worse-status (statuses/get-worse statuses)
-        ;_ (log-o "worse status " worse-status)
-
-        best-status (statuses/get-best statuses)
-        ;_ (log-o "best status " best-status)
-        ;_ (log (statuses/good-status? best-status))
-        res-status (cond
-                     (statuses/bad-status? worse-status) worse-status
-                     (and
-                       (statuses/neutral-status? worse-status)
-                       (statuses/good-status? best-status)) best-status
-                     :else worse-status)
-        ;_ (log-o "res status " res-status)
-        ]
-    (name res-status)))
-
-(r/render-component [app (app-bar #(get-status {:test-data-map test-data-map
+(r/render-component [app (app-bar #(get-status {:test-data-map test-data-quarantined
                                                 :struct        test-data-structure
                                                 :status-map    status-map
                                                 :path          %}) routing/nav-position)
-                     (app-content {:test-data       test-data-map
+                     (app-content {:test-data       test-data-quarantined
                                    :struct          test-data-structure
                                    :status-map      status-map
                                    :status-filter-a status-filter-a

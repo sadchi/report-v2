@@ -32,7 +32,8 @@
           extra-class (condp = (statuses/evaluate-status status)
                         :good "app-bar__content--success-marker"
                         :bad "app-bar__content--error-marker"
-                        "app-bar__content--neutral-marker")]
+                        "app-bar__content--neutral-marker")
+          _ (log "extra class built")]
       [:div.app-bar {:class extra-class}
        [:div.app-bar__content
         [:div.breadcrumbs

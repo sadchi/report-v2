@@ -7,6 +7,7 @@
 @import common/_list
 @import common/_badges
 @import common/_tables
+@import common/color-schemes/_colors 
 
 html, body, #app
   @extend .whole
@@ -45,7 +46,14 @@ h4
   @extend .heading
   font-size : $font-size-1
 
-
-
+a
+  &:link
+    color : $blue-500
+  &:visited
+    color : $indigo-500
+  &:hover
+    color : $light-blue-500
+  &:active
+    color : $blue-900
 
 

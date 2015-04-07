@@ -84,9 +84,9 @@
 
 (defn- add-status-list [x y]
   (let [f (fn [coll a]
-             (let [[k v] a
-                   old-val (get coll k 0)]
-               (assoc coll k (+ old-val v))))]
+            (let [[k v] a
+                  old-val (get coll k 0)]
+              (assoc coll k (+ old-val v))))]
     (reduce f x y)))
 
 (defn mk-status-lists [test-data get-statuses-map-fn mk-path-fn]
@@ -123,3 +123,46 @@
 (defn is-that-run? [target run]
   (let [run-target (get run :target)]
     (= target run-target)))
+
+(defn transform-quarantine [q-coll]
+  (let [f (fn [coll x]
+            (update-in coll [(pop x)] #(conj % (peek x))))
+        maped-q (reduce f {} q-coll)]
+    maped-q))
+
+(defn apply-quarantine [test-data-map quarantine]
+  (let [mk-status-map (fn [coll x]
+                        (let [status (keyword (get x :status))
+                              status-count (get coll status 0)]
+                          (assoc coll status (inc status-count))))
+
+        quarantine-runs (fn [target-set coll x]
+                          (let [
+                                ;_ (log-o "target-set " target-set)
+                                target (get x :target)
+                                ;_ (log-o "target " target)
+                                status (get x :status)
+                                ;_ (log-o "status " status)
+                                quarantine? (contains? target-set target)
+                                ;_ (log-o "quarantine? " quarantine?)
+                                ]
+                            (if-not quarantine?
+                              (conj coll x)
+                              (conj coll (assoc x :status (str status "(q)"))))))
+        f (fn [coll x]
+            (let [
+                  ;_ (log-o "x: " x)
+                  [path target-set] x
+                  ;_ (log-o "path: " path)
+                  ;_ (log-o "target-set: " target-set)
+                  scen-info (get coll path)
+                  runs (get scen-info :runs)
+                  ;_ (log-o "runs: " runs)
+                  runs-w-quarantine (reduce (partial quarantine-runs (set target-set)) [] runs)
+                  ;_ (log-o "runs q: " runs-w-quarantine)
+                  status-map (reduce mk-status-map {} runs-w-quarantine)
+                  _ (log-o "status map: " status-map)
+                  new-scen-info (-> (assoc scen-info :runs runs-w-quarantine)
+                                    (assoc :status status-map))]
+              (assoc coll path new-scen-info)))]
+    (reduce f test-data-map quarantine)))
