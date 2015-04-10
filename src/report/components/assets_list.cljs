@@ -1,5 +1,6 @@
 (ns report.components.assets-list
   (:require [report.utils.string :refer [add-zero-spaces]]
+            [report.utils.net :refer [is-absolute-url?]]
             [clojure.string :as str]))
 
 
@@ -27,8 +28,10 @@
       (for [[idx asset] (map-indexed vector assets-coll)
             :let [extra-class (when (odd? idx) "simple-table__tr--odd")
                   asset-name (get asset :name)
-                  asset-link (get asset :value)
-                  asset-link-combined (combine-url-parts artifact-base asset-link)]]
+                  asset-link (get asset :data)
+                  asset-link-combined (if (is-absolute-url? asset-link)
+                                        asset-link
+                                        (combine-url-parts artifact-base asset-link))]]
         ^{:key idx} [:tr.simple-table__tr {:class extra-class}
                      [:td.simple-table__td asset-name]
                      [:td.simple-table__td [:a {:href asset-link-combined} (add-zero-spaces asset-link-combined 10)]]])]]))

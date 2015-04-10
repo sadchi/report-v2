@@ -1,7 +1,7 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
             [report.test-results.statuses :refer [sort-statuses sort-keyworded-statuses bad-status? good-status? neutral-status? get-worse get-best]]
-            [report.test-results.structure :refer [leaf-content is-that-run? is-node? is-scenario? is-run?]]
+            [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run?]]
             [report.components.badges :refer [badged-text]]
             [report.components.runs-meta :refer [meta-data-render]]
             [report.components.fails-list :refer [fails-list]]
@@ -35,13 +35,13 @@
   (let [status-names (map name (keys statuses))
         worse-status (get-worse status-names)
         best-status (get-best status-names)
-        _ (log-o "worse-status " worse-status)
+        ;_ (log-o "worse-status " worse-status)
         status-class (cond
                        (good-status? worse-status) "list-row--success"
                        (bad-status? worse-status) "list-row--error"
                        (and (neutral-status? worse-status) (good-status? best-status)) "list-row--success"
                        :else "")
-        _ (log-o "status-class " status-class)
+        ;_ (log-o "status-class " status-class)
 
         accent-class (when accent "list-row--accent")
         style (when on-click-fn {:cursor "pointer"})
@@ -59,7 +59,7 @@
 
 
 
-(defn- sub-struct-list [{:keys [status-map sub-items parent-statuses parent-path status-filter-a]}]
+(defn- sub-struct-list-simple [{:keys [status-map sub-items parent-statuses parent-path status-filter-a]}]
   ;(log "sub-struct-list")
   ;(log-o "sub-items " sub-items)
   [:div
@@ -75,8 +75,60 @@
                             :on-click-fn     #(set-href! (path->uri item-path))
                             :accent          false}])])
 
+(defn- sub-struct-list [{:keys [status-map sub-items parent-statuses parent-path status-filter-a get-on-click-fn]}]
+  ;(log "sub-struct-list")
+  ;(log-o "sub-items " sub-items)
+  [:div
+   (for [[idx item] (map-indexed vector sub-items)
+         :let [
+               ;_ (log-o "item " item)
+               item-path (conj parent-path item)
+               item-statuses (get status-map (flatten-path item-path))]]
+     ^{:key idx} [list-row {:text            (path->str item)
+                            :statuses        item-statuses
+                            :parent-statuses parent-statuses
+                            :status-filter-a status-filter-a
+                            :on-click-fn     (get-on-click-fn item)
+                            :accent          false}])])
 
-(defn- category [{:keys [cat-name struct status-map parent-statuses status-filter-a]}]
+(defn- gen-uri-jumps [{:keys [test-data-map struct parent-path]}]
+  ;(log "gen-uri-jumps called")
+  ;(log-o "test-data-map " test-data-map)
+  (let [get-single-run-target (fn [runs]
+                                (if (= 1 (count runs))
+                                  (get (first runs) :target)
+                                  nil))
+        f (fn [coll x]
+            (let [full-path (conj parent-path x)
+                  full-path-adjusted (if-not (is-scenario? struct full-path)
+                                       full-path
+                                       (let [
+                                             ;_ (log-o "full-path " full-path)
+                                             test-data-path (rest (flatten-path full-path))
+                                             ;_ (log-o "test-data-path " test-data-path)
+                                             scen-info (get test-data-map test-data-path)
+                                             ;_ (log-o "scen-info " scen-info)
+                                             runs (get scen-info :runs)
+                                             ;_ (log-o "runs " runs)
+                                             single-target (get-single-run-target runs)
+                                             ;_ (log-o "single-target " single-target)
+                                             ]
+                                         (if single-target
+                                           (conj full-path single-target)
+                                           full-path)))
+                  ;_ (log-o "full-path-adjusted " full-path-adjusted)
+                  ]
+              (assoc coll x #(set-href! (path->uri full-path-adjusted)))))
+        sub-items (keys (get-in struct parent-path))
+        ;_ (log-o "struct " struct)
+        ;_ (log-o "parent-path " parent-path)
+        ;_ (log-o "sub-items " sub-items)
+        func-per-item-list (reduce f {} sub-items)
+        ]
+    (fn [item]
+      (get func-per-item-list item))))
+
+(defn- category [{:keys [cat-name struct test-data-map status-map parent-statuses status-filter-a]}]
   (let [cat-statuses (get status-map [cat-name])
         ;_ (log-o "cat-statuses " cat-statuses)
         sub-items (keys struct)
@@ -93,14 +145,17 @@
                               :status-filter-a status-filter-a
                               :on-click-fn     #(set-href! (path->uri [cat-name]))
                               :accent          true}]
-                   [sub-struct-list {:status-map      status-map
-                                     :sub-items       sub-items
-                                     :parent-statuses parent-statuses
-                                     :parent-path     [cat-name]
-                                     :status-filter-a status-filter-a}]])))))
+                   [sub-struct-list-simple {:status-map      status-map
+                                            :sub-items       sub-items
+                                            :parent-statuses parent-statuses
+                                            :parent-path     [cat-name]
+                                            :status-filter-a status-filter-a
+                                            :get-on-click-fn (gen-uri-jumps {:test-data-map test-data-map
+                                                                             :struct        struct
+                                                                             :parent-path   [cat-name]})}]])))))
 
 
-(defn home-view [{:keys [struct status-map status-filter-a]}]
+(defn home-view [{:keys [struct test-data-map status-map status-filter-a]}]
   (let [root-status-map (get status-map [])
         statuses (sort-keyworded-statuses > (keys root-status-map))
         categories (keys struct)
@@ -119,13 +174,14 @@
              :let [[idx cat] cat-indexed]]
          ^{:key idx} [category {:cat-name        cat
                                 :struct          (get struct cat)
+                                :test-data-map test-data-map
                                 :status-map      status-map
                                 :parent-statuses statuses
                                 :status-filter-a status-filter-a}])
        ])))
 
 
-(defn node-view [{:keys [struct status-map status-filter-a nav-position-a]}]
+(defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
   (fn []
     (let [path @nav-position-a
           node-title (path->str (peek path))
@@ -148,7 +204,10 @@
                          :sub-items       sub-items
                          :parent-statuses statuses
                          :parent-path     path
-                         :status-filter-a status-filter-a}]])))
+                         :status-filter-a status-filter-a
+                         :get-on-click-fn (gen-uri-jumps {:test-data-map test-data-map
+                                                          :struct        struct
+                                                          :parent-path   path})}]])))
 
 
 
@@ -188,8 +247,8 @@
 (defn doc [doc-strings]
   (when-not (empty? doc-strings)
     [:div.vertical-block
-    (for [[idx str] (map-indexed vector doc-strings)]
-      ^{:key idx} [:p str])]))
+     (for [[idx str] (map-indexed vector doc-strings)]
+       ^{:key idx} [:p str])]))
 
 (defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a path]}]
   (let [runs (get scenario-info :runs)
@@ -227,11 +286,11 @@
        [meta-data-render meta-data]
        [fails-list (get run :fails)]
        [errors-list (get run :errors)]
-       [assets-list (get run :assets)]
+       [assets-list (get-assets run)]
        ])))
 
 
-(defn app-content [{:keys [test-data struct status-map status-filter-a nav-position-a]}]
+(defn app-content [{:keys [test-data-map struct status-map status-filter-a nav-position-a]}]
   (r/create-class
     {
      :component-did-mount (fn [this]
@@ -240,25 +299,27 @@
                             (.niceScroll (js/$ (r/dom-node this))))
      :component-function  (fn []
                             (let [path @nav-position-a]
-                              (log "app-content rerendered")
-                              (log-o "path " path)
+                              ;(log "app-content rerendered")
+                              ;(log-o "path " path)
                               [:div.content-pane
                                (cond
                                  (= path []) [home-view {:struct          struct
+                                                         :test-data-map test-data-map
                                                          :status-map      status-map
                                                          :status-filter-a status-filter-a}]
                                  (is-node? struct path) [node-view {:struct          struct
+                                                                    :test-data-map   test-data-map
                                                                     :status-map      status-map
                                                                     :status-filter-a status-filter-a
                                                                     :nav-position-a  nav-position-a}]
                                  (is-scenario? struct path) [scenario-view {:scenario-name       (path->str (peek path))
                                                                             :scenario-status-map (get status-map (flatten-path path))
                                                                             :status-filter-a     status-filter-a
-                                                                            :scenario-info       (get test-data (rest (flatten-path path)))
+                                                                            :scenario-info       (get test-data-map (rest (flatten-path path)))
                                                                             :path                path}]
                                  (is-run? struct path) (let [scenario-path (pop path)
                                                              target (peek path)
-                                                             scenario-info (get test-data (rest (flatten-path scenario-path)))
+                                                             scenario-info (get test-data-map (rest (flatten-path scenario-path)))
                                                              runs (get scenario-info :runs)
                                                              run (first (filter (partial is-that-run? target) runs))
                                                              doc-strings (string/split (get scenario-info :doc) #"\n\n")]

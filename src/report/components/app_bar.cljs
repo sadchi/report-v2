@@ -7,7 +7,7 @@
 
 
 (defn- bread-crumbs-item [path]
-  (log-o "path: " path)
+  ;(log-o "path: " path)
   [:span.breadcrumbs__item {:on-click #(set-href! (path->uri path))} (path->str (peek path))])
 
 (defn- bread-crumbs [path]
@@ -26,14 +26,15 @@
 (defn app-bar [get-status-fn a-nav-position]
   (fn []
     (let [path @a-nav-position
-          _ (log-o "path: " path)
+          ;_ (log-o "path: " path)
           status (get-status-fn path)
-          _ (log "status aquired")
+          ;_ (log "status aquired")
           extra-class (condp = (statuses/evaluate-status status)
                         :good "app-bar__content--success-marker"
                         :bad "app-bar__content--error-marker"
                         "app-bar__content--neutral-marker")
-          _ (log "extra class built")]
+          ;_ (log "extra class built")
+          ]
       [:div.app-bar {:class extra-class}
        [:div.app-bar__content
         [:div.breadcrumbs

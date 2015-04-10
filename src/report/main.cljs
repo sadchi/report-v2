@@ -110,7 +110,7 @@
                                                 :struct        test-data-structure
                                                 :status-map    status-map
                                                 :path          %}) routing/nav-position)
-                     (app-content {:test-data       test-data-quarantined
+                     (app-content {:test-data-map   test-data-quarantined
                                    :struct          test-data-structure
                                    :status-map      status-map
                                    :status-filter-a status-filter-a

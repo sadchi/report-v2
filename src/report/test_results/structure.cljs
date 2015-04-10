@@ -95,7 +95,7 @@
                                      status (get-statuses-map-fn x)]
                                  [path status])) test-data)
 
-        _ (log-o "path-status-map" path-status-map)
+        ;_ (log-o "path-status-map" path-status-map)
         f-add-status (fn [status-map coll x]
                        (let [old-val (get coll x)
                              new-val (add-status-list old-val status-map)]
@@ -161,8 +161,12 @@
                   runs-w-quarantine (reduce (partial quarantine-runs (set target-set)) [] runs)
                   ;_ (log-o "runs q: " runs-w-quarantine)
                   status-map (reduce mk-status-map {} runs-w-quarantine)
-                  _ (log-o "status map: " status-map)
+                  ;_ (log-o "status map: " status-map)
                   new-scen-info (-> (assoc scen-info :runs runs-w-quarantine)
                                     (assoc :status status-map))]
               (assoc coll path new-scen-info)))]
     (reduce f test-data-map quarantine)))
+
+(defn get-assets [run]
+  (->> (get run :meta)
+       (filter #(= "asset" (get % :type)))))
