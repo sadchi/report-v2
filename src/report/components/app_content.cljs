@@ -31,7 +31,7 @@
        ^{:key idx} [:div.list-column status])]))
 
 
-(defn- list-row [{:keys [text statuses parent-statuses status-filter-a on-click-fn accent]}]
+(defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
   (let [status-names (map name (keys statuses))
         worse-status (get-worse status-names)
         best-status (get-best status-names)
@@ -44,13 +44,14 @@
         ;_ (log-o "status-class " status-class)
 
         accent-class (when accent "list-row--accent")
-        style (when on-click-fn {:cursor "pointer"})
+        ;style (when href {:cursor "pointer"})
         extra-classes (str accent-class " " status-class)
         vis (if (nil? status-filter-a)
               true
               (any-active? (keys statuses) @status-filter-a))]
-    (when vis [:div.list-row {:class extra-classes :on-click on-click-fn :style style}
-               [:div.list-column.list-column--grow.list-column--left text]
+    (when vis [:div.list-row {:class extra-classes}
+               [:div.list-column.list-column--grow.list-column--left
+                [:a.custom-link.custom-link--full-width {:href href} text]]
                (for [[idx status] (map-indexed vector parent-statuses)
                      :let [status-count (get statuses status nil)]]
                  (if status-count
@@ -59,7 +60,7 @@
 
 
 
-(defn- sub-struct-list-simple [{:keys [status-map sub-items parent-statuses parent-path status-filter-a]}]
+(defn- sub-struct-list [{:keys [status-map sub-items parent-statuses parent-path status-filter-a get-href-fn]}]
   ;(log "sub-struct-list")
   ;(log-o "sub-items " sub-items)
   [:div
@@ -72,23 +73,7 @@
                             :statuses        item-statuses
                             :parent-statuses parent-statuses
                             :status-filter-a status-filter-a
-                            :on-click-fn     #(set-href! (path->uri item-path))
-                            :accent          false}])])
-
-(defn- sub-struct-list [{:keys [status-map sub-items parent-statuses parent-path status-filter-a get-on-click-fn]}]
-  ;(log "sub-struct-list")
-  ;(log-o "sub-items " sub-items)
-  [:div
-   (for [[idx item] (map-indexed vector sub-items)
-         :let [
-               ;_ (log-o "item " item)
-               item-path (conj parent-path item)
-               item-statuses (get status-map (flatten-path item-path))]]
-     ^{:key idx} [list-row {:text            (path->str item)
-                            :statuses        item-statuses
-                            :parent-statuses parent-statuses
-                            :status-filter-a status-filter-a
-                            :on-click-fn     (get-on-click-fn item)
+                            :href            (get-href-fn item)
                             :accent          false}])])
 
 (defn- gen-uri-jumps [{:keys [test-data-map struct parent-path]}]
@@ -118,20 +103,22 @@
                                            full-path)))
                   ;_ (log-o "full-path-adjusted " full-path-adjusted)
                   ]
-              (assoc coll x #(set-href! (path->uri full-path-adjusted)))))
+              (assoc coll x (path->uri full-path-adjusted))))
         sub-items (keys (get-in struct parent-path))
         ;_ (log-o "struct " struct)
         ;_ (log-o "parent-path " parent-path)
         ;_ (log-o "sub-items " sub-items)
-        func-per-item-list (reduce f {} sub-items)
+        jump-per-item-map (reduce f {} sub-items)
+        ;_ (log-o "jump-per-item-map " jump-per-item-map)
         ]
     (fn [item]
-      (get func-per-item-list item))))
+      (get jump-per-item-map item))))
 
 (defn- category [{:keys [cat-name struct test-data-map status-map parent-statuses status-filter-a]}]
-  (let [cat-statuses (get status-map [cat-name])
+  (let [cat-path [cat-name]
+        cat-statuses (get status-map cat-path)
         ;_ (log-o "cat-statuses " cat-statuses)
-        sub-items (keys struct)
+        sub-items (keys (get-in struct cat-path))
         ;_ (log-o "sub-items " sub-items)
         ]
     (fn []
@@ -143,16 +130,16 @@
                               :statuses        cat-statuses
                               :parent-statuses parent-statuses
                               :status-filter-a status-filter-a
-                              :on-click-fn     #(set-href! (path->uri [cat-name]))
+                              :href            (path->uri cat-path)
                               :accent          true}]
-                   [sub-struct-list-simple {:status-map      status-map
-                                            :sub-items       sub-items
-                                            :parent-statuses parent-statuses
-                                            :parent-path     [cat-name]
-                                            :status-filter-a status-filter-a
-                                            :get-on-click-fn (gen-uri-jumps {:test-data-map test-data-map
-                                                                             :struct        struct
-                                                                             :parent-path   [cat-name]})}]])))))
+                   [sub-struct-list {:status-map      status-map
+                                     :sub-items       sub-items
+                                     :parent-statuses parent-statuses
+                                     :parent-path     cat-path
+                                     :status-filter-a status-filter-a
+                                     :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                      :struct        struct
+                                                                      :parent-path   cat-path})}]])))))
 
 
 (defn home-view [{:keys [struct test-data-map status-map status-filter-a]}]
@@ -173,8 +160,8 @@
        (for [cat-indexed (map-indexed vector categories)
              :let [[idx cat] cat-indexed]]
          ^{:key idx} [category {:cat-name        cat
-                                :struct          (get struct cat)
-                                :test-data-map test-data-map
+                                :struct          struct
+                                :test-data-map   test-data-map
                                 :status-map      status-map
                                 :parent-statuses statuses
                                 :status-filter-a status-filter-a}])
@@ -205,7 +192,7 @@
                          :parent-statuses statuses
                          :parent-path     path
                          :status-filter-a status-filter-a
-                         :get-on-click-fn (gen-uri-jumps {:test-data-map test-data-map
+                         :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
                                                           :struct        struct
                                                           :parent-path   path})}]])))
 
@@ -239,8 +226,9 @@
                                  [:div.list-column "Status"]]
                                 (for [[idx target-status] (map-indexed vector target-status-coll)
                                       :let [[target status] target-status]]
-                                  ^{:key idx} [:div.list-row {:style {:cursor "pointer"} :on-click #(set-href! (path->uri (conj path target)))}
-                                               [:div.list-column.list-column--grow.list-column--left target]
+                                  ^{:key idx} [:div.list-row
+                                               [:div.list-column.list-column--grow.list-column--left
+                                                [:a.custom-link.custom-link--full-width {:href (path->uri (conj path target))} target]]
                                                [:div.list-column [badged-text status status]]])]))}))
 
 
@@ -304,7 +292,7 @@
                               [:div.content-pane
                                (cond
                                  (= path []) [home-view {:struct          struct
-                                                         :test-data-map test-data-map
+                                                         :test-data-map   test-data-map
                                                          :status-map      status-map
                                                          :status-filter-a status-filter-a}]
                                  (is-node? struct path) [node-view {:struct          struct

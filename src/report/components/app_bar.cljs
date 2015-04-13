@@ -8,7 +8,7 @@
 
 (defn- bread-crumbs-item [path]
   ;(log-o "path: " path)
-  [:span.breadcrumbs__item {:on-click #(set-href! (path->uri path))} (path->str (peek path))])
+  [:a.custom-link.breadcrumbs__item {:href (path->uri path)} (path->str (peek path))])
 
 (defn- bread-crumbs [path]
   ;(log-o "crumb path: " path)
@@ -17,7 +17,7 @@
      (->> (loop [p (pop (vec path))
                  acc nil]
             (if (empty? p)
-              (conj acc [:span.breadcrumbs__item.icon-home {:on-click #(set-href! "#/")}])
+              (conj acc [:a.custom-link.breadcrumbs__item.icon-home {:href "#/"}])
               (recur (pop p) (conj acc (bread-crumbs-item p)))))
           (interpose [:span.breadcrumbs__item.breadcrumbs__item--cursor-auto.icon-angle-right])
           (map-indexed vector)

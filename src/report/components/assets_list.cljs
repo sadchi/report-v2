@@ -34,4 +34,4 @@
                                         (combine-url-parts artifact-base asset-link))]]
         ^{:key idx} [:tr.simple-table__tr {:class extra-class}
                      [:td.simple-table__td asset-name]
-                     [:td.simple-table__td [:a {:href asset-link-combined} (add-zero-spaces asset-link-combined 10)]]])]]))
+                     [:td.simple-table__td [:a.common-link {:href asset-link-combined} (add-zero-spaces asset-link-combined 10)]]])]]))
