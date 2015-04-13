@@ -22,6 +22,10 @@
 (def default-runs-more-count 10)
 
 
+(defn- trigger-refresh-scroll [this]
+  (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
+
+
 (defn- list-row-status-names [{:keys [text statuses accent]}]
   (let [status-names (map name statuses)
         accent-class (when accent "list-row--accent")]
@@ -148,53 +152,59 @@
         categories (keys struct)
         ;_ (log-o "cats " categories)
         ]
-    (fn []
-      [:div
-       [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less "Overview"]]
-        [status-filter statuses root-status-map status-filter-a]]
+    (r/create-class
+      {:component-did-update trigger-refresh-scroll
+      :component-did-mount  trigger-refresh-scroll
+      :component-function   (fn []
+                              [:div
+                               [:div.list-caption
+                                [:div.list-column.list-column--grow.list-column--left [:h1.margin-less "Overview"]]
+                                [status-filter statuses root-status-map status-filter-a]]
 
-       [list-row-status-names {:text     "Path:"
-                               :statuses statuses
-                               :accent   true}]
-       (for [cat-indexed (map-indexed vector categories)
-             :let [[idx cat] cat-indexed]]
-         ^{:key idx} [category {:cat-name        cat
-                                :struct          struct
-                                :test-data-map   test-data-map
-                                :status-map      status-map
-                                :parent-statuses statuses
-                                :status-filter-a status-filter-a}])
-       ])))
+                               [list-row-status-names {:text     "Path:"
+                                                       :statuses statuses
+                                                       :accent   true}]
+                               (for [cat-indexed (map-indexed vector categories)
+                                     :let [[idx cat] cat-indexed]]
+                                 ^{:key idx} [category {:cat-name        cat
+                                                        :struct          struct
+                                                        :test-data-map   test-data-map
+                                                        :status-map      status-map
+                                                        :parent-statuses statuses
+                                                        :status-filter-a status-filter-a}])
+                               ])})))
 
 
 (defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
-  (fn []
-    (let [path @nav-position-a
-          node-title (path->str (peek path))
-          node-status-map (get status-map (flatten-path path))
-          statuses (sort-keyworded-statuses > (keys node-status-map))
-          ;_ (log "node-view rendered")
-          ;_ (log-o "statuses " statuses)
-          ;_ (log-o "node-map " node-status-map)
-          sub-items (keys (get-in struct path))
-          ;_ (log-o "sub-items " sub-items)
-          ]
-      [:div
-       [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less node-title]]
-        [status-filter statuses node-status-map status-filter-a]]
-       [list-row-status-names {:text     "Path:"
-                               :statuses statuses
-                               :accent   true}]
-       [sub-struct-list {:status-map      status-map
-                         :sub-items       sub-items
-                         :parent-statuses statuses
-                         :parent-path     path
-                         :status-filter-a status-filter-a
-                         :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
-                                                          :struct        struct
-                                                          :parent-path   path})}]])))
+  (r/create-class
+    {:component-did-update trigger-refresh-scroll
+     :component-did-mount  trigger-refresh-scroll
+     :component-function   (fn []
+                             (let [path @nav-position-a
+                                   node-title (path->str (peek path))
+                                   node-status-map (get status-map (flatten-path path))
+                                   statuses (sort-keyworded-statuses > (keys node-status-map))
+                                   ;_ (log "node-view rendered")
+                                   ;_ (log-o "statuses " statuses)
+                                   ;_ (log-o "node-map " node-status-map)
+                                   sub-items (keys (get-in struct path))
+                                   ;_ (log-o "sub-items " sub-items)
+                                   ]
+                               [:div
+                                [:div.list-caption
+                                 [:div.list-column.list-column--grow.list-column--left [:h1.margin-less node-title]]
+                                 [status-filter statuses node-status-map status-filter-a]]
+                                [list-row-status-names {:text     "Path:"
+                                                        :statuses statuses
+                                                        :accent   true}]
+                                [sub-struct-list {:status-map      status-map
+                                                  :sub-items       sub-items
+                                                  :parent-statuses statuses
+                                                  :parent-path     path
+                                                  :status-filter-a status-filter-a
+                                                  :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                                   :struct        struct
+                                                                                   :parent-path   path})}]]))}))
 
 
 
@@ -214,8 +224,7 @@
 
 (defn- scenario-runs [runs status-filter-a runs-limit path]
   (r/create-class
-    {:component-did-update (fn [this]
-                             (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
+    {:component-did-update trigger-refresh-scroll
      :component-function   (fn []
                              (let [target-status-coll (extract-target-status runs @runs-limit #(active? % status-filter-a))
                                    ;_ (log-o "target-statuses: " target-status-coll)
