@@ -248,7 +248,7 @@
                                       :let [[target status] target-status]]
                                   ^{:key idx} [:div.list-row
                                                [:div.list-column.list-column--grow.list-column--left
-                                                [:a.custom-link.custom-link--full-width {:href (path->uri (conj path target))} target]]
+                                                [:a.custom-block-link {:href (path->uri (conj path target))} [:span target]]]
                                                [:div.list-column [badged-text status status]]])]))}))
 
 
