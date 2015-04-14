@@ -20,12 +20,18 @@
     :show true
     :hide false))
 
-(defn- active? [status a-val]
-  (let [status-key (if-not (keyword? status)
-                     (keyword status)
-                     status)
-        visibility (get @a-val status-key)]
+(defn- keywordize [s]
+  (if-not (keyword? s)
+    (keyword s)
+    s))
+
+(defn- w-a-active? [status val]
+  (let [status-key (keywordize status)
+        visibility (get val status-key)]
     (visibility->bool visibility)))
+
+(defn- active? [status a-val]
+  (w-a-active? status @a-val))
 
 (defn any-active? [statuses filter-val]
   (let [statuses-processed (map #(if (keyword? %) % (keyword %)) statuses)

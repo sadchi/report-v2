@@ -58,12 +58,16 @@ $list-row-accent-border-color : $grey-300 !default
   padding : $list-caption-padding 
 
 .list-column
-  display     : flex
-  flex-direction : column
+  position : relative
+  display  : flex
+  flex-direction  : column
   justify-content : center
   align-items : center
   flex-shrink : 0
   flex-basis  : $list-column-width
+
+.list-column--shadowed
+  opacity : .2
 
 .list-column--grow
   flex-grow : 1
@@ -74,3 +78,5 @@ $list-row-accent-border-color : $grey-300 !default
 .list-column--right
   align-items : flex-end
 
+.list-column--stretch
+  align-self : stretch

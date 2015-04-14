@@ -10,7 +10,7 @@
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
-            [report.components.status-filter :refer [status-filter active? any-active?]]
+            [report.components.status-filter :refer [status-filter w-a-active? active? any-active?]]
             [report.test-results.path :refer [flatten-path path->str]]
             [report.components.buttons :refer [state-button button]]
             [clojure.string :as string]))
@@ -26,13 +26,19 @@
   (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
 
 
-(defn- list-row-status-names [{:keys [text statuses accent]}]
+(defn- list-row-status-names [{:keys [text statuses accent status-filter-a]}]
   (let [status-names (map name statuses)
-        accent-class (when accent "list-row--accent")]
+        accent-class (when accent "list-row--accent")
+        status-filter @status-filter-a]
     [:div.list-row {:class accent-class}
      [:div.list-column.list-column--grow.list-column--left text]
-     (for [[idx status] (map-indexed vector status-names)]
-       ^{:key idx} [:div.list-column status])]))
+     (for [[idx status] (map-indexed vector status-names)
+           :let [
+                 ;_ (log-o "status " status)
+                 active (w-a-active? status status-filter)
+                 ;_ (log-o "active " active)
+                 class (when-not active "list-column--shadowed")]]
+       ^{:key idx} [:div.list-column {:class class} status])]))
 
 
 (defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
@@ -52,14 +58,17 @@
         extra-classes (str accent-class " " status-class)
         vis (if (nil? status-filter-a)
               true
-              (any-active? (keys statuses) @status-filter-a))]
+              (any-active? (keys statuses) @status-filter-a))
+        status-filter @status-filter-a]
     (when vis [:div.list-row {:class extra-classes}
-               [:div.list-column.list-column--grow.list-column--left
-                [:a.custom-link.custom-link--full-width {:href href} text]]
+               [:div.list-column.list-column--grow.list-column--stretch.list-column--left
+                [:a.custom-block-link {:href href} [:span text]]]
                (for [[idx status] (map-indexed vector parent-statuses)
-                     :let [status-count (get statuses status nil)]]
+                     :let [status-count (get statuses status nil)
+                           active (w-a-active? status status-filter)
+                           class (when-not active "list-column--shadowed")]]
                  (if status-count
-                   ^{:key idx} [:div.list-column [badged-text status status-count]]
+                   ^{:key idx} [:div.list-column {:class class} [badged-text status status-count]]
                    ^{:key idx} [:div.list-column]))])))
 
 
@@ -163,7 +172,8 @@
 
                                [list-row-status-names {:text     "Path:"
                                                        :statuses statuses
-                                                       :accent   true}]
+                                                       :accent   true
+                                                       :status-filter-a status-filter-a}]
                                (for [cat-indexed (map-indexed vector categories)
                                      :let [[idx cat] cat-indexed]]
                                  ^{:key idx} [category {:cat-name        cat
@@ -196,7 +206,8 @@
                                  [status-filter statuses node-status-map status-filter-a]]
                                 [list-row-status-names {:text     "Path:"
                                                         :statuses statuses
-                                                        :accent   true}]
+                                                        :accent   true
+                                                        :status-filter-a status-filter-a}]
                                 [sub-struct-list {:status-map      status-map
                                                   :sub-items       sub-items
                                                   :parent-statuses statuses
