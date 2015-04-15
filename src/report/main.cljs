@@ -8,6 +8,7 @@
             [report.routing :as routing]
             [report.components.app-content :refer [app-content]]
             [report.components.app-bar :refer [app-bar]]
+            [report.components.tooltip :refer [tooltip]]
             [report.utils.log :refer [log log-o]]
             [jquery.main]
             [jquery.nicescroll]
@@ -117,3 +118,4 @@
                                    :nav-position-a  routing/nav-position})]
                     (.getElementById js/document "app"))
 
+(r/render-component [tooltip] (.getElementById js/document "tooltip"))

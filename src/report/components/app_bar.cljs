@@ -3,7 +3,8 @@
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
             [report.test-results.path :refer [path->str]]
-            [report.utils.log :refer [log log-o]]))
+            [report.utils.log :refer [log log-o]]
+            [report.test-results.extra-params :refer [build-name]]))
 
 
 (defn- bread-crumbs-item [path]
@@ -17,7 +18,7 @@
      (->> (loop [p (pop (vec path))
                  acc nil]
             (if (empty? p)
-              (conj acc [:a.custom-link.breadcrumbs__item.icon-home {:href "#/"}])
+              (conj acc [:a.custom-link.breadcrumbs__item {:href "#/"} build-name])
               (recur (pop p) (conj acc (bread-crumbs-item p)))))
           (interpose [:span.breadcrumbs__item.breadcrumbs__item--cursor-auto.icon-angle-right])
           (map-indexed vector)
@@ -39,5 +40,5 @@
        [:div.app-bar__content
         [:div.breadcrumbs
          (if (= 0 (count path))
-           status
+           (str build-name ": " status)
            [bread-crumbs path])]]])))

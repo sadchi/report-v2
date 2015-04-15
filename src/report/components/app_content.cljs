@@ -2,11 +2,13 @@
   (:require [reagent.core :as r]
             [report.test-results.statuses :refer [sort-statuses sort-keyworded-statuses bad-status? good-status? neutral-status? get-worse get-best]]
             [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run?]]
+            [report.test-results.extra-params :refer [build-name]]
             [report.components.badges :refer [badged-text]]
             [report.components.runs-meta :refer [meta-data-render]]
             [report.components.fails-list :refer [fails-list]]
             [report.components.errors-list :refer [errors-list]]
             [report.components.assets-list :refer [assets-list]]
+            [report.components.tooltip :as tooltip]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
@@ -21,6 +23,22 @@
 (def default-runs-limit 40)
 (def default-runs-more-count 10)
 
+(def ^:private status-descs {"SUCCESS"   "Everything went ok."
+                             "ERROR"     "Exception/s occured during test scenario execution. Probably the test is broken."
+                             "FAIL"      "One or more asserts failed."
+                             "UNDEFINED" "Such status occured when a test didn't provide any status. Looks like neither success nor fail."
+                             "SKIPPED"   "Such status occured when a test was not applicable to certain data source."})
+
+
+(defn- mk-tooltip-map [status align]
+  (let [quarantine (boolean (re-find #"\(q\)" status))
+        status-cleaned (string/replace status #"\(q\)" "")
+        status-desc (get status-descs status-cleaned)
+        final-status-desc (if quarantine
+                            [:span [:p "QUARANTINED"] [:p status-desc]]
+                            status-desc)]
+    {:on-mouse-enter (partial tooltip/show-tooltip final-status-desc align)
+     :on-mouse-leave tooltip/hide-tooltip}))
 
 (defn- trigger-refresh-scroll [this]
   (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
@@ -37,8 +55,9 @@
                  ;_ (log-o "status " status)
                  active (w-a-active? status status-filter)
                  ;_ (log-o "active " active)
-                 class (when-not active "list-column--shadowed")]]
-       ^{:key idx} [:div.list-column {:class class} status])]))
+                 class (when-not active "list-column--shadowed")
+                 ]]
+       ^{:key idx} [:div.list-column (merge {:class class} (mk-tooltip-map status :center)) status])]))
 
 
 (defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
@@ -286,10 +305,11 @@
 (defn run-view [run doc-strings]
   (fn []
     (let [target (get run :target)
-          meta-data (get run :meta)]
+          meta-data (get run :meta)
+          status (get run :status)]
       [:div
        [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less target]]]
+        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less (mk-tooltip-map status :left) (str status ": " target)]]]
        [doc doc-strings]
        [meta-data-render meta-data]
        [fails-list (get run :fails)]

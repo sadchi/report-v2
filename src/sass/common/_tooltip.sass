@@ -1,0 +1,38 @@
+$tooltip-container-width : 200px !default
+$tooltip-margin-top      : 10px !default
+$tooltip-border-radius   : 3px !default
+$tooltip-back            : white !default
+$tooltip-color           : grey !default
+$tooltip-border          : 1px solid gray !default
+$tooltip-padding         : 10px !default
+$tooltip-font-size       : 12px !default
+$tooltip-font-family     : Calibri , Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif !default
+
+.tooltip__container
+  z-index     : 99
+  position    : absolute
+  width       : $tooltip-container-width
+  margin-top  : $tooltip-margin-top
+  margin-left : (-$tooltip-container-width/2)
+  display : flex
+  justify-content : center
+  font-size   : $tooltip-font-size
+  font-family : $tooltip-font-family
+
+.tooltip__container--center
+  margin-left : (-$tooltip-container-width/2)
+  justify-content : center
+
+.tooltip__container--left
+  margin-left : 0
+  justify-content : flex-start
+
+.tooltip__container--right
+  margin-left : -$tooltip-container-width
+  justify-content : flex-end
+
+.tooltip__content
+  border-radius : $tooltip-border-radius
+  background    : $tooltip-back
+  border        : $tooltip-border
+  padding       : $tooltip-padding

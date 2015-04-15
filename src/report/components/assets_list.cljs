@@ -1,18 +1,11 @@
 (ns report.components.assets-list
   (:require [report.utils.string :refer [add-zero-spaces]]
             [report.utils.net :refer [is-absolute-url? clean-url-scheme]]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [report.test-results.extra-params :refer [artifact-abs-prefix artifact-base]]))
 
 
-(def artifact-base
-  (try
-    (js->clj js/artifacts)
-    (catch js/Error _ "")))
 
-(def artifact-abs-prefix
-  (try
-    (js->clj js/artifacts_abs_prefix)
-    (catch js/Error _ "file://")))
 
 
 (defn- combine-url-parts [base asset-uri]
