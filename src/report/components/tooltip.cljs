@@ -61,4 +61,5 @@
     (.setTimeout js/window #(reset! tooltip-vis true) tooltip-appear-timeout)))
 
 (defn hide-tooltip []
-  (reset! tooltip-vis false))
+  (reset! tooltip-vis false)
+  (reset! tooltip-atom nil))
