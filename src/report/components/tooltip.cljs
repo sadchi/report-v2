@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [report.utils.log :refer [log log-o]]))
 
-(def ^:private tooltip-appear-timeout 1500)
+(def ^:private tooltip-appear-timeout 2000)
 (def ^:private tooltip-atom (r/atom nil))
 (def ^:private tooltip-vis  (r/atom false))
 

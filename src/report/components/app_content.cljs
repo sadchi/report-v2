@@ -208,8 +208,10 @@
 (defn is-flat-list? [{:keys [status-map parent-path items]}]
   (let [f (fn [parent-path status-map res x]
             (let [path (flatten-path (conj parent-path x))
-                  status-count (count (get status-map path))
-                  new-res (= status-count 1)]
+                  item-status-map (get status-map path)
+                  statuses-count (count item-status-map)
+                  status-count (first (vals item-status-map))
+                  new-res (and (= status-count 1) (= statuses-count 1))]
               (and res new-res)))]
     (reduce (partial f parent-path status-map) true items)))
 
@@ -225,10 +227,14 @@
            :let [full-path (flatten-path (conj parent-path item))
                  item-status-map (get status-map full-path)
                  status (name (first (keys item-status-map)))
+                 status-class (cond
+                                (good-status? status) "list-row--success"
+                                (bad-status? status) "list-row--error"
+                                :else "")
                  vis (w-a-active? status status-filter)]]
        (when vis
          ^{:key idx} [:div.list-row
-                      [:div.list-column.list-column--grow.list-column--stretch.list-column--left
+                      [:div.list-column.list-column--grow.list-column--stretch.list-column--left {:class status-class}
                        [:a.custom-block-link {:href (get-href-fn item)} [:span item]]]
                       [:div.list-column [badged-text status status]]]))]))
 
