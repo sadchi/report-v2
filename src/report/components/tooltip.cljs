@@ -2,18 +2,21 @@
   (:require [reagent.core :as r]
             [report.utils.log :refer [log log-o]]))
 
+(def ^:private tooltip-appear-timeout 1500)
 (def ^:private tooltip-atom (r/atom nil))
+(def ^:private tooltip-vis  (r/atom false))
 
 (defn tooltip []
   (fn []
-    (let [{:keys [text x y align] :as data} @tooltip-atom
-          class (str "tooltip__container--" align)]
-      (when-not (empty? data)
-        [:div.tooltip__container {:class class
-                                  :style {:left x
-                                          :top  y}}
-         [:div.tooltip__content text]]
-        ))))
+    (when @tooltip-vis
+      (let [
+           {:keys [text x y align] :as data} @tooltip-atom
+           class (str "tooltip__container--" align)]
+       (when-not (empty? data)
+         [:div.tooltip__container {:class class
+                                   :style {:left x
+                                           :top  y}}
+          [:div.tooltip__content text]])))))
 
 
 (defn- offset [x]
@@ -28,7 +31,7 @@
             second-acc (second acc)
             left-offset (.-offsetLeft elem)
             top-offset (- (.-offsetTop elem) (.-scrollTop elem))]
-        (recur  new-elem [(+ first-acc left-offset) (+ second-acc top-offset)])))))
+        (recur new-elem [(+ first-acc left-offset) (+ second-acc top-offset)])))))
 
 (defn show-tooltip [text align event]
   (let [target (.-target event)
@@ -54,7 +57,8 @@
     (reset! tooltip-atom {:text  text
                           :x     x
                           :y     y
-                          :align (name align-final)})))
+                          :align (name align-final)})
+    (.setTimeout js/window #(reset! tooltip-vis true) tooltip-appear-timeout)))
 
 (defn hide-tooltip []
-  (reset! tooltip-atom nil))
+  (reset! tooltip-vis false))

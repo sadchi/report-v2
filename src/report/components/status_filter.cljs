@@ -20,13 +20,8 @@
     :show true
     :hide false))
 
-(defn- keywordize [s]
-  (if-not (keyword? s)
-    (keyword s)
-    s))
-
 (defn- w-a-active? [status val]
-  (let [status-key (keywordize status)
+  (let [status-key (keyword status)
         visibility (get val status-key)]
     (visibility->bool visibility)))
 

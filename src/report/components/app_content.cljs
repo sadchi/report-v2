@@ -182,27 +182,55 @@
         ]
     (r/create-class
       {:component-did-update trigger-refresh-scroll
-      :component-did-mount  trigger-refresh-scroll
-      :component-function   (fn []
-                              [:div
-                               [:div.list-caption
-                                [:div.list-column.list-column--grow.list-column--left [:h1.margin-less "Overview"]]
-                                [status-filter statuses root-status-map status-filter-a]]
+       :component-did-mount  trigger-refresh-scroll
+       :component-function   (fn []
+                               [:div
+                                [:div.list-caption
+                                 [:div.list-column.list-column--grow.list-column--left [:h1.margin-less "Overview"]]
+                                 [status-filter statuses root-status-map status-filter-a]]
 
-                               [list-row-status-names {:text     "Path:"
-                                                       :statuses statuses
-                                                       :accent   true
-                                                       :status-filter-a status-filter-a}]
-                               (for [cat-indexed (map-indexed vector categories)
-                                     :let [[idx cat] cat-indexed]]
-                                 ^{:key idx} [category {:cat-name        cat
-                                                        :struct          struct
-                                                        :test-data-map   test-data-map
-                                                        :status-map      status-map
-                                                        :parent-statuses statuses
-                                                        :status-filter-a status-filter-a}])
-                               ])})))
+                                [list-row-status-names {:text            "Path:"
+                                                        :statuses        statuses
+                                                        :accent          true
+                                                        :status-filter-a status-filter-a}]
+                                (for [cat-indexed (map-indexed vector categories)
+                                      :let [[idx cat] cat-indexed]]
+                                  ^{:key idx} [category {:cat-name        cat
+                                                         :struct          struct
+                                                         :test-data-map   test-data-map
+                                                         :status-map      status-map
+                                                         :parent-statuses statuses
+                                                         :status-filter-a status-filter-a}])
+                                ])})))
 
+
+
+(defn is-flat-list? [{:keys [status-map parent-path items]}]
+  (let [f (fn [parent-path status-map res x]
+            (let [path (flatten-path (conj parent-path x))
+                  status-count (count (get status-map path))
+                  new-res (= status-count 1)]
+              (and res new-res)))]
+    (reduce (partial f parent-path status-map) true items)))
+
+
+
+(defn flat-list [{:keys [status-map parent-path items status-filter-a get-href-fn]}]
+  (let [status-filter @status-filter-a]
+    [:div
+     [:div.list-row.list-row--accent
+      [:div.list-column.list-column--grow.list-column--left "Path:"]
+      [:div.list-column "Status"]]
+     (for [[idx item] (map-indexed vector items)
+           :let [full-path (flatten-path (conj parent-path item))
+                 item-status-map (get status-map full-path)
+                 status (name (first (keys item-status-map)))
+                 vis (w-a-active? status status-filter)]]
+       (when vis
+         ^{:key idx} [:div.list-row
+                      [:div.list-column.list-column--grow.list-column--stretch.list-column--left
+                       [:a.custom-block-link {:href (get-href-fn item)} [:span item]]]
+                      [:div.list-column [badged-text status status]]]))]))
 
 (defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
   (r/create-class
@@ -218,23 +246,36 @@
                                    ;_ (log-o "node-map " node-status-map)
                                    sub-items (keys (get-in struct path))
                                    ;_ (log-o "sub-items " sub-items)
+                                   flat-list? (is-flat-list? {:status-map  status-map
+                                                              :parent-path path
+                                                              :items       sub-items})
+                                   ;_ (log-o "flat list? " flat-list?)
                                    ]
                                [:div
                                 [:div.list-caption
                                  [:div.list-column.list-column--grow.list-column--left [:h1.margin-less node-title]]
                                  [status-filter statuses node-status-map status-filter-a]]
-                                [list-row-status-names {:text     "Path:"
-                                                        :statuses statuses
-                                                        :accent   true
-                                                        :status-filter-a status-filter-a}]
-                                [sub-struct-list {:status-map      status-map
-                                                  :sub-items       sub-items
-                                                  :parent-statuses statuses
-                                                  :parent-path     path
-                                                  :status-filter-a status-filter-a
-                                                  :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
-                                                                                   :struct        struct
-                                                                                   :parent-path   path})}]]))}))
+                                (if-not flat-list?
+                                  (list
+                                    ^{:key 1} [list-row-status-names {:text            "Path:"
+                                                                      :statuses        statuses
+                                                                      :accent          true
+                                                                      :status-filter-a status-filter-a}]
+                                    ^{:key 2} [sub-struct-list {:status-map      status-map
+                                                                :sub-items       sub-items
+                                                                :parent-statuses statuses
+                                                                :parent-path     path
+                                                                :status-filter-a status-filter-a
+                                                                :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                                                 :struct        struct
+                                                                                                 :parent-path   path})}])
+                                  [flat-list {:status-map      status-map
+                                              :parent-path     path
+                                              :items           sub-items
+                                              :status-filter-a status-filter-a
+                                              :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                               :struct        struct
+                                                                               :parent-path   path})}])]))}))
 
 
 

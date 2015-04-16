@@ -1,3 +1,5 @@
+@import animation/_transitions
+
 $tooltip-container-width : 200px !default
 $tooltip-margin-top      : 10px !default
 $tooltip-border-radius   : 3px !default
@@ -30,6 +32,10 @@ $tooltip-font-family     : Calibri , Candara, Segoe, 'Segoe UI', Optima, Arial, 
 .tooltip__container--right
   margin-left : -$tooltip-container-width
   justify-content : flex-end
+
+
+.tooltip__container--invis
+  display : none
 
 .tooltip__content
   border-radius : $tooltip-border-radius
