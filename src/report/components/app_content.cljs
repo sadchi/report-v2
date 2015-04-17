@@ -1,6 +1,6 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
-            [report.test-results.statuses :refer [sort-statuses sort-keyworded-statuses bad-status? good-status? neutral-status? get-worse get-best]]
+            [report.test-results.statuses :refer [sort-statuses bad-status? good-status? neutral-status? get-worse get-best]]
             [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run?]]
             [report.test-results.extra-params :refer [build-name]]
             [report.components.badges :refer [badged-text]]
@@ -176,7 +176,7 @@
 
 (defn home-view [{:keys [struct test-data-map status-map status-filter-a]}]
   (let [root-status-map (get status-map [])
-        statuses (sort-keyworded-statuses > (keys root-status-map))
+        statuses (sort-statuses > (keys root-status-map))
         categories (keys struct)
         ;_ (log-o "cats " categories)
         ]
@@ -246,7 +246,7 @@
                              (let [path @nav-position-a
                                    node-title (path->str (peek path))
                                    node-status-map (get status-map (flatten-path path))
-                                   statuses (sort-keyworded-statuses > (keys node-status-map))
+                                   statuses (sort-statuses > (keys node-status-map))
                                    ;_ (log "node-view rendered")
                                    ;_ (log-o "statuses " statuses)
                                    ;_ (log-o "node-map " node-status-map)
@@ -330,7 +330,7 @@
         extend-limit #(swap! runs-limit (partial + default-runs-more-count))
         unlim #(reset! runs-limit (count runs))]
     (fn []
-      (let [statuses (sort-keyworded-statuses > (keys scenario-status-map))
+      (let [statuses (sort-statuses > (keys scenario-status-map))
             doc-strings (string/split (get scenario-info :doc) #"\n\n")
             ;_ (log-o "scenario-info: " scenario-info)
             ;_ (log-o "doc strings: " doc-strings)
