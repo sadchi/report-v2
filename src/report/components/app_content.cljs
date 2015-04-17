@@ -8,6 +8,7 @@
             [report.components.fails-list :refer [fails-list]]
             [report.components.errors-list :refer [errors-list]]
             [report.components.assets-list :refer [assets-list]]
+            [report.components.truncated-string :refer [truncated-string]]
             [report.components.tooltip :as tooltip]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
@@ -259,7 +260,7 @@
                                    ]
                                [:div
                                 [:div.list-caption
-                                 [:div.list-column.list-column--grow.list-column--left [:h1.margin-less node-title]]
+                                 [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string node-title]]]
                                  [status-filter statuses node-status-map status-filter-a]]
                                 (if-not flat-list?
                                   (list
@@ -337,7 +338,7 @@
             ]
         [:div
          [:div.list-caption
-          [:div.list-column.list-column--grow.list-column--left [:h1.margin-less scenario-name]]
+          [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string scenario-name]]]
           [status-filter statuses scenario-status-map status-filter-a]]
          [doc doc-strings]
          [scenario-runs runs status-filter-a runs-limit path]
@@ -356,7 +357,8 @@
           status (get run :status)]
       [:div
        [:div.list-caption
-        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less (mk-tooltip-map status :left) (str status ": " target)]]]
+        [:div.list-column..list-column--auto-width [:h1.margin-less (mk-tooltip-map status :left) (str status ":\u00A0\u00A0")]]
+        [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string target]]]]
        [doc doc-strings]
        [meta-data-render meta-data]
        [fails-list (get run :fails)]

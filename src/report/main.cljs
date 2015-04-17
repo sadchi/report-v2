@@ -97,11 +97,11 @@
         status)
       (let [unit-status-map (get status-map flat-path)
             statuses (map name (keys unit-status-map))
-            _ (log-o "statuses " statuses)
+            ;_ (log-o "statuses " statuses)
             worse-status (statuses/get-worse statuses)
-            _ (log-o "worse " worse-status)
+            ;_ (log-o "worse " worse-status)
             best-status (statuses/get-best statuses)
-            _ (log-o "best " worse-status)
+            ;_ (log-o "best " worse-status)
             res-status (cond
                          (statuses/bad-status? worse-status) worse-status
                          (and
