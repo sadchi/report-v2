@@ -1,28 +1,25 @@
 (ns report.components.truncated-string
   (:require [reagent.core :as r]
-            [report.utils.log :refer [log log-o]]))
+            [report.utils.log :refer [log log-o]]
+            [report.test-results.curried-styles.utils :refer [overflow?]]
+            [report.utils.events :refer [debounce]]))
 
-(def ^:priivate truncate-step 20)
-
-(defn overflow? [this]
-  (let [dom-this (r/dom-node this)
-        ;_ (log-o "dom-this " dom-this)
-        parent (.-parentNode dom-this)
-        ;_ (log-o "parent " parent)
-        this-width (.-offsetWidth dom-this)
-        ;_ (log-o "this-width " this-width)
-        parent-width (.-clientWidth parent)
-        ;_ (log-o "parent-width " parent-width)
-        ]
-    (> this-width parent-width)))
+(def ^:priivate truncate-step 10)
+(def ^:private truncate-timeout 500)
 
 (defn check-n-truncate [str-a this]
   (when (overflow? this)
     (reset! str-a (str "\u2026"(subs @str-a truncate-step)))))
 
 (defn truncated-string [s]
-  (let [final-string (r/atom s)]
-    (r/create-class {:component-did-mount  (partial check-n-truncate final-string)
-                     :component-did-update (partial check-n-truncate final-string)
+  (let [final-string (r/atom s)
+        update-f #(check-n-truncate final-string %)
+        update-f-reset (fn[x]
+                         (reset! final-string s)
+                         (update-f x))]
+    (r/create-class {:component-did-mount  (fn [x]
+                                             (update-f x)
+                                             (.addEventListener js/window "resize" (debounce (partial update-f-reset x) truncate-timeout)))
+                     :component-did-update update-f
                      :component-function   (fn []
                                              [:span @final-string])})))

@@ -1,5 +1,5 @@
 (ns report.components.errors-list
-  (:require [report.utils.string :refer [add-zero-spaces two-spaces->non-breaking]]
+  (:require [report.utils.string :refer [add-zero-spaces-near add-zero-spaces two-spaces->non-breaking]]
             [clojure.string :as string]
             [report.utils.log :refer [log log-o]]))
 
@@ -18,6 +18,9 @@
                               (map #(with-meta (second %) {:key (first %)})))]
     trace-w-br-keyed))
 
+
+
+
 (defn errors-list [errors-coll]
   (when-not (empty? errors-coll)
     [:div.vertical-block
@@ -28,7 +31,7 @@
        [:th.simple-table__th "Message/Trace"]]
       (for [[idx error] (map-indexed vector errors-coll)
             :let [extra-class (when (odd? idx) "simple-table__tr--odd")
-                  error-type (get error :type)
+                  error-type (add-zero-spaces-near (get error :type) ".")
                   error-message (get error :message)
                   error-trace (prepare-trace (get error :trace))]]
         ^{:key idx} [:tr.simple-table__tr {:class extra-class}

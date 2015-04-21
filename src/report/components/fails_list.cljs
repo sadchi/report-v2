@@ -1,4 +1,5 @@
-(ns report.components.fails-list)
+(ns report.components.fails-list
+  (:require [report.utils.string :refer [add-zero-spaces-near]]))
 
 
 (defn fails-list [fails-coll]
@@ -11,7 +12,7 @@
        [:th.simple-table__th "Message"]]
       (for [[idx fail] (map-indexed vector fails-coll)
             :let [extra-class (when (odd? idx) "simple-table__tr--odd")
-                  fail-type (get fail :type)
+                  fail-type (add-zero-spaces-near (get fail :type) ".")
                   fail-message (get fail :message)]]
         ^{:key idx} [:tr.simple-table__tr {:class extra-class}
                      [:td.simple-table__td fail-type]
