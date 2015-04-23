@@ -18,7 +18,8 @@
 (defn- visibility->bool [x]
   (case x
     :show true
-    :hide false))
+    :hide false
+    true))
 
 (defn- w-a-active? [status val]
   (let [status-key (keyword status)
@@ -33,10 +34,16 @@
         visibilities (map #(visibility->bool (get filter-val %)) statuses-processed)]
     (reduce #(or %1 %2) false visibilities)))
 
+
+(defn status-state [{:keys [active? text on-click-f]}]
+  (let [extra-class (when-not (active?) "list-column--shadowed")]
+    [:div.list-column.list-column--clickable.list-column--stretch.list-column--separator
+     {:class extra-class :on-click on-click-f} [:span.list-column__rotated-content text]]))
+
 (defn status-filter [statuses status-map a-filter-val]
-  [:div.buttons-group
+  [:div.list-row__group
    (for [[idx status] (map-indexed vector statuses)
          :let [cnt (get status-map status)]]
-     ^{:key idx} [state-button {:active?    #(active? status a-filter-val)
-                                :sub-items  (list ^{:key 1} (str (name status) "\u2007") ^{:key 2} [badged-text status cnt true])
+     ^{:key idx} [status-state {:active?    #(active? status a-filter-val)
+                                :text       (name status)
                                 :on-click-f #(swap! a-filter-val (partial switch-visibility status))}])])

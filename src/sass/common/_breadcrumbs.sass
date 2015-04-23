@@ -6,10 +6,12 @@ $breadcrumb-padding : 0 24px !default
 
 .breadcrumbs
   @extend .heading-font
-  display   : inline-block
+  position    : relative
+  z-index     : 2
+  display     : inline-block
   white-space : nowrap
-  font-size : $breadcrumb-font-size
-  padding : $breadcrumb-padding
+  font-size   : $breadcrumb-font-size
+  padding     : $breadcrumb-padding
 
 .breadcrumbs__item
   display : inline-block
@@ -17,6 +19,6 @@ $breadcrumb-padding : 0 24px !default
   margin-right : $breadcrumb-item-margin
 
 .breadcrumbs__item--cursor-auto
-  cursor  : auto
+  cursor : auto
 
 

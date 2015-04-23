@@ -1,30 +1,68 @@
 @import color-schemes/_schemes
 @import _fonts
 
-$list-caption-height : 80px !default
-$list-caption-padding  : 0 16px 0 0 !default
-$list-row-height     : 48px !default
-$list-row-padding    : 0 16px 0 16px !default 
-$list-caption-margin : 0 0 8px 0 !default
-$list-column-width   : 168px !default
+$list-row-padding    : 0 0 0 16px !default 
+
+$list-row-height-s     : 36px  !default
+$list-row-height-m     : 48px  !default
+$list-row-height-l     : 80px  !default
+$list-row-height-xl    : 110px !default
+
+$list-row-margin-bottom-s : 16px !default
+$list-row-margin-bottom-m : 24px !default
+$list-row-margin-bottom-l : 32px !default
 
 
 
-$list-row-normal-border-color : $grey-100 !default
+$list-column-width-xs  : 168px !default
+$list-column-width-s   : 168px !default
+$list-column-width-m   : 62px  !default
+$list-column-width-l   : 168px !default
+$list-column-width-xl  : 168px !default
+
+$list-column-clickable-hover-background : white !default
+$list-column-clickable-active-shadow : inset 0px 2px 5px 0px rgba(black,0.2) !default
+
+$list-row-normal-border-color : $grey-300 !default
 $list-row-accent-border-color : $grey-300 !default
+
+$list-column-border-color     : $grey-500 !default 
+$list-column-separator-color  : $grey-400 !default 
 
 
 .list-row
-  +white-theme
-  height : $list-row-height
+  //+white-theme
+  height : $list-row-height-m
   display : flex
   align-items : center
   margin-top : -1px
   margin-bottom : -1px
   padding : $list-row-padding
   border-style : solid
+  border-color : $list-row-normal-border-color 
   border-width : 1px 0 1px 0
 
+.list-row--height-s
+  height : $list-row-height-s
+
+.list-row--height-m
+  height : $list-row-height-m
+
+.list-row--height-l
+  height : $list-row-height-l
+
+.list-row--height-xl
+  height : $list-row-height-xl
+  
+
+.list-row--m-bottom-s
+  margin-bottom : $list-row-margin-bottom-s  
+
+.list-row--m-bottom-m
+  margin-bottom : $list-row-margin-bottom-m  
+
+.list-row--m-bottom-l
+  margin-bottom : $list-row-margin-bottom-l  
 
 .list-row--no-padding
   padding : 0
@@ -39,7 +77,7 @@ $list-row-accent-border-color : $grey-300 !default
   font-weight  : bold
 
 .list-row--border-less
-  border-color : transparent
+  border-width  : 0
 
 .list-row--success
   +success-color-theme
@@ -47,31 +85,93 @@ $list-row-accent-border-color : $grey-300 !default
 .list-row--error
   +error-color-theme
 
-
-
-.list-caption
-  @extend .heading-font
-  height : $list-caption-height
-  display : flex
-  align-items : center
-  margin : $list-caption-margin
-  padding : $list-caption-padding 
-  white-space : nowrap
-
 .list-column
   position : relative
   display  : flex
+  height   : 100%
   flex-direction  : column
   justify-content : center
   align-items : center
+  flex-grow   : 0
   flex-shrink : 0
-  flex-basis  : $list-column-width
+  width       : $list-column-width-m
+  flex-basis  : $list-column-width-m
+
+.list-column--clickable
+  +greyish-theme
+  font-weight : bold
+  cursor : pointer
+  &:hover::after
+    position : absolute
+    content : " "
+    top    : 0
+    bottom : 0
+    left   : 0
+    right  : 0
+    background : $list-column-clickable-hover-background 
+    opacity : 0.15
+  &:active
+    box-shadow : $list-column-clickable-active-shadow
+
+.list-column--separator
+  &:not(:first-child)::before
+    position : absolute
+    content  : " "
+    left     : 0
+    right    : 0
+    top      : 0
+    bottom   : 0
+    border-color : $list-column-separator-color  
+    border-style : dotted
+    border-width : 0 0 0 1px
+    
+.list-row__group
+  display : flex
+  height  : 100%
+  align-items : stretch
+  border  : 1px solid $list-column-border-color     
+
+
+
 
 .list-column--auto-width
+  width      : auto
   flex-basis : auto
+
+.list-column--width-xs
+  width      : $list-column-width-xs
+  flex-basis : $list-column-width-xs  
+
+.list-column--width-s
+  width      : $list-column-width-s
+  flex-basis : $list-column-width-s  
+
+.list-column--width-m
+  width      : $list-column-width-m
+  flex-basis : $list-column-width-m  
+
+.list-column--width-l
+  width      : $list-column-width-l
+  flex-basis : $list-column-width-l  
+
+.list-column--width-xl
+  width      : $list-column-width-xl
+  flex-basis : $list-column-width-xl
+
+.list-column__rotated-content
+  position    : absolute
+  padding     : 0 0 0 20px
+  line-height : 0
+  top : 100%
+  text-align  : left
+  margin-left : 50%
+  transform   : rotate(-90deg)
+  transform-origin : left top
 
 .list-column--shadowed
   opacity : .2
+  &:hover::after
+    opacity : .7
 
 .list-column--grow
   flex-grow : 1

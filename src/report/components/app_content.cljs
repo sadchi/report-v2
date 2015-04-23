@@ -62,10 +62,14 @@
 
 
 (defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
-  (let [status-names (map name (keys statuses))
+  (let [
+        status-names (map name (keys statuses))
+        ;_ (log "1")
         worse-status (get-worse status-names)
+        ;_ (log "2")
         best-status (get-best status-names)
         ;_ (log-o "worse-status " worse-status)
+        ;_ (log "3")
         status-class (cond
                        (good-status? worse-status) "list-row--success"
                        (bad-status? worse-status) "list-row--error"
@@ -74,12 +78,15 @@
         ;_ (log-o "status-class " status-class)
 
         accent-class (when accent "list-row--accent")
+        ;_ (log "4")
         ;style (when href {:cursor "pointer"})
         extra-classes (str accent-class " " status-class)
-        vis (if (nil? status-filter-a)
-              true
-              (any-active? (keys statuses) @status-filter-a))
-        status-filter @status-filter-a]
+        ;_ (log "4")
+        status-filter (when status-filter-a @status-filter-a)
+        ;_ (log "5")
+        vis (any-active? (keys statuses) status-filter)
+        ;_ (log "6")
+        ]
     (when vis [:div.list-row {:class extra-classes}
                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
                 [:a.custom-block-link {:href href} [:span text]]]
@@ -172,7 +179,8 @@
                                      :status-filter-a status-filter-a
                                      :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
                                                                       :struct        struct
-                                                                      :parent-path   cat-path})}]])))))
+                                                                      :parent-path   cat-path})}]
+                   [:div.list-row.list-row--border-less]])))))
 
 
 (defn home-view [{:keys [struct test-data-map status-map status-filter-a]}]
@@ -186,14 +194,15 @@
        :component-did-mount  trigger-refresh-scroll
        :component-function   (fn []
                                [:div
-                                [:div.list-caption
-                                 [:div.list-column.list-column--grow.list-column--left [:h1.margin-less "Overview"]]
-                                 [status-filter statuses root-status-map status-filter-a]]
+                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+                                 [:div.list-column.list-column--grow.list-column--left
+                                  [:h1.margin-less "Overview"]]
+                                 (status-filter statuses root-status-map status-filter-a)]
 
-                                [list-row-status-names {:text            "Path:"
-                                                        :statuses        statuses
-                                                        :accent          true
-                                                        :status-filter-a status-filter-a}]
+                                [list-row {:text            "Total:"
+                                           :statuses        root-status-map
+                                           :parent-statuses statuses}]
+                                [:div.list-row.list-row--border-less]
                                 (for [cat-indexed (map-indexed vector categories)
                                       :let [[idx cat] cat-indexed]]
                                   ^{:key idx} [category {:cat-name        cat
@@ -237,7 +246,7 @@
          ^{:key idx} [:div.list-row
                       [:div.list-column.list-column--grow.list-column--stretch.list-column--left {:class status-class}
                        [:a.custom-block-link {:href (get-href-fn item)} [:span item]]]
-                      [:div.list-column [badged-text status status]]]))]))
+                      [:div.list-column.list-column--width-l [badged-text status status]]]))]))
 
 (defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
   (r/create-class
@@ -259,15 +268,16 @@
                                    ;_ (log-o "flat list? " flat-list?)
                                    ]
                                [:div
-                                [:div.list-caption
-                                 [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string node-title]]]
-                                 [status-filter statuses node-status-map status-filter-a]]
+                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+                                 [:div.list-column.list-column--grow.list-column--left
+                                  [:h1.margin-less [truncated-string node-title]]]
+                                 (status-filter statuses node-status-map status-filter-a)]
+
                                 (if-not flat-list?
                                   (list
-                                    ^{:key 1} [list-row-status-names {:text            "Path:"
-                                                                      :statuses        statuses
-                                                                      :accent          true
-                                                                      :status-filter-a status-filter-a}]
+                                    ^{:key 1} [:div.list-row.list-row--accent
+                                               [:div.list-column.list-column--grow.list-column--left "Path:"]]
+
                                     ^{:key 2} [sub-struct-list {:status-map      status-map
                                                                 :sub-items       sub-items
                                                                 :parent-statuses statuses
@@ -316,7 +326,7 @@
                                   ^{:key idx} [:div.list-row
                                                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
                                                 [:a.custom-block-link {:href (path->uri (conj path target))} [:span target]]]
-                                               [:div.list-column [badged-text status status]]])]))}))
+                                               [:div.list-column.list-column--width-l [badged-text status status]]])]))}))
 
 
 (defn doc [doc-strings]
@@ -337,16 +347,20 @@
             ;_ (log-o "doc strings: " doc-strings)
             ]
         [:div
-         [:div.list-caption
-          [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string scenario-name]]]
-          [status-filter statuses scenario-status-map status-filter-a]]
+
+         [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+          [:div.list-column.list-column--grow.list-column--left
+           [:h1.margin-less [truncated-string scenario-name]]]
+          (status-filter statuses scenario-status-map status-filter-a)]
+
          [doc doc-strings]
          [scenario-runs runs status-filter-a runs-limit path]
          [:div.vertical-block
-          [:div.list-row.list-row--border-less.list-row--no-padding
-           [:div.list-column.list-column--grow.list-column--right
-            [:div
-             [button extend-limit "More"] [button unlim "All"]]]]]]))))
+          [:div.list-row.list-row--border-less.list-row--no-padding.list-row--height-s
+           [:div.list-column.list-column--grow]
+           [:div.list-row__group
+            [:div..list-column.list-column--clickable.list-column--stretch.list-column--separator {:on-click extend-limit} "More"]
+            [:div..list-column.list-column--clickable.list-column--stretch.list-column--separator {:on-click unlim} "All"]]]]]))))
 
 
 
@@ -356,9 +370,11 @@
           meta-data (get run :meta)
           status (get run :status)]
       [:div
-       [:div.list-caption
+
+       [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
         [:div.list-column..list-column--auto-width [:h1.margin-less (mk-tooltip-map status :left) (str status ":\u00A0\u00A0")]]
         [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string target]]]]
+
        [doc doc-strings]
        [meta-data-render meta-data]
        [fails-list (get run :fails)]
