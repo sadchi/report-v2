@@ -13,7 +13,7 @@
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
-            [report.components.status-filter :refer [status-filter w-a-active? active? any-active?]]
+            [report.components.status-filter :refer [status-filter hovered? w-a-active? active? any-active?]]
             [report.test-results.path :refer [flatten-path path->str]]
             [report.components.buttons :refer [state-button button]]
             [clojure.string :as string]))
@@ -70,7 +70,8 @@
         best-status (get-best status-names)
         ;_ (log-o "worse-status " worse-status)
         ;_ (log "3")
-        status-class (cond
+        status-class nil
+        #_(cond
                        (good-status? worse-status) "list-row--success"
                        (bad-status? worse-status) "list-row--error"
                        (and (neutral-status? worse-status) (good-status? best-status)) "list-row--success"
@@ -87,16 +88,19 @@
         vis (any-active? (keys statuses) status-filter)
         ;_ (log "6")
         ]
-    (when vis [:div.list-row {:class extra-classes}
+    (when vis [:div.list-row.list-row--hoverable {:class extra-classes}
                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
                 [:a.custom-block-link {:href href} [:span text]]]
                (for [[idx status] (map-indexed vector parent-statuses)
                      :let [status-count (get statuses status nil)
                            active (w-a-active? status status-filter)
-                           class (when-not active "list-column--shadowed")]]
+                           hover (hovered? status status-filter)
+                           active-status (when-not active "list-column--shadowed")
+                           hover-status (when hover "list-column--hovered")
+                           class (str active-status " " hover-status)]]
                  (if status-count
                    ^{:key idx} [:div.list-column {:class class} [badged-text status status-count]]
-                   ^{:key idx} [:div.list-column]))])))
+                   ^{:key idx} [:div.list-column {:class class}]))])))
 
 
 
@@ -243,7 +247,7 @@
                                 :else "")
                  vis (w-a-active? status status-filter)]]
        (when vis
-         ^{:key idx} [:div.list-row
+         ^{:key idx} [:div.list-row.list-row--hoverable
                       [:div.list-column.list-column--grow.list-column--stretch.list-column--left {:class status-class}
                        [:a.custom-block-link {:href (get-href-fn item)} [:span item]]]
                       [:div.list-column.list-column--width-l [badged-text status status]]]))]))
@@ -323,7 +327,7 @@
                                  [:div.list-column "Status"]]
                                 (for [[idx target-status] (map-indexed vector target-status-coll)
                                       :let [[target status] target-status]]
-                                  ^{:key idx} [:div.list-row
+                                  ^{:key idx} [:div.list-row.list-row--hoverable
                                                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
                                                 [:a.custom-block-link {:href (path->uri (conj path target))} [:span target]]]
                                                [:div.list-column.list-column--width-l [badged-text status status]]])]))}))

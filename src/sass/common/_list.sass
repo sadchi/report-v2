@@ -31,16 +31,27 @@ $list-column-separator-color  : $grey-400 !default
 
 
 .list-row
-  //+white-theme
-  height : $list-row-height-m
-  display : flex
+  height   : $list-row-height-m
+  position : relative
+  display  : flex
   align-items : center
-  margin-top : -1px
+  margin-top    : -1px
   margin-bottom : -1px
   padding : $list-row-padding
   border-style : solid
   border-color : $list-row-normal-border-color 
   border-width : 1px 0 1px 0
+
+.list-row--hoverable
+  &:hover::after
+    position : absolute
+    content  : " "
+    top : 0
+    bottom : 0
+    left : 0
+    right : 0
+    background : $list-column-clickable-hover-background  
+    opacity : .1
 
 .list-row--height-s
   height : $list-row-height-s
@@ -75,6 +86,8 @@ $list-column-separator-color  : $grey-400 !default
   +greyish-theme
   border-color : $list-row-accent-border-color
   font-weight  : bold
+  // &:hover::after
+    // opacity : .15
 
 .list-row--border-less
   border-width  : 0
@@ -168,9 +181,22 @@ $list-column-separator-color  : $grey-400 !default
   transform   : rotate(-90deg)
   transform-origin : left top
 
+.list-column--hovered
+  &:after
+    position : absolute
+    content  : " "
+    top : 0
+    bottom : 0 
+    left : 0
+    right : 0
+    background : $list-column-clickable-hover-background  
+    opacity : .1
+
 .list-column--shadowed
   opacity : .2
   &:hover::after
+    opacity : .7
+  &:after
     opacity : .7
 
 .list-column--grow
@@ -184,3 +210,4 @@ $list-column-separator-color  : $grey-400 !default
 
 .list-column--stretch
   align-self : stretch
+
