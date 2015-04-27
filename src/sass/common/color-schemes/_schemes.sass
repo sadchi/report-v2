@@ -1,8 +1,13 @@
 @import colors
 
-$neutral-color : $grey-400
-$success-color : $teal-500
-$error-color   : $red-500
+$neutral-color      : $grey-400
+$success-color      : $teal-500
+$semi-success-color : mix($success-color, $neutral-color, 25%)
+$accent-color       : $amber-500
+$semi-accent-color  : mix($accent-color, $neutral-color, 25%)
+$error-color        : $red-500
+$semi-error-color   : mix($error-color, $neutral-color, 25%)
+
 
 .greyish-theme
   background   : $grey-200
@@ -19,21 +24,44 @@ $error-color   : $red-500
   color        : $grey-700
   border-color : $grey-100
 
+
+
 .success-back-theme
   background   : $success-color
   color        : white
   border-color : darken($success-color, 10%)
 
+.semi-success-back-theme
+  background   : $semi-success-color
+  color        : white
+  border-color : darken($semi-success-color, 10%)
+
+
 .error-back-theme
-  background   : $red-500
+  background   : $error-color
   color        : white
   border-color : darken($error-color, 10%)
 
-.success-color-theme
-  color        : $success-color
+.semi-error-back-theme
+  background   : $semi-error-color
+  color        : white
+  border-color : darken($semi-error-color, 10%)
 
-.error-color-theme
-  color        : $error-color
+.accent-back-theme
+  background   : $accent-color
+  color        : white
+  border-color : darken($accent-color, 10%)
+
+.semi-accent-back-theme
+  background   : $semi-accent-color
+  color        : white
+  border-color : darken($semi-accent-color, 10%)
+
+
+
+
+
+
 
 .neutral-back-theme
   background   : $neutral-color

@@ -1,6 +1,6 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
-            [report.test-results.statuses :refer [sort-statuses bad-status? good-status? neutral-status? get-worse get-best]]
+            [report.test-results.statuses :refer [get-reputation sort-statuses-by-weight sort-statuses-by-vis-order bad-status? good-status? neutral-status? get-worse get-best]]
             [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run?]]
             [report.test-results.extra-params :refer [build-name]]
             [report.components.badges :refer [badged-text]]
@@ -99,7 +99,7 @@
                            hover-status (when hover "list-column--hovered")
                            class (str active-status " " hover-status)]]
                  (if status-count
-                   ^{:key idx} [:div.list-column {:class class} [badged-text status status-count]]
+                   ^{:key idx} [:div.list-column {:class class} [badged-text (get-reputation status) status-count]]
                    ^{:key idx} [:div.list-column {:class class}]))])))
 
 
@@ -189,7 +189,7 @@
 
 (defn home-view [{:keys [struct test-data-map status-map status-filter-a]}]
   (let [root-status-map (get status-map [])
-        statuses (sort-statuses > (keys root-status-map))
+        statuses (sort-statuses-by-vis-order > (keys root-status-map))
         categories (keys struct)
         ;_ (log-o "cats " categories)
         ]
@@ -250,7 +250,7 @@
          ^{:key idx} [:div.list-row.list-row--hoverable
                       [:div.list-column.list-column--grow.list-column--stretch.list-column--left {:class status-class}
                        [:a.custom-block-link {:href (get-href-fn item)} [:span item]]]
-                      [:div.list-column.list-column--width-l [badged-text status status]]]))]))
+                      [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
 
 (defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
   (r/create-class
@@ -260,7 +260,7 @@
                              (let [path @nav-position-a
                                    node-title (path->str (peek path))
                                    node-status-map (get status-map (flatten-path path))
-                                   statuses (sort-statuses > (keys node-status-map))
+                                   statuses (sort-statuses-by-vis-order > (keys node-status-map))
                                    ;_ (log "node-view rendered")
                                    ;_ (log-o "statuses " statuses)
                                    ;_ (log-o "node-map " node-status-map)
@@ -330,7 +330,7 @@
                                   ^{:key idx} [:div.list-row.list-row--hoverable
                                                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
                                                 [:a.custom-block-link {:href (path->uri (conj path target))} [:span target]]]
-                                               [:div.list-column.list-column--width-l [badged-text status status]]])]))}))
+                                               [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]])]))}))
 
 
 (defn doc [doc-strings]
@@ -345,7 +345,7 @@
         extend-limit #(swap! runs-limit (partial + default-runs-more-count))
         unlim #(reset! runs-limit (count runs))]
     (fn []
-      (let [statuses (sort-statuses > (keys scenario-status-map))
+      (let [statuses (sort-statuses-by-vis-order > (keys scenario-status-map))
             doc-strings (string/split (get scenario-info :doc) #"\n\n")
             ;_ (log-o "scenario-info: " scenario-info)
             ;_ (log-o "doc strings: " doc-strings)

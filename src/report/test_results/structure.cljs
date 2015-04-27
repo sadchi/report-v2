@@ -148,7 +148,7 @@
                                 ]
                             (if-not quarantine?
                               (conj coll x)
-                              (conj coll (assoc x :status (str status "(q)"))))))
+                              (conj coll (assoc x :status (str status "_Q"))))))
         f (fn [coll x]
             (let [
                   ;_ (log-o "x: " x)

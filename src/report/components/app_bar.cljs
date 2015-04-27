@@ -59,7 +59,7 @@
           ;_ (log-o "path: " path)
           status (get-status-fn path)
           ;_ (log "status aquired")
-          extra-class (condp = (statuses/evaluate-status status)
+          extra-class (condp = (statuses/get-reputation status)
                         :good "app-bar__content--success-marker"
                         :bad "app-bar__content--error-marker"
                         "app-bar__content--neutral-marker")
