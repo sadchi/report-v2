@@ -3,11 +3,13 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2913"]
                  [reagent "0.5.0-alpha3"]
-                 [secretary "1.2.1"]]
+                 [secretary "1.2.1"]
+                 [garden "1.2.5"]]
 
 
   :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-haml-sass "0.2.7-SNAPSHOT"]]
+            [lein-haml-sass "0.2.7-SNAPSHOT"]
+            [lein-garden "0.2.5"]]
 
   :sass {:src "sass"
          :output-directory "target"
@@ -50,4 +52,18 @@
 
   :aliases {"bc" ["do" ["sass" "once"]]
             "bj"     ["do" ["cljsbuild" "auto"]]
-            "bjprod" ["with-profile" "prod" "cljsbuild" "once"]})
+            "bjprod" ["with-profile" "prod" "cljsbuild" "once"]}
+
+
+  :garden {:builds [{;; Optional name of the build:
+                     :id "main"
+                     ;; Source paths where the stylesheet source code is
+                     :source-paths ["src/styles"]
+                     ;; The var containing your stylesheet:
+                     :stylesheet styles.report/main
+                     ;; Compiler flags passed to `garden.core/css`:
+                     :compiler {;; Where to save the file:
+                                :output-to "target/main.css"
+                                ;; Compress the output?
+                                :pretty-print? true}}]}
+  )
