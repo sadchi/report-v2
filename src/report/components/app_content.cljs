@@ -153,7 +153,7 @@
         ;_ (log-o "parent-path " parent-path)
         ;_ (log-o "sub-items " sub-items)
         jump-per-item-map (reduce f {} sub-items)
-        _ (log-o "jump-per-item-map " jump-per-item-map)
+        ;_ (log-o "jump-per-item-map " jump-per-item-map)
         ]
     (fn [item]
       (get jump-per-item-map item))))
@@ -246,7 +246,7 @@
                  ;               (bad-status? status) "list-row--error"
                  ;               :else "")
                  vis (w-a-active? status status-filter)
-                 _ (log-o "item: " item)
+                 ;_ (log-o "item: " item)
                  str-item (path->str item)
                  ]]
        (when vis
@@ -268,7 +268,7 @@
                                    ;_ (log-o "statuses " statuses)
                                    ;_ (log-o "node-map " node-status-map)
                                    sub-items (keys (get-in struct path))
-                                   _ (log-o "sub-items " sub-items)
+                                   ;_ (log-o "sub-items " sub-items)
                                    flat-list? (is-flat-list? {:status-map  status-map
                                                               :parent-path path
                                                               :items       sub-items})
