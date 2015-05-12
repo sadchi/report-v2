@@ -79,9 +79,9 @@
 
 (defn- get-status [{:keys [test-data-map struct status-map path]}]
   (let [run? (structure/is-run? struct path)
-        _ (log-o "run? " run?)
+        ;_ (log-o "run? " run?)
         flat-path (path/flatten-path path)
-        _ (log-o "flat-path " flat-path)
+        ;_ (log-o "flat-path " flat-path)
         ]
     (if run?
       (let [

@@ -153,7 +153,7 @@
         ;_ (log-o "parent-path " parent-path)
         ;_ (log-o "sub-items " sub-items)
         jump-per-item-map (reduce f {} sub-items)
-        ;_ (log-o "jump-per-item-map " jump-per-item-map)
+        _ (log-o "jump-per-item-map " jump-per-item-map)
         ]
     (fn [item]
       (get jump-per-item-map item))))
@@ -241,15 +241,18 @@
            :let [full-path (flatten-path (conj parent-path item))
                  item-status-map (get status-map full-path)
                  status (name (first (keys item-status-map)))
-                 status-class (cond
-                                (good-status? status) "list-row--success"
-                                (bad-status? status) "list-row--error"
-                                :else "")
-                 vis (w-a-active? status status-filter)]]
+                 ;status-class (cond
+                 ;               (good-status? status) "list-row--success"
+                 ;               (bad-status? status) "list-row--error"
+                 ;               :else "")
+                 vis (w-a-active? status status-filter)
+                 _ (log-o "item: " item)
+                 str-item (path->str item)
+                 ]]
        (when vis
          ^{:key idx} [:div.list-row.list-row--hoverable
-                      [:div.list-column.list-column--grow.list-column--stretch.list-column--left {:class status-class}
-                       [:a.custom-block-link {:href (get-href-fn item)} [:span item]]]
+                      [:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
+                       [:a.custom-block-link {:href (get-href-fn item)} [:span str-item]]]
                       [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
 
 (defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
@@ -265,7 +268,7 @@
                                    ;_ (log-o "statuses " statuses)
                                    ;_ (log-o "node-map " node-status-map)
                                    sub-items (keys (get-in struct path))
-                                   ;_ (log-o "sub-items " sub-items)
+                                   _ (log-o "sub-items " sub-items)
                                    flat-list? (is-flat-list? {:status-map  status-map
                                                               :parent-path path
                                                               :items       sub-items})
