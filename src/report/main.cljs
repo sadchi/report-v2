@@ -16,32 +16,48 @@
   )
 
 
+(extend-protocol ILookup
+  object
+  (-lookup [m k] (let [key (name k)] (aget m key)))
+  (-lookup [m k not-found] (let [key (name k)] (or (aget m key) not-found))))
+
+
 
 (def test-data (js->clj js/data :keywordize-keys true))
+(def runs js/runs)
+
 
 (log-o "td: " test-data)
 
+
+(def id->path (structure/build-id->path test-data))
+(log-o "id->path: " id->path)
+
+
 (def test-data-map (structure/build-map-by test-data :path))
+
+
+
+
 
 (log-o "td map: " test-data-map)
 
 
 (def quarantine
-  (structure/transform-quarantine
-    (try
-      (js->clj js/quarantine)
-      (catch js/Error _ []))))
-
+  (try
+    (js->clj js/quarantine)
+    (catch js/Error _ [])))
 (log-o "quarantine " quarantine)
-
-
-
-
+;
+;
+;
+;
 (def test-data-quarantined
-  (structure/apply-quarantine test-data-map quarantine))
+  (structure/apply-quarantine test-data-map id->path quarantine))
 
 
 (log-o "test-data-quarantine " test-data-quarantined)
+
 
 (def path-category-map
   (let [f (fn [coll x]
@@ -49,7 +65,9 @@
               (update-in coll [category] #(conj % path))))]
     (reduce f {} test-data)))
 
+
 (log-o "path-c-m" path-category-map)
+
 
 
 (def test-data-structure
@@ -66,7 +84,9 @@
 
 
 
+
 (def status-map (structure/mk-status-lists (vals test-data-quarantined) #(get % :status) path/mk-path-combi))
+
 
 
 (log-o "status map: " status-map)
@@ -96,6 +116,7 @@
             ]
         status)
       (let [unit-status-map (get status-map flat-path)
+            ;_ (log-o "unit-status-map " unit-status-map)
             statuses (map name (keys unit-status-map))
             ;_ (log-o "statuses " statuses)
             worse-status (statuses/get-worse statuses)
@@ -107,7 +128,9 @@
                          (and
                            (statuses/neutral-status? worse-status)
                            (statuses/good-status? best-status)) best-status
-                         :else worse-status)]
+                         :else worse-status)
+            ;_ (log-o "res " worse-status)
+            ]
         (name res-status)))))
 
 (r/render-component [app (app-bar #(get-status {:test-data-map test-data-quarantined
@@ -115,6 +138,8 @@
                                                 :status-map    status-map
                                                 :path          %}) routing/nav-position)
                      (app-content {:test-data-map   test-data-quarantined
+                                   :quarantine      quarantine
+                                   :runs            runs
                                    :struct          test-data-structure
                                    :status-map      status-map
                                    :status-filter-a status-filter-a

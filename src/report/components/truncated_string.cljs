@@ -13,13 +13,20 @@
 
 (defn truncated-string [s]
   (let [final-string (r/atom s)
+        stored-func (atom nil)
         update-f #(check-n-truncate final-string %)
         update-f-reset (fn[x]
                          (reset! final-string s)
-                         (update-f x))]
-    (r/create-class {:component-did-mount  (fn [x]
-                                             (update-f x)
-                                             (.addEventListener js/window "resize" (debounce (partial update-f-reset x) truncate-timeout)))
-                     :component-did-update update-f
-                     :component-function   (fn []
-                                             [:span @final-string])})))
+                         (update-f x))
+        handler #(debounce (partial update-f-reset %) truncate-timeout)]
+    (r/create-class {:component-did-mount    (fn [x]
+                                               #_(log "mounted")
+                                               (update-f x)
+                                               (reset! stored-func (handler x))
+                                               (.addEventListener js/window "resize" @stored-func))
+                     :component-did-update   update-f
+                     :component-will-unmount (fn [x]
+                                               #_(log "unmounted")
+                                               (.removeEventListener js/window "reksize" @stored-func))
+                     :component-function     (fn []
+                                               [:span @final-string])})))

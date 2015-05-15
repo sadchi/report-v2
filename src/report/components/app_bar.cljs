@@ -51,7 +51,7 @@
                                        (interpose [:span.breadcrumbs__item.breadcrumbs__item--cursor-auto.icon-angle-right])
                                        (map-indexed vector)
                                        (map #(with-meta (second %) {:key (first %)})))
-                                  (str build-name ": " status))]))}))
+                                  (str build-name "\u2007\u2007" status))]))}))
 
 (defn app-bar [get-status-fn a-nav-position]
   (fn []

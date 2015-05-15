@@ -1,7 +1,7 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
             [report.test-results.statuses :refer [get-reputation sort-statuses-by-weight sort-statuses-by-vis-order bad-status? good-status? neutral-status? get-worse get-best]]
-            [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run?]]
+            [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run? get-runs-count]]
             [report.test-results.extra-params :refer [build-name]]
             [report.components.badges :refer [badged-text]]
             [report.components.runs-meta :refer [meta-data-render]]
@@ -32,8 +32,8 @@
 
 
 (defn- mk-tooltip-map [status align]
-  (let [quarantine (boolean (re-find #"\(q\)" status))
-        status-cleaned (string/replace status #"\(q\)" "")
+  (let [quarantine (boolean (re-find #"_Q" status))
+        status-cleaned (string/replace status #"_Q" "")
         status-desc (get status-descs status-cleaned)
         final-status-desc (if quarantine
                             [:span [:p "QUARANTINED"] [:p status-desc]]
@@ -303,10 +303,17 @@
 
 
 
-(defn- extract-target-status [runs limit active?]
+#_(defn- extract-target-status-old [get-runs-fn limit active?]
   (let [
+        runs (get-runs-fn)
+        _ (log-o "runs " runs)
         f (fn [coll x]
-            (let [{:keys [target status]} x
+            (let [
+                  _ (log-o "x" x)
+                  {:keys [target run-info]} x
+                  _ (log-o "target" target)
+                  _ (log-o "run-info" run-info)
+                  status (get run-info :status)
                   old-list (get coll :list)
                   old-limit-remains (get coll :limit-remains)]
               (if (and (active? status) (pos? old-limit-remains))
@@ -317,11 +324,40 @@
     (-> (reduce f {:list [] :limit-remains limit} runs)
         (get :list))))
 
-(defn- scenario-runs [runs status-filter-a runs-limit path]
+(defn- extract-target-status [get-runs-fn scen-quarantine limit active?]
+  (let [
+        runs (get-runs-fn)
+        ;_ (log-o "runs " runs)
+        run-targets (lazy-seq (.keys js/Object runs))
+        ;_ (log (first run-targets))
+        ]
+    (loop [limit-remains limit
+           rest-targets run-targets
+           acc []
+           ]
+      (if (or (zero? limit-remains) (empty? rest-targets))
+        acc
+        (let [target (first (take 1 rest-targets))
+              run-info (get runs target)
+              new-rest-targets (drop 1 rest-targets)
+              status (get run-info :status)
+              new-status (if (contains? scen-quarantine target)
+                           (str status "_Q")
+                           status)
+              new-acc (if-not (active? new-status)
+                        acc
+                        (conj acc [target new-status]))]
+          (recur (dec limit-remains) new-rest-targets new-acc))))))
+
+
+
+
+(defn- scenario-runs [{:keys [get-runs-fn scen-quarantine status-filter-a runs-limit path]}]
   (r/create-class
     {:component-did-update trigger-refresh-scroll
      :component-function   (fn []
-                             (let [target-status-coll (extract-target-status runs @runs-limit #(active? % status-filter-a))
+                             ;(log "scenario runs")
+                             (let [target-status-coll (extract-target-status get-runs-fn scen-quarantine @runs-limit #(active? % status-filter-a))
                                    ;_ (log-o "target-statuses: " target-status-coll)
                                    ]
                                [:div
@@ -342,11 +378,10 @@
      (for [[idx str] (map-indexed vector doc-strings)]
        ^{:key idx} [:p str])]))
 
-(defn- scenario-view [{:keys [scenario-info scenario-name scenario-status-map status-filter-a path]}]
-  (let [runs (get scenario-info :runs)
-        runs-limit (r/atom default-runs-limit)
+(defn- scenario-view [{:keys [scenario-info get-runs-fn scen-quarantine scenario-name scenario-status-map status-filter-a path]}]
+  (let [runs-limit (r/atom default-runs-limit)
         extend-limit #(swap! runs-limit (partial + default-runs-more-count))
-        unlim #(reset! runs-limit (count runs))]
+        unlim #(reset! runs-limit (get-runs-count (get-runs-fn)))]
     (fn []
       (let [statuses (sort-statuses-by-vis-order > (keys scenario-status-map))
             doc-strings (string/split (get scenario-info :doc) #"\n\n")
@@ -361,7 +396,11 @@
           (status-filter statuses scenario-status-map status-filter-a)]
 
          [doc doc-strings]
-         [scenario-runs runs status-filter-a runs-limit path]
+         [scenario-runs {:get-runs-fn     get-runs-fn
+                         :scen-quarantine scen-quarantine
+                         :status-filter-a status-filter-a
+                         :runs-limit      runs-limit
+                         :path            path}]
          [:div.vertical-block
           [:div.list-row.list-row--border-less.list-row--no-padding.list-row--height-s
            [:div.list-column.list-column--grow]
@@ -371,15 +410,22 @@
 
 
 
-(defn run-view [run doc-strings]
+(defn run-view [target scen-quarantine js-run doc-strings]
   (fn []
-    (let [target (get run :target)
+    (let [run (js->clj js-run :keywordize-keys true)
+          ;_ (log-o "run " run)
           meta-data (get run :meta)
-          status (get run :status)]
+          ;_ (log-o "meta-data " meta-data)
+          status (get run :status)
+          ;_ (log-o "status " status)
+          new-status (if (contains? scen-quarantine target)
+                       (str status "_Q")
+                       status)
+          ]
       [:div
 
        [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
-        [:div.list-column..list-column--auto-width [:h1.margin-less (mk-tooltip-map status :left) (str status ":\u00A0\u00A0")]]
+        [:div.list-column..list-column--auto-width [:h1.margin-less (mk-tooltip-map new-status :left) (str new-status ":\u00A0\u00A0")]]
         [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string target]]]]
 
        [doc doc-strings]
@@ -390,7 +436,7 @@
        ])))
 
 
-(defn app-content [{:keys [test-data-map struct status-map status-filter-a nav-position-a]}]
+(defn app-content [{:keys [test-data-map quarantine runs struct status-map status-filter-a nav-position-a]}]
   (r/create-class
     {
      :component-did-mount (fn [this]
@@ -412,17 +458,25 @@
                                                                     :status-map      status-map
                                                                     :status-filter-a status-filter-a
                                                                     :nav-position-a  nav-position-a}]
-                                 (is-scenario? struct path) [scenario-view {:scenario-name       (path->str (peek path))
-                                                                            :scenario-status-map (get status-map (flatten-path path))
-                                                                            :status-filter-a     status-filter-a
-                                                                            :scenario-info       (get test-data-map (rest (flatten-path path)))
-                                                                            :path                path}]
+                                 (is-scenario? struct path) (let [scenario-info (get test-data-map (rest (flatten-path path)))
+                                                                  runs-id (get scenario-info :id)
+                                                                  scen-quarantine (get quarantine runs-id)
+                                                                  ;_ (log-o "runs-id " runs-id)
+                                                                  ]
+                                                              [scenario-view {:scenario-name       (path->str (peek path))
+                                                                              :get-runs-fn         #(get runs runs-id)
+                                                                              :scen-quarantine     scen-quarantine
+                                                                              :scenario-status-map (get status-map (flatten-path path))
+                                                                              :status-filter-a     status-filter-a
+                                                                              :scenario-info       scenario-info
+                                                                              :path                path}])
                                  (is-run? struct path) (let [scenario-path (pop path)
                                                              target (peek path)
                                                              scenario-info (get test-data-map (rest (flatten-path scenario-path)))
-                                                             runs (get scenario-info :runs)
-                                                             run (first (filter (partial is-that-run? target) runs))
+                                                             runs-id (get scenario-info :id)
+                                                             scen-quarantine (get quarantine runs-id)
+                                                             runs (get runs runs-id)
+                                                             run (get runs target)
                                                              doc-strings (string/split (get scenario-info :doc) #"\n\n")]
-                                                         [run-view run doc-strings])
+                                                         [run-view target scen-quarantine run doc-strings])
                                  :else nil)]))}))
-

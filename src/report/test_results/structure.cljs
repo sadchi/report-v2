@@ -130,7 +130,7 @@
         maped-q (reduce f {} q-coll)]
     maped-q))
 
-(defn apply-quarantine [test-data-map quarantine]
+(defn apply-quarantine-old [test-data-map quarantine]
   (let [mk-status-map (fn [coll x]
                         (let [status (keyword (get x :status))
                               status-count (get coll status 0)]
@@ -167,6 +167,45 @@
               (assoc coll path new-scen-info)))]
     (reduce f test-data-map quarantine)))
 
+
+(defn apply-quarantine [test-data-map id->path quarantine ]
+  (let [apply-f->map-item (fn [m k f]
+                            (let [key (keyword k)
+                                  old-v (get m key 0)
+                                  new-v (f old-v)
+                                  _ (log-o "m " m)
+                                  _ (log-o "k " key)
+                                  _ (log-o "old-v " old-v)
+                                  _ (log-o "new-v " new-v)]
+                              (cond
+                                (pos? new-v) (assoc m key new-v)
+                                :else (dissoc m key))))
+        apply-q (fn [coll x]
+                  (let [q-status (str x "_Q")]
+                    (-> coll
+                        (apply-f->map-item x dec)
+                        (apply-f->map-item q-status inc))))
+        f (fn [coll x]
+            (let [[id q-list] x
+                  path (get id->path id)
+                  scenario (get test-data-map path)
+                  status-map (get scenario :status)
+                  new-status-map (reduce apply-q status-map (vals q-list))
+                  ]
+              (assoc-in coll [path :status] new-status-map)))]
+    (reduce f test-data-map quarantine)))
+
+
 (defn get-assets [run]
   (->> (get run :meta)
        (filter #(= "asset" (get % :type)))))
+
+(defn get-runs-count [runs]
+  (count (.keys js/Object runs)))
+
+
+(defn build-id->path [test-data]
+  (let [f (fn [coll x]
+            (let [{:keys [id path]} x]
+              (assoc coll id path)))]
+    (reduce f {} test-data)))
