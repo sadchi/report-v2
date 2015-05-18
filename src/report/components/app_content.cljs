@@ -125,9 +125,10 @@
   ;(log-o "test-data-map " test-data-map)
   (let [get-single-run-target (fn [runs scen-id]
                                 (let [scen-runs (get runs scen-id)
-                                      _ (log-o "scen-runs " scen-runs)
+                                      ;_ (log-o "scen-runs " scen-runs)
                                       targets (js->clj (.keys js/Object scen-runs))
-                                      _ (log-o "targets " targets)]
+                                      ;_ (log-o "targets " targets)
+                                      ]
                                   (if (= 1 (count targets))
                                     (first targets)
                                     nil)))

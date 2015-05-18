@@ -173,10 +173,11 @@
                             (let [key (keyword k)
                                   old-v (get m key 0)
                                   new-v (f old-v)
-                                  _ (log-o "m " m)
-                                  _ (log-o "k " key)
-                                  _ (log-o "old-v " old-v)
-                                  _ (log-o "new-v " new-v)]
+                                  ;_ (log-o "m " m)
+                                  ;_ (log-o "k " key)
+                                  ;_ (log-o "old-v " old-v)
+                                  ;_ (log-o "new-v " new-v)
+                                  ]
                               (cond
                                 (pos? new-v) (assoc m key new-v)
                                 :else (dissoc m key))))
