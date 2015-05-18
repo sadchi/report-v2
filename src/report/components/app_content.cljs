@@ -21,8 +21,8 @@
 
 
 
-(def default-runs-limit 40)
-(def default-runs-more-count 10)
+(def default-runs-limit 50)
+(def default-runs-more-count 50)
 
 (def ^:private status-descs {"SUCCESS"   "Everything went ok."
                              "ERROR"     "Exception/s occured during test scenario execution. Probably the test is broken."
@@ -120,13 +120,17 @@
                             :href            (get-href-fn item)
                             :accent          false}])])
 
-(defn- gen-uri-jumps [{:keys [test-data-map struct parent-path]}]
+(defn- gen-uri-jumps [{:keys [test-data-map struct runs parent-path]}]
   ;(log "gen-uri-jumps called")
   ;(log-o "test-data-map " test-data-map)
-  (let [get-single-run-target (fn [runs]
-                                (if (= 1 (count runs))
-                                  (get (first runs) :target)
-                                  nil))
+  (let [get-single-run-target (fn [runs scen-id]
+                                (let [scen-runs (get runs scen-id)
+                                      _ (log-o "scen-runs " scen-runs)
+                                      targets (js->clj (.keys js/Object scen-runs))
+                                      _ (log-o "targets " targets)]
+                                  (if (= 1 (count targets))
+                                    (first targets)
+                                    nil)))
         f (fn [coll x]
             (let [full-path (conj parent-path x)
                   full-path-adjusted (if-not (is-scenario? struct full-path)
@@ -137,9 +141,9 @@
                                              ;_ (log-o "test-data-path " test-data-path)
                                              scen-info (get test-data-map test-data-path)
                                              ;_ (log-o "scen-info " scen-info)
-                                             runs (get scen-info :runs)
+                                             scen-id (get scen-info :id)
                                              ;_ (log-o "runs " runs)
-                                             single-target (get-single-run-target runs)
+                                             single-target (get-single-run-target runs scen-id)
                                              ;_ (log-o "single-target " single-target)
                                              ]
                                          (if single-target
@@ -158,7 +162,7 @@
     (fn [item]
       (get jump-per-item-map item))))
 
-(defn- category [{:keys [cat-name struct test-data-map status-map parent-statuses status-filter-a]}]
+(defn- category [{:keys [cat-name runs struct test-data-map status-map parent-statuses status-filter-a]}]
   (let [cat-path [cat-name]
         cat-statuses (get status-map cat-path)
         ;_ (log-o "cat-statuses " cat-statuses)
@@ -183,11 +187,12 @@
                                      :status-filter-a status-filter-a
                                      :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
                                                                       :struct        struct
+                                                                      :runs          runs
                                                                       :parent-path   cat-path})}]
                    [:div.list-row.list-row--border-less]])))))
 
 
-(defn home-view [{:keys [struct test-data-map status-map status-filter-a]}]
+(defn home-view [{:keys [struct runs test-data-map status-map status-filter-a]}]
   (let [root-status-map (get status-map [])
         statuses (sort-statuses-by-vis-order > (keys root-status-map))
         categories (keys struct)
@@ -211,6 +216,7 @@
                                       :let [[idx cat] cat-indexed]]
                                   ^{:key idx} [category {:cat-name        cat
                                                          :struct          struct
+                                                         :runs            runs
                                                          :test-data-map   test-data-map
                                                          :status-map      status-map
                                                          :parent-statuses statuses
@@ -255,7 +261,7 @@
                        [:a.custom-block-link {:href (get-href-fn item)} [:span str-item]]]
                       [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
 
-(defn node-view [{:keys [struct test-data-map status-map status-filter-a nav-position-a]}]
+(defn node-view [{:keys [struct runs test-data-map status-map status-filter-a nav-position-a]}]
   (r/create-class
     {:component-did-update trigger-refresh-scroll
      :component-did-mount  trigger-refresh-scroll
@@ -292,12 +298,14 @@
                                                                 :status-filter-a status-filter-a
                                                                 :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
                                                                                                  :struct        struct
+                                                                                                 :runs          runs
                                                                                                  :parent-path   path})}])
                                   [flat-list {:status-map      status-map
                                               :parent-path     path
                                               :items           sub-items
                                               :status-filter-a status-filter-a
                                               :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                               :runs          runs
                                                                                :struct        struct
                                                                                :parent-path   path})}])]))}))
 
@@ -344,10 +352,10 @@
               new-status (if (contains? scen-quarantine target)
                            (str status "_Q")
                            status)
-              new-acc (if-not (active? new-status)
-                        acc
-                        (conj acc [target new-status]))]
-          (recur (dec limit-remains) new-rest-targets new-acc))))))
+              [new-acc new-limit] (if-not (active? new-status)
+                                    [acc limit-remains]
+                                    [(conj acc [target new-status]) (dec limit-remains)])]
+          (recur new-limit new-rest-targets new-acc))))))
 
 
 
@@ -450,10 +458,12 @@
                               [:div.content-pane
                                (cond
                                  (= path []) [home-view {:struct          struct
+                                                         :runs            runs
                                                          :test-data-map   test-data-map
                                                          :status-map      status-map
                                                          :status-filter-a status-filter-a}]
                                  (is-node? struct path) [node-view {:struct          struct
+                                                                    :runs            runs
                                                                     :test-data-map   test-data-map
                                                                     :status-map      status-map
                                                                     :status-filter-a status-filter-a
