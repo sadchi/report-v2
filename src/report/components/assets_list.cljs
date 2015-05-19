@@ -1,5 +1,5 @@
 (ns report.components.assets-list
-  (:require [report.utils.string :refer [add-zero-spaces]]
+  (:require [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [is-absolute-url? clean-url-scheme]]
             [clojure.string :as str]
             [report.test-results.extra-params :refer [artifact-abs-prefix artifact-base]]))
@@ -9,10 +9,21 @@
 
 
 (defn- combine-url-parts [base asset-uri]
-  (let [base-list (str/split base #"/")
+  (let [
+        re-res (drop 1 (first (re-seq #"^(\w+://+)(.*)" base)))
+        ;_ (log-o "re-res " re-res)
+        scheme (first re-res)
+        uri-rest (second re-res)
+        ;_ (log-o "scheme " scheme)
+        ;_ (log-o "uri-rest " uri-rest)
+        base-list (str/split uri-rest #"/")
+        ;_ (log-o "base " base-list)
         asset-uri-list (str/split asset-uri #"/")
-        combi-list (into base-list asset-uri-list)]
-    (str/join "/" combi-list)))
+        ;_ (log-o "asset-uri-list " asset-uri-list)
+        combi-list (into base-list asset-uri-list)
+        ;_ (log-o "combi-list " combi-list)
+        ]
+    (str scheme (str/join "/" combi-list))))
 
 
 (defn assets-list [assets-coll]
@@ -27,13 +38,17 @@
             :let [extra-class (when (odd? idx) "simple-table__tr--odd")
                   asset-name (get asset :name)
                   asset-link (get asset :data)
+                  _ (log-o "asset-link " asset-link)
                   asset-link-cleaned (if (is-absolute-url? asset-link)
                                        (clean-url-scheme asset-link)
                                        asset-link)
+                  _ (log-o "asset-link-cleaned " asset-link-cleaned)
                   asset-subtype (get asset :subtype)
                   asset-link-combined (if (= "abs" asset-subtype)
                                         (combine-url-parts artifact-abs-prefix asset-link-cleaned)
-                                        (combine-url-parts artifact-base asset-link-cleaned))]]
+                                        (combine-url-parts artifact-base asset-link-cleaned))
+                  _ (log-o "asset-link-combined " asset-link-combined)
+                  ]]
         ^{:key idx} [:tr.simple-table__tr {:class extra-class}
                      [:td.simple-table__td asset-name]
-                     [:td.simple-table__td [:a.common-link {:href asset-link-combined} (add-zero-spaces asset-link-combined 10)]]])]]))
+                     [:td.simple-table__td [:a.common-link {:href asset-link-combined} asset-link-combined]]])]]))

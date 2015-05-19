@@ -16,6 +16,9 @@
   )
 
 
+
+#_(.profile js/console "main" )
+
 (extend-protocol ILookup
   object
   (-lookup [m k] (let [key (name k)] (aget m key)))
@@ -132,6 +135,8 @@
             ;_ (log-o "res " worse-status)
             ]
         (name res-status)))))
+
+#_(.profileEnd js/console)
 
 (r/render-component [app (app-bar #(get-status {:test-data-map test-data-quarantined
                                                 :struct        test-data-structure

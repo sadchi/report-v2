@@ -13,3 +13,17 @@
 
 (defn two-spaces->non-breaking [s]
   (string/replace s #"  " "\u00A0\u00A0"))
+
+
+(defn spanes-every [s every]
+  (let [pattern (re-pattern (gstring/format  ".{1,%d}" every))
+        split-s (re-seq pattern s)
+        spanned-s (map #([:span %]) split-s)
+        indexed-spanned-s (->> spanned-s
+                               (map-indexed vector)
+                               (map #(with-meta (second %) {:key (first %)})))]
+    indexed-spanned-s))
+
+
+(defn spanes-on [s target])
+

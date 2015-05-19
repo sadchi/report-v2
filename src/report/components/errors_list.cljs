@@ -9,7 +9,7 @@
         ;_ (log-o "trace-s " trace-s)
         trace-s-lines (string/split trace-s #"\n")
         ;_ (log-o "trace-s-lines " trace-s-lines)
-        trace-spanned (map (fn [x] [:span (add-zero-spaces (two-spaces->non-breaking x) 40)]) trace-s-lines)
+        trace-spanned (map (fn [x] [:span.break-all-text (two-spaces->non-breaking x)]) trace-s-lines)
         ;_ (log-o "trace-spanned " trace-spanned)
         trace-w-br (interpose [:br] trace-spanned)
         ;_ (log-o "trace-w-br " trace-w-br)
