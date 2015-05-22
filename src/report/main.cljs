@@ -12,7 +12,8 @@
             [report.utils.log :refer [log log-o]]
             [jquery.main]
             [jquery.nicescroll]
-            [report.routing :as routing])
+            [report.routing :as routing]
+            [report.components.dropdown])
   )
 
 
@@ -100,7 +101,7 @@
 
 
 
-(defn- get-status [{:keys [test-data-map struct status-map path]}]
+(defn- get-status [{:keys [test-data-map runs quarantine struct status-map path]}]
   (let [run? (structure/is-run? struct path)
         ;_ (log-o "run? " run?)
         flat-path (path/flatten-path path)
@@ -111,11 +112,18 @@
             ;_ (log-o "test-data-map " test-data-map)
             scenario-info (get test-data-map (rest (pop flat-path)))
             ;_ (log-o "scen info " scenario-info)
-            runs (get scenario-info :runs)
+            scen-id (get scenario-info :id)
+
             ;_ (log-o "runs " runs)
-            found-run (first (filter (partial structure/is-that-run? (peek flat-path)) runs))
+            target (peek path)
+            scen-runs (get runs scen-id)
+            scen-quarantine (get quarantine scen-id)
+            before-q-status (get scen-quarantine target)
+            run (get scen-runs target)
             ;_ (log-o "found run " found-run)
-            status (get found-run :status)
+            status (if before-q-status
+                     (str before-q-status "_Q")
+                     (get run :status))
             ]
         status)
       (let [unit-status-map (get status-map flat-path)
@@ -139,6 +147,8 @@
 #_(.profileEnd js/console)
 
 (r/render-component [app (app-bar #(get-status {:test-data-map test-data-quarantined
+                                                :quarantine    quarantine
+                                                :runs          runs
                                                 :struct        test-data-structure
                                                 :status-map    status-map
                                                 :path          %}) routing/nav-position)

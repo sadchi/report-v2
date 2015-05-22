@@ -18,7 +18,6 @@
         :semi-accent "semi-accent-back-theme"
         :neutral     "neutral-back-theme"} reputation))
 
-
 #_(defn text-style [status]
   (class-selector status {:good    "success-text-theme"
                           :bad     "error-text-theme"

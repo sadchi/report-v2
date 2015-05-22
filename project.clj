@@ -7,13 +7,15 @@
                  [garden "1.2.5"]]
 
 
+  :jvm-opts ["-Xmx1g"]
+
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-haml-sass "0.2.7-SNAPSHOT"]
             [lein-garden "0.2.5"]]
 
-  :sass {:src "sass"
-         :output-directory "target"
-         :output-extension "css"
+  :sass {:src               "sass"
+         :output-directory  "target"
+         :output-extension  "css"
          :delete-output-dir true}
 
   :cljsbuild {:builds
@@ -30,7 +32,8 @@
                                                {:file     "libs/jquery.nicescroll.js"
                                                 :file-min "libs/jquery.nicescroll.min.js"
                                                 :requires ["jquery.main"]
-                                                :provides ["jquery.nicescroll"]}]
+                                                :provides ["jquery.nicescroll"]}
+                                               ]
                                :externs       ["libs/jquery-1.11.2.js" "libs/jquery.nicescroll.js"]}}}}
 
   :profiles {:dev
@@ -50,20 +53,20 @@
                                                        :non-standard-jsdoc :off}
                                        :pretty-print  false}}}}}}
 
-  :aliases {"bc" ["do" ["sass" "once"]]
+  :aliases {"bc"     ["do" ["sass" "once"]]
             "bj"     ["do" ["cljsbuild" "auto"]]
             "bjprod" ["with-profile" "prod" "cljsbuild" "once"]}
 
 
   :garden {:builds [{;; Optional name of the build:
-                     :id "main"
+                     :id           "main"
                      ;; Source paths where the stylesheet source code is
                      :source-paths ["src/styles"]
                      ;; The var containing your stylesheet:
-                     :stylesheet styles.report/main
+                     :stylesheet   styles.report/main
                      ;; Compiler flags passed to `garden.core/css`:
-                     :compiler {;; Where to save the file:
-                                :output-to "target/main.css"
-                                ;; Compress the output?
-                                :pretty-print? true}}]}
+                     :compiler     {;; Where to save the file:
+                                    :output-to     "target/main.css"
+                                    ;; Compress the output?
+                                    :pretty-print? true}}]}
   )

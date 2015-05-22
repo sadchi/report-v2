@@ -10,6 +10,7 @@
             [report.components.assets-list :refer [assets-list]]
             [report.components.truncated-string :refer [truncated-string]]
             [report.components.tooltip :as tooltip]
+            [report.components.dropdown :refer [dropdown]]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
@@ -196,7 +197,7 @@
 (defn home-view [{:keys [struct runs test-data-map status-map status-filter-a]}]
   (let [root-status-map (get status-map [])
         statuses (sort-statuses-by-vis-order > (keys root-status-map))
-        categories (keys struct)
+        categories (sort (keys struct))
         ;_ (log-o "cats " categories)
         ]
     (r/create-class
@@ -433,6 +434,10 @@
           ]
       [:div
 
+       #_[:div [dropdown {:coll [1 2 3 4 5]
+                        :current 1
+                        :traits [:strict]
+                        :select-fn #(%)}]]
        [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
         [:div.list-column..list-column--auto-width [:h1.margin-less (mk-tooltip-map new-status :left) (str new-status ":\u00A0\u00A0")]]
         [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string target]]]]

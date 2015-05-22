@@ -58,12 +58,16 @@
     (let [path @a-nav-position
           ;_ (log-o "path: " path)
           status (get-status-fn path)
-          ;_ (log "status aquired")
+          ;_ (log-o "status " status)
           extra-class (condp = (statuses/get-reputation status)
-                        :good "app-bar__content--success-marker"
-                        :bad "app-bar__content--error-marker"
+                        :good        "app-bar__content--success-marker"
+                        :semi-good   "app-bar__content--semi-success-marker"
+                        :bad         "app-bar__content--error-marker"
+                        :semi-bad    "app-bar__content--semi-error-marker"
+                        :accent      "app-bar__content--accent-marker"
+                        :semi-accent "app-bar__content--semi-accent-marker"
                         "app-bar__content--neutral-marker")
-          ;_ (log "extra class built")
+          ;_ (log-o "extra class" extra-class)
           ]
       [:div.app-bar {:class extra-class}
        [:div.app-bar__content
