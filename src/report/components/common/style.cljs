@@ -15,7 +15,7 @@
 (defn rgba [hex-color alpha]
   (let [rgb-map (color/hex->rgb hex-color)
         {r :red g :green b :blue} rgb-map]
-  (str "rgba(" r "," g "," b "," alpha ")")))
+    (str "rgba(" r "," g "," b "," alpha ")")))
 
 (def purpose-colors {
                      :accent "#2196F3"
@@ -51,6 +51,12 @@
      :6 s6}))
 
 
+(def z-level {
+              :ground 0
+              :ground-controls 3
+              })
+
+
 (defn accent-shadow []
   (let [s-color (rgba (get purpose-colors :accent) 0.6)
         ;_ (log-o "s-color " s-color)
@@ -58,3 +64,21 @@
         ;_ (log-o "s-props " s-props)
         ]
     {:box-shadow s-props}))
+
+
+(def disable-hightlight
+  {:-webkit-touch-callout "none"
+   :-webkit-user-select   "none"
+   :-moz-user-select      "none"
+   :-ms-user-select       "none"
+   :user-select           "none"})
+
+(def iconic-font
+  {:font-family     "fontello"
+   :font-style      "normal"
+   :font-weight     "normal"
+   :speak           "none"
+   :display         "inline-block"
+   :text-decoration "inherit"
+   ;:width           "1em"
+   :text-align      "center"})
