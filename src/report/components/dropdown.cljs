@@ -52,9 +52,10 @@
             cs/disable-hightlight)]
     [:.dropdown-list--opened:after {:content "\"\\e81d\""}]
     [:.dropdown-list--closed:after {:content "\"\\e81c\""}]
-    [:.dropdown-list--s-width {}]
-    [:.dropdown-list--m-width {}]
-    [:.dropdown-list--l-width {}]
+    [:.dropdown-list--s-width {:width (px (get cs/control-width :s))}]
+    [:.dropdown-list--m-width {:width (px (get cs/control-width :m))}]
+    [:.dropdown-list--l-width {:width (px (get cs/control-width :l))}]
+    [:.dropdown-list--xl-width {:width (px (get cs/control-width :xl))}]
     [:.dropdown-list__item
      {:position     "relative"
       :padding-left (px (* cs/unit 2))}
@@ -73,7 +74,7 @@
 
 
 
-(defn dropdown [{:keys [coll current traits select-fn]}]
+(defn dropdown [{:keys [coll current any? select-fn width]}]
   (let [state (r/atom :closed)
         cur-selection (r/atom current)
         flip-state (fn [x]
@@ -82,10 +83,11 @@
                        :closed :opened
                        :opened :closed
                        :opened))
-        _ (log-o "traits " traits)
-        final-items (if (contains? traits :non-strict)
+        ;_ (log-o "traits " traits)
+        final-items (if any?
                       (cons :any coll)
                       coll)
+        width-class (str "dropdown-list--" (name width) "-width")
         inner-select-fn (fn [x]
                           (reset! cur-selection x)
                           (select-fn x))]
@@ -93,9 +95,11 @@
       ;(log "dropdown rendered")
       (let [st @state
             opened? (= st :opened)
-            class (if opened?
-                    "dropdown-list--opened"
-                    "dropdown-list--closed")]
+
+            state-class (if opened?
+                          "dropdown-list--opened"
+                          "dropdown-list--closed")
+            class (str state-class " " width-class)]
         [:div.dropdown-list {:on-click #(swap! state flip-state) :class class}
          (list ^{:key 0} (name @cur-selection)
                (when opened?

@@ -21,9 +21,10 @@
                      :accent "#2196F3"
                      })
 
-(def control-width {:s (* unit 10)
-                    :m (* unit 15)
-                    :l (* unit 20)})
+(def control-width {:s  (* unit 10)
+                    :m  (* unit 20)
+                    :l  (* unit 30)
+                    :xl (* unit 40)})
 
 (def control-height {:s (* unit 2)
                      :m (* unit 3)
@@ -52,7 +53,7 @@
 
 
 (def z-level {
-              :ground 0
+              :ground          0
               :ground-controls 3
               })
 

@@ -1,4 +1,5 @@
-(ns report.components.runs-meta)
+(ns report.components.runs-meta
+  (:require [report.components.pivot-table :refer [pivot-table-factory]]))
 
 
 (defn meta-text [meta-item]
@@ -31,6 +32,17 @@
              (conj acc)
              (recur (map next data) (inc idx)))))]])
 
+(defn meta-pivot-table [meta-item]
+  (let [[selected-data-a & dropdowns] (pivot-table-factory meta-item)]
+    [:div.vertical-block
+    [:h4 (:name meta-item)]
+     (for [[idx dropdown] (map-indexed vector dropdowns)
+           :let [[dropdown-name component] dropdown]]
+       ^{:key idx} [:div dropdown-name [component]])
+    ]))
+
+
+
 (defn meta-data-render [meta-data]
   [:div
    [:h3 "Meta information:"]
@@ -38,4 +50,5 @@
      (case (:type meta-item)
        "text" ^{:key idx} [meta-text meta-item]
        "table" ^{:key idx} [meta-table meta-item]
+       "pivot-table" ^{:key idx} [meta-pivot-table meta-item]
        nil))])
