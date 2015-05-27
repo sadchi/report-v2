@@ -53,8 +53,9 @@
 
 
 (def z-level {
-              :ground          0
-              :ground-controls 3
+              :ground                0
+              :ground-controls       3
+              :popup 99
               })
 
 

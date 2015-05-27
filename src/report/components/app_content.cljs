@@ -434,7 +434,7 @@
           ]
       [:div
 
-       [:div [dropdown {:coll      ["1" "2" "3" "4" "5"]
+       #_[:div [dropdown {:coll      ["1" "2" "3" "4" "5"]
                         :width     :s
                         :current   :1
                         :any?      false

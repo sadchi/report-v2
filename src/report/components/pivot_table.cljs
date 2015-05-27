@@ -10,7 +10,7 @@
 (defn filter-data [filters data-map]
   (let [get-bad-indices (fn [res x]
                           (let [[k v] x
-                                any? (= :any (keyword (str v)))
+                                any? (= "any" (str v))
                                 ;_ (log-o "k " k)
                                 ;_ (log-o "v " v)
                                 ;_ (log-o "any? " any?)
@@ -35,11 +35,11 @@
 
         extract-good-data (fn [good-idx exclude-keys coll x]
                             (let [[k v] x
-                                  _ (log-o "k" k)
-                                  _ (log-o "v" v)
-                                  _ (log-o "ex" exclude-keys)
-                                  _ (log-o "gi" good-idx)
-                                  _ (log-o "contains? " (contains? exclude-keys k))
+                                  ;_ (log-o "k" k)
+                                  ;_ (log-o "v" v)
+                                  ;_ (log-o "ex" exclude-keys)
+                                  ;_ (log-o "gi" good-idx)
+                                  ;_ (log-o "contains? " (contains? exclude-keys k))
                                   ]
                               (if (contains? exclude-keys k)
                                 coll
@@ -54,15 +54,16 @@
 
 
         bad-indices (reduce get-bad-indices #{} filters)
-        _ (log-o "bad-indices " bad-indices)
+        ;_ (log-o "bad-indices " bad-indices)
         [_ column] (first data-map)
         indices (set (range (count column)))
-        _ (log-o "indices " indices)
+        ;_ (log-o "indices " indices)
         good-indices (set/difference indices bad-indices)
-        _ (log-o "good-indices " good-indices)
+        ;_ (log-o "good-indices " good-indices)
         res-data (reduce (partial extract-good-data good-indices (set (keys filters))) {} data-map)
-        _ (log-o "res-data " res-data)
-        ]))
+        ;_ (log-o "res-data " res-data)
+        ]
+    res-data))
 
 
 (defn pivot-table-factory [{:keys [pivots columns data]}]
@@ -86,14 +87,32 @@
 
         columns-keyworded (map keyword columns)
         data-map (zipmap columns-keyworded data)
-        _ (log-o "data-map " data-map)
+        ;_ (log-o "data-map " data-map)
 
         filters (atom (reduce mk-initial-filters {} pivots))
-        _ (log-o "filters " @filters)
+        ;_ (log-o "filters " @filters)
 
         selected-data-a (r/atom (filter-data @filters data-map))
-        _ (log-o "selected-data-a " @selected-data-a)
+        ;_ (log-o "selected-data-a " @selected-data-a)
 
         pivots-w-coll (reduce (partial add-coll data-map) {} pivots)
-        _ (log-o "pivots-w-coll " pivots-w-coll)
-        ]))
+        ;_ (log-o "pivots-w-coll " pivots-w-coll)
+
+
+        dropdowns (for [item pivots-w-coll
+                        :let [[k v] item
+                              ;_ (log-o "k" k)
+                              ;_ (log-o "coll" (get v :coll))
+                              ;_ (log-o "any?" (get v :any))
+                              ;_ (log-o "current" (get v :current))
+                              ]]
+                    [(name k) (dropdown {:coll                              (get v :coll)
+                                         :any?                              (get v :any)
+                                         :current                           (get v :current)
+                                         :width                             :m
+                                         :select-fn #_(log-o "selected " %) (fn [x]
+                                                                              (swap! filters assoc k x)
+                                                                              ;(log-o "current filter" @filters)
+                                                                              (reset! selected-data-a (filter-data @filters data-map)))})])
+        ]
+    [selected-data-a dropdowns]))

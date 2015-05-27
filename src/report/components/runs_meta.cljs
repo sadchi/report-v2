@@ -1,5 +1,7 @@
 (ns report.components.runs-meta
-  (:require [report.components.pivot-table :refer [pivot-table-factory]]))
+  (:require [report.components.pivot-table :refer [pivot-table-factory]]
+            [report.components.table :refer [table]]
+            [report.utils.log :refer [log log-o]]))
 
 
 (defn meta-text [meta-item]
@@ -33,13 +35,22 @@
              (recur (map next data) (inc idx)))))]])
 
 (defn meta-pivot-table [meta-item]
-  (let [[selected-data-a & dropdowns] (pivot-table-factory meta-item)]
-    [:div.vertical-block
-    [:h4 (:name meta-item)]
-     (for [[idx dropdown] (map-indexed vector dropdowns)
-           :let [[dropdown-name component] dropdown]]
-       ^{:key idx} [:div dropdown-name [component]])
-    ]))
+  (let [[selected-data-a dropdowns] (pivot-table-factory meta-item)
+        ;_ (log-o "dropdowns" dropdowns)
+        ]
+    (fn []
+      [:div.vertical-block
+       [:h4 (:name meta-item)]
+       (for [[idx dropdown] (map-indexed vector dropdowns)
+             :let [[dropdown-name component] dropdown
+                   ;_ (log-o "comp" component)
+                   ;_ (log-o "dropdown-name" dropdown-name)
+                   ]]
+         ^{:key idx} [:div.vertical-block dropdown-name [component]])
+       [table {:table-name (get meta-item :name)
+               :columns-order (get meta-item :columns)
+               :data-a selected-data-a}]
+       ])))
 
 
 

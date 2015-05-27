@@ -14,7 +14,6 @@
      (merge {
              :display      "inline-block"
              :position     "relative"
-             :z-index      (get cs/z-level :ground-controls)
              :font-family  (get cs/font-family :content)
              :font-size    (px (get cs/font-sizes :0))
              :font-weight  "bold"
@@ -40,6 +39,7 @@
      ]
     [:.dropdown-list__items-pane
      (merge {:position   "absolute"
+             :z-index    (get cs/z-level :popup)
              :top        (px (get cs/control-height :m))
              :left       (px -1)
              :right      (px -1)
@@ -85,12 +85,13 @@
                        :opened))
         ;_ (log-o "traits " traits)
         final-items (if any?
-                      (cons :any coll)
+                      (cons "any" coll)
                       coll)
         width-class (str "dropdown-list--" (name width) "-width")
         inner-select-fn (fn [x]
                           (reset! cur-selection x)
-                          (select-fn x))]
+                          (select-fn x))
+        item-name #(name (str %))]
     (fn []
       ;(log "dropdown rendered")
       (let [st @state
@@ -101,11 +102,11 @@
                           "dropdown-list--closed")
             class (str state-class " " width-class)]
         [:div.dropdown-list {:on-click #(swap! state flip-state) :class class}
-         (list ^{:key 0} (name @cur-selection)
+         (list ^{:key 0} (item-name @cur-selection)
                (when opened?
                  ^{:key 1} [:div.dropdown-list__items-pane
                             (for [[id item] (map-indexed vector final-items)]
-                              ^{:key id} [:div.dropdown-list__item {:on-click #(inner-select-fn item)} (name item)])]))]
+                              ^{:key id} [:div.dropdown-list__item {:on-click #(inner-select-fn item)} (item-name item)])]))]
         ))))
 
 
