@@ -1,5 +1,6 @@
 (ns report.components.dropdown
-  (:require [report.components.common.utils :refer [add-style!]]
+  (:require [report.components.common.utils :as u :refer [add-style!]]
+            [report.components.common.params :as p]
             [report.components.common.style :as cs]
             [report.utils.log :refer [log log-o]]
             [reagent.core :as r]
@@ -11,54 +12,52 @@
 (defonce ^:private styles
   (list
     [:.dropdown-list
-     (merge {
-             :display      "inline-block"
-             :position     "relative"
-             :font-family  (get cs/font-family :content)
-             :font-size    (px (get cs/font-sizes :0))
-             :font-weight  "bold"
-             :border       "1px solid grey"
-             :width        (px (get cs/control-width :m))
-             :height       (px (get cs/control-height :m))
-             :line-height  (px (get cs/control-height :m))
-             :text-align   "left"
-             :padding-left (px (* cs/unit 2))
-             :cursor       "pointer"
-             :background   "white"}
-            cs/disable-hightlight)
+     {:display      "inline-block"
+      :position     "relative"
+      :font-family  (get p/font-family :content)
+      :font-size    (px (get p/font-sizes :0))
+      :font-weight  "bold"
+      :border       "1px solid grey"
+      :width        (px (get p/control-width :m))
+      :height       (px (get p/control-height :m))
+      :line-height  (px (get p/control-height :m))
+      :text-align   "left"
+      :padding-left (px (* p/unit 2))
+      :cursor       "pointer"
+      :background   "white"}
+     cs/disable-hightlight
      [:&:hover (cs/accent-shadow)]]
     [:.dropdown-list--opened :.dropdown-list--closed
      [:&:after
-      (merge {:position "absolute"
-              :right    (px 0)
-              :top      (px 0)
-              :bottom   (px 0)
-              :width    (px (get cs/control-height :m))}
-             cs/iconic-font
-             )]
+      {:position "absolute"
+       :right    (px 0)
+       :top      (px 0)
+       :bottom   (px 0)
+       :width    (px (get p/control-height :m))}
+      cs/iconic-font
+      ]
      ]
     [:.dropdown-list__items-pane
-     (merge {:position   "absolute"
-             :z-index    (get cs/z-level :popup)
-             :top        (px (get cs/control-height :m))
-             :left       (px -1)
-             :right      (px -1)
-             :cursor     "pointer"
-             :border     "1px solid grey"
-             :text-align "left"
-             :background "white"
-
-             }
-            cs/disable-hightlight)]
+     {:position   "absolute"
+      :z-index    (get p/z-level :popup)
+      :top        (px (get p/control-height :m))
+      :left       (px -1)
+      :right      (px -1)
+      :cursor     "pointer"
+      :border     "1px solid grey"
+      :text-align "left"
+      :background "white"
+      }
+     cs/disable-hightlight]
     [:.dropdown-list--opened:after {:content "\"\\e81d\""}]
     [:.dropdown-list--closed:after {:content "\"\\e81c\""}]
-    [:.dropdown-list--s-width {:width (px (get cs/control-width :s))}]
-    [:.dropdown-list--m-width {:width (px (get cs/control-width :m))}]
-    [:.dropdown-list--l-width {:width (px (get cs/control-width :l))}]
-    [:.dropdown-list--xl-width {:width (px (get cs/control-width :xl))}]
+    [:.dropdown-list--s-width {:width (px (get p/control-width :s))}]
+    [:.dropdown-list--m-width {:width (px (get p/control-width :m))}]
+    [:.dropdown-list--l-width {:width (px (get p/control-width :l))}]
+    [:.dropdown-list--xl-width {:width (px (get p/control-width :xl))}]
     [:.dropdown-list__item
      {:position     "relative"
-      :padding-left (px (* cs/unit 2))}
+      :padding-left (px (* p/unit 2))}
      [:&:hover:after
       {:position   "absolute"
        :content    "\" \""
@@ -66,7 +65,7 @@
        :bottom     0
        :left       0
        :right      0
-       :background (get cs/purpose-colors :accent)
+       :background (get p/purpose-colors :accent)
        :opacity    0.15}]]
 
     ))
@@ -112,6 +111,5 @@
 
 (defonce init
   (let [name (namespace ::x)]
-    (log (str name " ... initializing"))
-    (add-style! (css {:pretty-print? true} styles))
+    (add-style! (u/css-w-prefixes {:pretty-print? true} styles))
     (log (str name " ... initialized"))))

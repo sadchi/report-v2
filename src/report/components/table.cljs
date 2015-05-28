@@ -9,7 +9,7 @@
 
 
 
-(defn table [{:keys [table-name columns-order data-a]}]
+(defn table [{:keys [columns-order data-a]}]
   (fn []
     (let [full-data @data-a
           ;_ (log-o "full-data" full-data)
@@ -23,7 +23,6 @@
           ;_ (log-o "transposed-data" transposed-data)
           ]
       [:div.vertical-block
-       [:h4 table-name]
        [:table.simple-table
         [:tr.simple-table__tr
          (for [[idx column] (map-indexed vector columns)

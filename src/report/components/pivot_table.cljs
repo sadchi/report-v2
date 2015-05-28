@@ -1,8 +1,13 @@
 (ns report.components.pivot-table
   (:require [report.components.dropdown :refer [dropdown]]
+            [report.components.common.utils :as u]
+            [report.components.common.style :as s]
+            [report.components.common.params :as p]
+            [report.components.table :refer [table]]
             [reagent.core :as r]
             [report.utils.log :refer [log log-o]]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [garden.units :refer [px]]))
 
 
 (defn- compose [columns data])
@@ -116,3 +121,51 @@
                                                                               (reset! selected-data-a (filter-data @filters data-map)))})])
         ]
     [selected-data-a dropdowns]))
+
+
+(defn pivot-simple-table [meta-item]
+  (let [[selected-data-a dropdowns] (pivot-table-factory meta-item)
+        ;_ (log-o "dropdowns" dropdowns)
+        ]
+    (fn []
+      [:div.vertical-block
+       [:h4 (:name meta-item)]
+       [:div.hor-sub-block-m
+        [:p "Filter data in the table by the next filters:"]
+        [:div.pivot-table-filters
+         [:div.pivot-table-filters__filter-name-column
+          (for [[idx f-name] (map-indexed vector (map first dropdowns))]
+            ^{:key idx} [:span.pivot-table-filters__row (str f-name ": ")])]
+         [:div.pivot-table-filters__filters-column
+          (for [[idx component] (map-indexed vector (map second dropdowns))]
+            ^{:key idx} [:div.hor-sub-block-s.pivot-table-filters__row [component]])]]
+        [table {:columns-order (get meta-item :columns)
+                :data-a        selected-data-a}]]])))
+
+
+
+(defonce ^:private styles
+  [
+   [:.pivot-table-filters__row
+    {:height (px p/line-height)
+     :line-height (px p/line-height)}]
+   [:.pivot-table-filters
+    s/flex-box]
+   [:.pivot-table-filters__filter-name-column
+    s/flex-box
+    {:flex-grow 0
+     :flex-direction "column"
+     :align-items "flex-end"}]
+   [:.pivot-table-filters__filters-column
+    s/flex-box
+    {:flex-grow 1
+     :flex-direction "column"}]
+   [:.pivot-table-filters__item
+    s/hor-sub-block]
+   ])
+
+
+(defonce init
+  (let [name (namespace ::x)]
+    (u/add-style! (u/css-w-prefixes {:pretty-print? true} styles))
+    (log (str name " ... initialized"))))

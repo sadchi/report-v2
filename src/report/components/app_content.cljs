@@ -439,7 +439,7 @@
                         :current   :1
                         :any?      false
                         :select-fn #(log-o "select-fn params" %)}]]
-       [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
+       [:div.list-row.list-row--height-l.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
         [:div.list-column..list-column--auto-width [:h1.margin-less (mk-tooltip-map new-status :left) (str new-status ":\u00A0\u00A0")]]
         [:div.list-column.list-column--grow.list-column--left [:h1.margin-less [truncated-string target]]]]
 

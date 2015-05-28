@@ -2,19 +2,21 @@
 @import color-schemes/_schemes
 
 
-$simple-table-border-color : grey !default
-$simple-table-border       : 1px solid $simple-table-border-color !default
-$simple-table-tr-border    : 1px 0 !default
-$simple-table-tr-height    : 32px !default
+$simple-table-border-color    : grey !default
+$simple-table-border          : 1px solid $simple-table-border-color !default
+$simple-table-tr-border       : 1px 0 !default
+$simple-table-tr-height       : 24px !default
 $simple-table-tr-border-color : grey !default
-$simple-table-th-font-size : 16px !default
-$simple-table-th-padding   : 0 16px !default
-$simple-table-td-padding   : 0 16px !default
+$simple-table-th-font-size    : 16px !default
+$simple-table-th-padding      : 0 16px !default
+$simple-table-td-padding      : 0 16px !default
 
 
 .simple-table
   @extend .content-font
-  width  : 100%
+  max-width  : 100%
+  min-width  : 15%
+  overflow-x : scroll
   border : $simple-table-border
   border-collapse : collapse
   border-spacing  : 0
