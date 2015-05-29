@@ -9,7 +9,7 @@
 
   :jvm-opts ["-Xmx1g"]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
+  :plugins [[lein-cljsbuild "1.0.6"]
             [lein-haml-sass "0.2.7-SNAPSHOT"]
             [lein-garden "0.2.5"]]
 
