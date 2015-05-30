@@ -12,7 +12,10 @@
     `[~@res#]))
 
 (defmacro get-css-class-names [& classes]
-  `(str ~@(s/join " " (map name classes))))
+  (s/join " " (map name classes)))
+
+(defmacro mk-fn [macro]
+  `(fn [& args#] (eval (cons '~macro args#))))
 
 (defmacro classes [& args]
-  `(assoc {} :class ~@(s/join " " (map name args))))
+  {:class (apply (mk-fn get-css-class-names) args)})
