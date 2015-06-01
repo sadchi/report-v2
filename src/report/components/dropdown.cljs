@@ -5,7 +5,74 @@
             [report.utils.log :refer [log log-o]]
             [reagent.core :as r]
             [garden.core :refer [css]]
-            [garden.units :refer [px pt]]))
+            [garden.units :refer [px pt]])
+  (:require-macros [report.macros.core :refer [get-css-desc get-css-class-names class-name classes]]))
+
+
+
+
+(def dropdown-list [{:display      "inline-block"
+                     :position     "relative"
+                     :font-family  (get p/font-family :content)
+                     :font-size    (px (get p/font-sizes :0))
+                     :font-weight  "bold"
+                     :border       "1px solid grey"
+                     :width        (px (get p/control-width :m))
+                     :height       (px (get p/control-height :m))
+                     :line-height  (px (get p/control-height :m))
+                     :text-align   "left"
+                     :padding-left (px (* p/unit 2))
+                     :cursor       "pointer"
+                     :background   "white"}
+                    cs/disable-hightlight
+                    [:&:hover (cs/accent-shadow)]])
+
+(def dropdown-list__mark
+  [:&:after
+   {:position "absolute"
+    :right    (px 0)
+    :top      (px 0)
+    :bottom   (px 0)
+    :width    (px (get p/control-height :m))}
+   cs/iconic-font])
+
+(def dropdown-list--opened
+  [dropdown-list__mark
+   [:&:after {:content "\"\\e81d\""}]])
+
+(def dropdown-list--closed
+  [dropdown-list__mark
+   [:&:after {:content "\"\\e81c\""}]])
+
+
+(def dropdown-list__items-pane [{:position   "absolute"
+                                 :z-index    (get p/z-level :popup)
+                                 :top        (px (get p/control-height :m))
+                                 :left       (px -1)
+                                 :right      (px -1)
+                                 :cursor     "pointer"
+                                 :border     "1px solid grey"
+                                 :text-align "left"
+                                 :background "white"
+                                 }
+                                cs/disable-hightlight])
+
+(def dropdown-list__item [{:position     "relative"
+                           :padding-left (px (* p/unit 2))}
+                          [:&:hover:after
+                           {:position   "absolute"
+                            :content    "\" \""
+                            :top        0
+                            :bottom     0
+                            :left       0
+                            :right      0
+                            :background (get p/purpose-colors :accent)
+                            :opacity    0.15}]])
+
+(def dropdown-list--s-width {:width (px (get p/control-width :s))})
+(def dropdown-list--m-width {:width (px (get p/control-width :m))})
+(def dropdown-list--l-width {:width (px (get p/control-width :l))})
+(def dropdown-list--xl-width {:width (px (get p/control-width :xl))})
 
 
 
@@ -111,5 +178,9 @@
 
 (defonce init
   (let [name (namespace ::x)]
-    (add-style! (u/css-w-prefixes {:pretty-print? true} styles))
+    #_(add-style! (u/css-w-prefixes {:pretty-print? true} styles))
+    (add-style! (u/css-w-prefixes {:pretty-print? true} (get-css-desc dropdown-list
+                                                                      dropdown-list--opened dropdown-list--closed dropdown-list__items-pane dropdown-list__item
+                                                                      dropdown-list--s-width dropdown-list--m-width dropdown-list--l-width dropdown-list--xl-width
+                                                                      )))
     (log (str name " ... initialized"))))

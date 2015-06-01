@@ -1,21 +1,30 @@
 (ns report.macros.core
   (:require [clojure.string :as s]))
 
-(defmacro def-css-class [class-sym declaration]
-  `(def ~class-sym (with-meta [(keyword (str "." (quote ~class-sym))) ~declaration] {:name (str (quote ~class-sym))})))
-
 (defmacro get-css-desc [& classes]
-  (let [gen-css-name (fn [x]
-                       (str ":." (name x)))
-        names (map gen-css-name classes)
-        res# (map vector names classes)]
-    `[~@res#]))
+  (let [
+        gen-css-keyword (fn [x]
+                          (keyword (str "." (name x))))
+        names (map gen-css-keyword classes)
+        combine (fn [x y]
+                  (if (vector? y)
+                    (into [x] y)
+                    [x y]))]
+    `(map #(if (vector? %2)(into [%1] %2) [%1 %2]) [~@names] [~@classes])))
 
-(defmacro get-css-class-names [& classes]
-  (s/join " " (map name classes)))
 
 (defmacro mk-fn [macro]
   `(fn [& args#] (eval (cons '~macro args#))))
 
+
+
+(defmacro get-css-class-names [& classes]
+  (s/join " " (map name classes)))
+
+
+(defmacro class-name [class]
+  (name class))
+
 (defmacro classes [& args]
   {:class (apply (mk-fn get-css-class-names) args)})
+
