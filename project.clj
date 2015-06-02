@@ -60,13 +60,8 @@
 
   :garden {:builds [{;; Optional name of the build:
                      :id           "main"
-                     ;; Source paths where the stylesheet source code is
                      :source-paths ["src/styles"]
-                     ;; The var containing your stylesheet:
                      :stylesheet   styles.report/main
-                     ;; Compiler flags passed to `garden.core/css`:
-                     :compiler     {;; Where to save the file:
-                                    :output-to     "target/main.css"
-                                    ;; Compress the output?
+                     :compiler     {:output-to     "target/main.css"
                                     :pretty-print? true}}]}
   )

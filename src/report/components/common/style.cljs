@@ -3,8 +3,7 @@
             [garden.units :refer [px]]
             [report.utils.log :refer [log log-o]]
             [report.components.common.utils :as u :refer [add-style!]]
-            [report.components.common.params :as p])
-  (:require-macros [report.macros.core :refer [get-css-desc get-css-class-names classes]]))
+            [report.components.common.params :as p]))
 
 (defn accent-shadow []
   (let [s-color (u/rgba (get p/purpose-colors :accent) 0.6)
