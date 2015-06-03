@@ -15,7 +15,7 @@
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
             [report.components.status-filter :refer [status-filter hovered? w-a-active? active? any-active?]]
-            [report.test-results.path :refer [flatten-path path->str]]
+            [report.test-results.path :refer [safe-path desafe-path flatten-path path->str]]
             [report.components.buttons :refer [state-button button]]
             [clojure.string :as string]))
 
@@ -149,7 +149,7 @@
                                              ;_ (log-o "single-target " single-target)
                                              ]
                                          (if single-target
-                                           (conj full-path single-target)
+                                           (conj full-path (safe-path single-target))
                                            full-path)))
                   ;_ (log-o "full-path-adjusted " full-path-adjusted)
                   ]

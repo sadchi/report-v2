@@ -105,6 +105,7 @@
   (let [run? (structure/is-run? struct path)
         ;_ (log-o "run? " run?)
         flat-path (path/flatten-path path)
+        ;_ (log-o "path " path)
         ;_ (log-o "flat-path " flat-path)
         ]
     (if run?
@@ -120,7 +121,6 @@
             scen-quarantine (get quarantine scen-id)
             before-q-status (get scen-quarantine target)
             run (get scen-runs target)
-            ;_ (log-o "found run " found-run)
             status (if before-q-status
                      (str before-q-status "_Q")
                      (get run :status))

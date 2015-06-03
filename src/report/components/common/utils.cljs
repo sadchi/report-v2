@@ -1,8 +1,8 @@
 (ns report.components.common.utils
   (:require [garden.color :as color]
             [garden.core :refer [css]]
-            [clojure.string :as s]))
-
+            [clojure.string :as s]
+            [report.utils.log :refer [log log-o]]))
 
 
 (defn ^:private node [tag content]
@@ -28,6 +28,17 @@
     (if (vector? class-val)
       (into [class-keyword] class-val)
       [class-keyword class-val])))
+
+(defn is-css? [[_ x]]
+  (get (meta @x) :css))
+
+(defn mk-ns-classes [interns]
+  (let [css-vars (filter is-css? interns)
+        ;_ (log-o "css vars " css-vars)
+        css-structs (map mk-garden-desc css-vars)
+        ;_ (log-o "css vars " (str css-structs))
+        ]
+    css-structs))
 
 (defn class-names [& cls]
   (s/join " " (map name cls)))

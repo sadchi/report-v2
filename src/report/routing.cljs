@@ -3,6 +3,7 @@
             [goog.events :as events]
             [reagent.core :as r]
             [report.utils.log :refer [log log-o]]
+            [report.test-results.path :refer [desafe-path]]
             [clojure.string :as string])
   (:import goog.History
            goog.history.EventType))
@@ -30,9 +31,11 @@
        (str "#/")))
 
 (defn- uri->path [uri]
+  ;(log-o "uri: " uri)
   (->> (string/split uri #"/")
        (mapv js/decodeURIComponent)
        (mapv js/decodeURI)
+       (mapv desafe-path)
        (mapv decode-vec)))
 
 (secretary/set-config! :prefix "#")

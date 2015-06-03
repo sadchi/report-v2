@@ -42,14 +42,16 @@
         {:display "-ms-flex"}
         {:display "flex"}))
 
-(defonce ^:private styles
-  [
-   [:.hor-sub-block-s (hor-sub-block :s)]
-   [:.hor-sub-block-m (hor-sub-block :m)]
-   [:.hor-sub-block-l (hor-sub-block :l)]
-   ])
+
+(def hor-sub-block-s (with-meta (hor-sub-block :s) {:css true}))
+(def hor-sub-block-m (with-meta (hor-sub-block :m) {:css true}))
+(def hor-sub-block-l (with-meta (hor-sub-block :l) {:css true}))
+
 
 (defonce init
-  (let [name (namespace ::x)]
-    (add-style! (u/css-w-prefixes {:pretty-print? true} styles))
-    (log (str name " ... initialized"))))
+  (let [ns-name (name (namespace ::x))
+        interns (ns-interns 'report.components.common.style)
+        ;_ (log-o "interns " interns)
+        css-classes (u/mk-ns-classes interns)]
+    (add-style! (u/css-w-prefixes {:pretty-print? true} css-classes))
+    (log (str ns-name " ... initialized"))))

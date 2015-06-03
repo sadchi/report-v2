@@ -113,14 +113,11 @@
                               ^{:key id} [:div (u/attr {:classes  'dropdown-list__item
                                                         :on-click #(inner-select-fn item)})
                                           (item-name item)])]))]))))
-
+;
 (defonce init
-  (let [ns-name (namespace ::x)
-        is-css? (fn [[_ x]]
-                  (get (meta @x) :css))
-        css-classes (->> (ns-interns 'report.components.dropdown)
-                         (filter is-css?)
-                         (map u/mk-garden-desc))
-        _ (log-o "ns classes" css-classes)]
+  (let [ns-name (name (namespace ::x))
+        interns (ns-interns 'report.components.dropdown)
+        ;_ (log-o "interns " interns)
+        css-classes (u/mk-ns-classes interns)]
     (add-style! (u/css-w-prefixes {:pretty-print? true} css-classes))
     (log (str ns-name " ... initialized"))))

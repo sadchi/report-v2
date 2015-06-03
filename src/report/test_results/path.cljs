@@ -1,5 +1,5 @@
 (ns report.test-results.path
-  (:require [clojure.string :refer [join]]))
+  (:require [clojure.string :as s :refer [join escape]]))
 
 
 (defn mk-path-combi [x]
@@ -16,3 +16,14 @@
   (if (vector? p)
     (join " / " p)
     p))
+
+
+(defn replace-several [content & replacements]
+  (let [replacement-list (partition 2 replacements)]
+    (reduce #(apply s/replace %1 %2) content replacement-list)))
+
+(defn safe-path [x]
+  (s/replace x #"/" "*"))
+
+(defn desafe-path [x]
+  (s/replace x #"\*" "/"))
