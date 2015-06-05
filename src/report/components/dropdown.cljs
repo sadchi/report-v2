@@ -5,7 +5,8 @@
             [report.utils.log :refer [log log-o]]
             [reagent.core :as r]
             [garden.core :refer [css]]
-            [garden.units :refer [px pt]]))
+            [garden.units :refer [px pt]])
+  (:require-macros [report.macros.core :refer [init-styles]]))
 
 
 (def dropdown-list ^:css [{:display      "inline-block"
@@ -25,13 +26,13 @@
                           [:&:hover (cs/accent-shadow)]])
 
 (def dropdown-list__mark
-[:&:after
- {:position "absolute"
-  :right    (px 0)
-  :top      (px 0)
-  :bottom   (px 0)
-  :width    (px (get p/control-height :m))}
- cs/iconic-font])
+  [:&:after
+   {:position "absolute"
+    :right    (px 0)
+    :top      (px 0)
+    :bottom   (px 0)
+    :width    (px (get p/control-height :m))}
+   cs/iconic-font])
 
 (def dropdown-list--opened ^:css
 [dropdown-list__mark
@@ -113,7 +114,10 @@
                               ^{:key id} [:div (u/attr {:classes  'dropdown-list__item
                                                         :on-click #(inner-select-fn item)})
                                           (item-name item)])]))]))))
-;
+
+
+
+
 (defonce init
   (let [ns-name (name (namespace ::x))
         interns (ns-interns 'report.components.dropdown)

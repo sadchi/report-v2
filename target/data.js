@@ -92,14 +92,16 @@ var runs = {
                "type":"pivot-table",
                "subtype":"pivot-only",
                "name":"Pivot table test",
-               "columns":["PPPP1","P2","P3","C1","C2"],
+               "columns":["K1","PPPP1","P2","P3","C1","C2"],
+               "keys" : ["K1"],
                "pivots" : {
                	"PPPP1" : {"current" : 1 , "any" : false },
 			    "P2" : {"current" : "any", "any" : true},
 				"P3" : {"current" : "any", "any" :true}
                	},
                
-               "data":[[1,1,2,2,3,3],
+               "data":[[1,1,1,2,2,2],
+               		   [1,1,2,2,3,3],
                        [6,4,4,5,5,6],
                        [7,7,7,8,8,8],
                        [1,2,3,4,5,6],
