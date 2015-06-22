@@ -6,7 +6,7 @@
             [reagent.core :as r]
             [garden.core :refer [css]]
             [garden.units :refer [px pt]])
-  (:require-macros [report.macros.core :refer [init-styles]]))
+  #_(:require-macros [report.macros.core :refer [init-styles]]))
 
 
 (def dropdown-list ^:css [{:display      "inline-block"

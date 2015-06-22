@@ -27,6 +27,6 @@
                      :component-did-update   update-f
                      :component-will-unmount (fn [x]
                                                #_(log "unmounted")
-                                               (.removeEventListener js/window "reksize" @stored-func))
+                                               (.removeEventListener js/window "resize" @stored-func))
                      :component-function     (fn []
                                                [:span @final-string])})))
