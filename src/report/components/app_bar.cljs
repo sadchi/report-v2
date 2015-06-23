@@ -7,7 +7,9 @@
             [report.test-results.extra-params :refer [build-name]]
             [reagent.core :as r]
             [report.test-results.curried-styles.utils :refer [overflow? dom-width parent-dom-width]]
-            [report.utils.events :refer [debounce]]))
+            [report.utils.events :refer [debounce]]
+            [report.components.styles.nav-bar :as n]
+            [report.components.common.utils :as u]))
 
 
 (defn- bread-crumbs-item [path]
@@ -69,6 +71,8 @@
                         "app-bar__content--neutral-marker")
           ;_ (log-o "extra class" extra-class)
           ]
-      [:div.app-bar {:class extra-class}
-       [:div.app-bar__content
+      [:div
+       ;.app-bar #_{:class extra-class}
+       (u/attr {:classes 'n/nav-bar})
+       [:div (u/attr {:classes 'n/nav-bar__content})
         [bread-crumbs a-nav-position status]]])))

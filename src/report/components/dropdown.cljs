@@ -1,7 +1,7 @@
 (ns report.components.dropdown
   (:require [report.components.common.utils :as u :refer [add-style!]]
-            [report.components.common.params :as p]
-            [report.components.common.style :as cs]
+            [report.components.styles.params :as p]
+            [report.components.styles.core :as cs]
             [report.utils.log :refer [log log-o]]
             [reagent.core :as r]
             [garden.core :refer [css]]
@@ -40,7 +40,8 @@
 
 (def dropdown-list--closed ^:css
 [dropdown-list__mark
- [:&:after {:content "\"\\e81c\""}]])
+ [:&:after
+  {:content "\"\\e81c\""}]])
 
 
 (def dropdown-list__items-pane ^:css [{:position   "absolute"
@@ -119,9 +120,9 @@
 
 
 (defonce init
-  (let [ns-name (name (namespace ::x))
-        interns (ns-interns 'report.components.dropdown)
-        ;_ (log-o "interns " interns)
-        css-classes (u/mk-ns-classes interns)]
-    (add-style! (u/css-w-prefixes {:pretty-print? true} css-classes))
-    (log (str ns-name " ... initialized"))))
+         (let [ns-name (name (namespace ::x))
+               interns (ns-interns 'report.components.dropdown)
+               ;_ (log-o "interns " interns)
+               css-classes (u/mk-ns-classes interns)]
+           (add-style! (u/css-w-prefixes {:pretty-print? true} css-classes))
+           (log (str ns-name " ... initialized"))))

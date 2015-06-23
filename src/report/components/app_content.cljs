@@ -11,6 +11,8 @@
             [report.components.truncated-string :refer [truncated-string]]
             [report.components.tooltip :as tooltip]
             [report.components.dropdown :refer [dropdown]]
+            [report.components.styles.content-pane :as cp]
+            [report.components.common.utils :as u]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :refer [path->uri]]
@@ -462,7 +464,7 @@
                             (let [path @nav-position-a]
                               ;(log "app-content rerendered")
                               ;(log-o "path " path)
-                              [:div.content-pane
+                              [:div (u/attr {:classes 'cp/content-pane})
                                (cond
                                  (= path []) [home-view {:struct          struct
                                                          :runs            runs

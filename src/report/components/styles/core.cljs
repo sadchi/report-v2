@@ -1,9 +1,9 @@
-(ns report.components.common.style
+(ns report.components.styles.core
   (:require [garden.core :refer [css]]
             [garden.units :refer [px]]
             [report.utils.log :refer [log log-o]]
             [report.components.common.utils :as u :refer [add-style!]]
-            [report.components.common.params :as p]))
+            [report.components.styles.params :as p]))
 
 (defn accent-shadow []
   (let [s-color (u/rgba (get p/purpose-colors :accent) 0.6)
@@ -13,6 +13,8 @@
         ]
     {:box-shadow s-props}))
 
+
+(def default-shadow {:box-shadow "0px 2px 5px 0px rgba(0,0,0,0.26)"})
 
 (def disable-hightlight
   {:-webkit-touch-callout "none"
@@ -50,7 +52,7 @@
 
 (defonce init
   (let [ns-name (name (namespace ::x))
-        interns (ns-interns 'report.components.common.style)
+        interns (ns-interns 'report.components.common.core)
         ;_ (log-o "interns " interns)
         css-classes (u/mk-ns-classes interns)]
     (add-style! (u/css-w-prefixes {:pretty-print? true} css-classes))

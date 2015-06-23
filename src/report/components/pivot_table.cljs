@@ -1,8 +1,8 @@
 (ns report.components.pivot-table
   (:require [report.components.dropdown :refer [dropdown]]
             [report.components.common.utils :as u]
-            [report.components.common.style :as s]
-            [report.components.common.params :as p]
+            [report.components.styles.core :as s]
+            [report.components.styles.params :as p]
             [report.components.table :refer [table]]
             [reagent.core :as r]
             [report.utils.log :refer [log log-o]]
