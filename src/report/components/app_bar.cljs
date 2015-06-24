@@ -36,13 +36,14 @@
     (.addEventListener js/window "resize" (debounce f update-timeout))))
 
 
-(defn- bread-crumbs [a-nav-position status]
+(defn- bread-crumbs [a-nav-position get-status-fn]
   ;(log-o "crumb path: " path)
   (r/create-class
     {:component-did-mount  update-f
      :component-did-update update-f
      :component-function   (fn []
-                             (let [path @a-nav-position]
+                             (let [path @a-nav-position
+                                   root-status (get-status-fn [])]
                                [:div.breadcrumbs
                                 (if (< 0 (count path))
                                   (->> (loop [p (pop (vec path))
@@ -53,7 +54,7 @@
                                        (interpose [:span.breadcrumbs__item.breadcrumbs__item--cursor-auto.icon-angle-right])
                                        (map-indexed vector)
                                        (map #(with-meta (second %) {:key (first %)})))
-                                  (str build-name "\u2007\u2007" status))]))}))
+                                  (str build-name "\u2007\u2007" root-status))]))}))
 
 (defn app-bar [get-status-fn a-nav-position]
   (fn []
@@ -75,4 +76,4 @@
        ;.app-bar #_{:class extra-class}
        (u/attr {:classes (list 'n/nav-bar extra-class)})
        [:div (u/attr {:classes 'n/nav-bar__content})
-        [bread-crumbs a-nav-position status]]])))
+        [bread-crumbs a-nav-position get-status-fn]]])))
