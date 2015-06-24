@@ -62,17 +62,17 @@
           status (get-status-fn path)
           ;_ (log-o "status " status)
           extra-class (condp = (statuses/get-reputation status)
-                        :good        "app-bar__content--success-marker"
-                        :semi-good   "app-bar__content--semi-success-marker"
-                        :bad         "app-bar__content--error-marker"
-                        :semi-bad    "app-bar__content--semi-error-marker"
-                        :accent      "app-bar__content--accent-marker"
-                        :semi-accent "app-bar__content--semi-accent-marker"
-                        "app-bar__content--neutral-marker")
+                        :good        'n/nav-bar__content--success-marker
+                        :semi-good   'n/nav-bar__content--semi-success-marker
+                        :bad         'n/nav-bar__content--error-marker
+                        :semi-bad    'n/nav-bar__content--semi-error-marker
+                        :accent      'n/nav-bar__content--accent-marker
+                        :semi-accent 'n/nav-bar__content--semi-accent-marker
+                        'n/nav-bar__content--neutral-marker)
           ;_ (log-o "extra class" extra-class)
           ]
       [:div
        ;.app-bar #_{:class extra-class}
-       (u/attr {:classes 'n/nav-bar})
+       (u/attr {:classes (list 'n/nav-bar extra-class)})
        [:div (u/attr {:classes 'n/nav-bar__content})
         [bread-crumbs a-nav-position status]]])))

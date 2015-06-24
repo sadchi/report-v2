@@ -19,7 +19,7 @@
                 c/default-shadow
                 {:background   (theme :back)
                  :color        (theme :fore)
-                 :border       "1px solid grey"
+                 :border-width 0
                  :border-color (theme :border)
                  :z-index      (get p/z-level :ground)
                  :padding (px (h-pad :m))}]) {:css true}))

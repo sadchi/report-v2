@@ -10,7 +10,7 @@
                                    :reputation :bad}
                             :ERROR {:vis-idx 1
                                     :weight-idx 1
-                                    :reputation :bad}
+                                    :reputation :accent}
                             :WARNING {:vis-idx 4
                                       :weight-idx 2
                                       :reputation :accent}
@@ -29,7 +29,7 @@
                                      :reputation :semi-bad}
                             :ERROR_Q {:vis-idx 3
                                       :weight-idx 6
-                                      :reputation :semi-bad}
+                                      :reputation :semi-accent}
                             :WARNING_Q {:vis-idx 5
                                         :weight-idx 7
                                         :reputation :semi-accent}

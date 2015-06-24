@@ -7,16 +7,20 @@
 
 
 
-(def bar {:position    "fixed"
-          :overflow    "hidden"
-          :left        0
-          :right       0
-          :height      (px p/bar-height)
-          :line-height (px p/bar-height)})
+(def bar (list
+           ct/dark-greyish-theme
+           {:position     "fixed"
+           :overflow     "hidden"
+           :left         0
+           :right        0
+           :border-style "solid"
+           :border-width "1px 0"
+           :height       (px p/bar-height)
+           :line-height  (px p/bar-height)}))
 
 (def app ^:css [{:width  "100%"
                  :height "100%"
-                 :border "1px solid grey"}
+                 :border-width 0}
                 f/content-font
                 ct/dark-greyish-theme])
 
@@ -24,12 +28,12 @@
 
 (def tool-bar (list bar {:bottom 0}))
 
-(def content-area {:border-width "0px"
+(def content-area {:border-width 0
                    :position     "fixed"
                    :left         0
                    :right        0
-                   :top          (px (+ p/bar-height 1))
-                   :bottom       (px (- p/bar-height 1))})
+                   :top          (px (+ p/bar-height 2))
+                   :bottom       (px (+ p/bar-height 2))})
 
 
 (defonce init

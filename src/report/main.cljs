@@ -8,6 +8,7 @@
             [report.routing :as routing]
             [report.components.app-content :refer [app-content]]
             [report.components.app-bar :refer [app-bar]]
+            [report.components.tool-bar :refer [tool-bar]]
             [report.components.tooltip :refer [tooltip]]
             [report.utils.log :refer [log log-o]]
             [jquery.main]
@@ -158,7 +159,8 @@
                                    :struct          test-data-structure
                                    :status-map      status-map
                                    :status-filter-a status-filter-a
-                                   :nav-position-a  routing/nav-position})]
+                                   :nav-position-a  routing/nav-position})
+                     (tool-bar)]
                     (.getElementById js/document "app"))
 
 (r/render-component [tooltip] (.getElementById js/document "tooltip"))

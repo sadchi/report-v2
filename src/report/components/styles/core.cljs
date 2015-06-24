@@ -14,7 +14,7 @@
     {:box-shadow s-props}))
 
 
-(def default-shadow {:box-shadow "0px 2px 5px 0px rgba(0,0,0,0.26)"})
+(def default-shadow {:box-shadow "0px 0px 10px 0px rgba(0,0,0,0.26)"})
 
 (def disable-hightlight
   {:-webkit-touch-callout "none"
