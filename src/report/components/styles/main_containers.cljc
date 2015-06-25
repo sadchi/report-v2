@@ -10,16 +10,22 @@
 (def bar (list
            ct/dark-greyish-theme
            {:position     "fixed"
-           :overflow     "hidden"
-           :left         0
-           :right        0
-           :border-style "solid"
-           :border-width "1px 0"
-           :height       (px p/bar-height)
-           :line-height  (px p/bar-height)}))
+            :overflow     "hidden"
+            :left         0
+            :right        0
+            :white-space  "nowrap"
+            :border-style "solid"
+            :border-width "1px 0"
+            :height       (px p/bar-height)
+            :line-height  (px p/bar-height)}))
 
-(def app ^:css [{:width  "100%"
-                 :height "100%"
+
+
+(def bar__content ^:css {:height  "100%"
+                         :padding 0})
+
+(def app ^:css [{:width        "100%"
+                 :height       "100%"
                  :border-width 0}
                 f/content-font
                 ct/dark-greyish-theme])

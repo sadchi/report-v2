@@ -11,7 +11,12 @@
 
 (def tool-bar ^:css [mc/tool-bar
                     sc/default-shadow
-                    {:z-index (get p/z-level :bar)}])
+                     {:padding [[0 (px (get p/h-margin :m))]]
+                      :font-size (px (get p/font-sizes :1))
+                      :z-index (get p/z-level :bar)}])
+
+(def tool-bar__item ^:css {:display "inline-block"
+                           :margin  [[0 (px (get p/h-margin :s))]]})
 
 (defonce init
          (let [ns-name (name (namespace ::x))

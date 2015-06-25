@@ -9,6 +9,7 @@
             [report.test-results.curried-styles.utils :refer [overflow? dom-width parent-dom-width]]
             [report.utils.events :refer [debounce]]
             [report.components.styles.nav-bar :as n]
+            [report.components.styles.main-containers :as mc]
             [report.components.common.utils :as u]))
 
 
@@ -75,5 +76,5 @@
       [:div
        ;.app-bar #_{:class extra-class}
        (u/attr {:classes (list 'n/nav-bar extra-class)})
-       [:div (u/attr {:classes 'n/nav-bar__content})
+       [:div (u/attr {:classes 'mc/bar__content})
         [bread-crumbs a-nav-position get-status-fn]]])))

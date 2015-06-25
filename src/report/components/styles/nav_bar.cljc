@@ -16,8 +16,6 @@
                     {:z-index      (get p/z-level :bar)}])
 
 
-(def nav-bar__content ^:css {:height  "100%"
-                             :padding 0})
 
 (defn nav-bar__content__marker [hex-color]
   (let [{r :red g :green b :blue} (c/hex->rgb hex-color)
