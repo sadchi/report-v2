@@ -147,6 +147,25 @@
 
 #_(.profileEnd js/console)
 
+(defn- target-slice? [a-nav-pos]
+  (let [nav-pos @a-nav-pos
+        nav-pos-meta (meta nav-pos)
+        slice (get nav-pos-meta :slice)
+        active? (or (not slice) (= slice "target"))]
+    active?))
+
+(defn- fail-type-slice? [a-nav-pos]
+  (let [nav-pos @a-nav-pos
+        nav-pos-meta (meta nav-pos)
+        slice (get nav-pos-meta :slice)
+        active? (= slice "failtype")]
+    active?))
+
+(defn switch->fail-type-href [a-nav-pos]
+  (let [nav-pos @a-nav-pos
+        uri (routing/path->uri nav-pos)]
+    (str uri "?slice=failtype")))
+
 (r/render-component [app (app-bar #(get-status {:test-data-map test-data-quarantined
                                                 :quarantine    quarantine
                                                 :runs          runs
@@ -160,7 +179,13 @@
                                    :status-map      status-map
                                    :status-filter-a status-filter-a
                                    :nav-position-a  routing/nav-position})
-                     (t/tool-bar (t/tool-bar-label "Slice:")  )]
+                     (t/tool-bar (t/tool-bar-label "Slice:")
+                                 (t/tool-bar-action-label {:text "Target"
+                                                           :is-active-f? #(target-slice? routing/nav-position)
+                                                           :get-href-f #(routing/path->uri @routing/nav-position)})
+                                 (t/tool-bar-action-label {:text "FailType"
+                                                           :is-active-f? #(fail-type-slice? routing/nav-position)
+                                                           :get-href-f #(switch->fail-type-href routing/nav-position)}))]
                     (.getElementById js/document "app"))
 
 (r/render-component [tooltip] (.getElementById js/document "tooltip"))

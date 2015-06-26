@@ -14,3 +14,8 @@
   (try
     (js->clj js/artifacts_abs_prefix)
     (catch js/Error _ "file://")))
+
+(def fail-mapping
+  (try
+    (js->clj js/fail_mapping)
+    (catch js/Error _ nil)))

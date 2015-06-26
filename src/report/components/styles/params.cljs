@@ -32,7 +32,7 @@
 (def color-schemes {:dark-grey {:back   (lighten :grey 12)
                                 :fore   (normal :white)
                                 :border (lighten :grey 7)}
-                    :white     {:back   (darken :white 5)
+                    :white     {:back   (darken :white 1)
                                 :fore   (darken :grey 24)
                                 :border (darken :white 5)}})
 
@@ -113,3 +113,4 @@
                :m (* unit 3)
                :l (* unit 6)})
 
+(def opacity {:disabled-items 0.5})

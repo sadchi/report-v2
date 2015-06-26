@@ -15,8 +15,14 @@
                       :font-size (px (get p/font-sizes :1))
                       :z-index (get p/z-level :bar)}])
 
+(def tool-bar__item--disabled ^:css {:opacity (get p/opacity :disabled-items)})
+
 (def tool-bar__item ^:css {:display "inline-block"
                            :margin  [[0 (px (get p/h-margin :s))]]})
+
+(def tool-bar__item--clickable ^:css {:cursor "pointer"})
+
+
 
 (defonce init
          (let [ns-name (name (namespace ::x))

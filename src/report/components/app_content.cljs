@@ -453,6 +453,32 @@
        ])))
 
 
+
+
+(defn fail-type-slice-view [{:keys [nav-position-a struct test-data-map params]}]
+  (let [cache (atom {})
+        mk-fail-tree (fn [path]
+                       (let [sub-tree (get-in struct path)]))]
+
+    (fn []
+      (let [path @nav-position-a
+            cached-fail-tree (get @cache path)
+            fail-tree (if-not cached-fail-tree
+                        (let [tree (mk-fail-tree path)
+                              _ (swap! cache assoc path tree)]
+                          tree)
+                        cached-fail-tree)
+            last-elem (peek (flatten-path path))
+            ;_ (log-o "path" path)
+            ;_ (log-o "last-elem" last-elem)
+            ]
+        ;(log "slice")
+        [:div
+         [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+          [:div.list-column.list-column--grow.list-column--left
+           [:h1.margin-less [truncated-string last-elem]]]]]))))
+
+
 (defn app-content [{:keys [test-data-map quarantine runs struct status-map status-filter-a nav-position-a]}]
   (r/create-class
     {
@@ -461,41 +487,48 @@
                             (.on (js/$ (r/dom-node this)) "refresh-scroll" #(.resize (.getNiceScroll (js/$ (r/dom-node this)))))
                             (.niceScroll (js/$ (r/dom-node this))))
      :component-function  (fn []
-                            (let [path @nav-position-a]
+                            (let [path @nav-position-a
+                                  params (meta path)
+                                  fail-type-slice (= "failtype" (get params :slice))]
                               ;(log "app-content rerendered")
                               ;(log-o "path " path)
                               [:div (u/attr {:classes 'cp/content-pane})
-                               (cond
-                                 (= path []) [home-view {:struct          struct
-                                                         :runs            runs
-                                                         :test-data-map   test-data-map
-                                                         :status-map      status-map
-                                                         :status-filter-a status-filter-a}]
-                                 (is-node? struct path) [node-view {:struct          struct
-                                                                    :runs            runs
-                                                                    :test-data-map   test-data-map
-                                                                    :status-map      status-map
-                                                                    :status-filter-a status-filter-a
-                                                                    :nav-position-a  nav-position-a}]
-                                 (is-scenario? struct path) (let [scenario-info (get test-data-map (rest (flatten-path path)))
-                                                                  runs-id (get scenario-info :id)
-                                                                  scen-quarantine (get quarantine runs-id)
-                                                                  ;_ (log-o "runs-id " runs-id)
-                                                                  ]
-                                                              [scenario-view {:scenario-name       (path->str (peek path))
-                                                                              :get-runs-fn         #(get runs runs-id)
-                                                                              :scen-quarantine     scen-quarantine
-                                                                              :scenario-status-map (get status-map (flatten-path path))
-                                                                              :status-filter-a     status-filter-a
-                                                                              :scenario-info       scenario-info
-                                                                              :path                path}])
-                                 (is-run? struct path) (let [scenario-path (pop path)
-                                                             target (peek path)
-                                                             scenario-info (get test-data-map (rest (flatten-path scenario-path)))
-                                                             runs-id (get scenario-info :id)
-                                                             scen-quarantine (get quarantine runs-id)
-                                                             runs (get runs runs-id)
-                                                             run (get runs target)
-                                                             doc-strings (string/split (get scenario-info :doc) #"\n\n")]
-                                                         [run-view target scen-quarantine run doc-strings])
-                                 :else nil)]))}))
+                               (if fail-type-slice
+                                 [fail-type-slice-view {:nav-position-a nav-position-a
+                                                        :struct         struct
+                                                        :test-data-map  test-data-map
+                                                        :params         params}]
+                                 (cond
+                                   (= path []) [home-view {:struct          struct
+                                                           :runs            runs
+                                                           :test-data-map   test-data-map
+                                                           :status-map      status-map
+                                                           :status-filter-a status-filter-a}]
+                                   (is-node? struct path) [node-view {:struct          struct
+                                                                      :runs            runs
+                                                                      :test-data-map   test-data-map
+                                                                      :status-map      status-map
+                                                                      :status-filter-a status-filter-a
+                                                                      :nav-position-a  nav-position-a}]
+                                   (is-scenario? struct path) (let [scenario-info (get test-data-map (rest (flatten-path path)))
+                                                                    runs-id (get scenario-info :id)
+                                                                    scen-quarantine (get quarantine runs-id)
+                                                                    ;_ (log-o "runs-id " runs-id)
+                                                                    ]
+                                                                [scenario-view {:scenario-name       (path->str (peek path))
+                                                                                :get-runs-fn         #(get runs runs-id)
+                                                                                :scen-quarantine     scen-quarantine
+                                                                                :scenario-status-map (get status-map (flatten-path path))
+                                                                                :status-filter-a     status-filter-a
+                                                                                :scenario-info       scenario-info
+                                                                                :path                path}])
+                                   (is-run? struct path) (let [scenario-path (pop path)
+                                                               target (peek path)
+                                                               scenario-info (get test-data-map (rest (flatten-path scenario-path)))
+                                                               runs-id (get scenario-info :id)
+                                                               scen-quarantine (get quarantine runs-id)
+                                                               runs (get runs runs-id)
+                                                               run (get runs target)
+                                                               doc-strings (string/split (get scenario-info :doc) #"\n\n")]
+                                                           [run-view target scen-quarantine run doc-strings])
+                                   :else nil))]))}))

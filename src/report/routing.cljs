@@ -18,9 +18,12 @@
     x))
 
 (defn- decode-vec [x]
+  ;(log-o "x: " x)
   (if (= "vec+" (subs x 0 4))
     (string/split (subs x 4) #"\+")
     x))
+
+
 
 (defn path->uri [path]
   (->> path
@@ -40,8 +43,8 @@
 
 (secretary/set-config! :prefix "#")
 
-(defroute "/*" {uri :*}
-  (reset! nav-position (uri->path uri)))
+(defroute "/*" {uri :* params :query-params}
+          (reset! nav-position (with-meta (uri->path uri) params)))
 
 (let [h (History.)]
   (goog.events/listen h EventType.NAVIGATE #(secretary/dispatch! (.-token %)))
