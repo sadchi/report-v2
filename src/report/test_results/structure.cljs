@@ -2,7 +2,7 @@
   (:require [report.utils.log :refer [log log-o]]))
 
 
-(def leaf-content [:scenario])
+(def leaf-content :scenario)
 
 (defn build-map-by [coll key-field]
   (let [f (fn [coll x]
@@ -27,15 +27,15 @@
     (dissoc m k)))
 
 (defn- process-node [structure path]
-  (if (= (get-in structure path) leaf-content)
-    []
-    (let [sub-tree (get-in structure path)
-          childs (keys sub-tree)
-          single-child? (= 1 (count childs))
-          coll (if single-child?
-                 [path (conj path (first childs))]
-                 [])]
-      (reduce into coll (map #(process-node structure (conj path %)) childs)))))
+  (let [sub-tree (get-in structure path)]
+    (if-not (map? sub-tree)
+     []
+     (let [childs (keys sub-tree)
+           single-child? (= 1 (count childs))
+           coll (if single-child?
+                  [path (conj path (first childs))]
+                  [])]
+       (reduce into coll (map #(process-node structure (conj path %)) childs))))))
 
 (defn- get-single-child-pairs [structure]
   (reduce into []
@@ -68,7 +68,9 @@
 
 
         pairs (get-single-child-pairs structure)
+        ;_ (log-o "pairs" pairs)
         pairs-dups-cleaned (partition 2 (reduce clear-dups [] pairs))
+        ;_ (log-o "pairs-dups-cleaned" pairs-dups-cleaned)
         ;operations should be reversed to start modifications from the bottom of the tree
         tailed-ops-reversed (reverse (map mk-tail pairs-dups-cleaned))
         new-structure (reduce apply-op structure tailed-ops-reversed)]
@@ -78,7 +80,7 @@
 (defn- add-level [v x]
   (conj v (conj (peek v) x)))
 
-(defn- create-branch [path]
+(defn create-branch [path]
   (reduce add-level [[]] path))
 
 
@@ -168,7 +170,7 @@
     (reduce f test-data-map quarantine)))
 
 
-(defn apply-quarantine [test-data-map id->path quarantine ]
+(defn apply-quarantine [test-data-map id->path quarantine]
   (let [apply-f->map-item (fn [m k f]
                             (let [key (keyword k)
                                   old-v (get m key 0)
@@ -210,3 +212,19 @@
             (let [{:keys [id path]} x]
               (assoc coll id path)))]
     (reduce f {} test-data)))
+
+
+(defn- find-leaf [structure path]
+  (if (= (get-in structure path) leaf-content)
+    [path]
+    (let [sub-tree (get-in structure path)
+          childs (keys sub-tree)]
+      (reduce into [] (map #(find-leaf structure (conj path %)) childs)))))
+
+
+(defn- tree->path-list [structure]
+  (if-not (map? structure)
+    nil
+    (reduce into []
+            (for [k (keys structure)]
+              (find-leaf structure [k])))))

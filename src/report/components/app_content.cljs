@@ -1,7 +1,7 @@
 (ns report.components.app-content
   (:require [reagent.core :as r]
             [report.test-results.statuses :refer [get-reputation sort-statuses-by-weight sort-statuses-by-vis-order bad-status? good-status? neutral-status? get-worse get-best]]
-            [report.test-results.structure :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run? get-runs-count]]
+            [report.test-results.structure :as s :refer [get-assets leaf-content is-that-run? is-node? is-scenario? is-run? get-runs-count]]
             [report.test-results.extra-params :refer [build-name]]
             [report.components.badges :refer [badged-text]]
             [report.components.runs-meta :refer [meta-data-render]]
@@ -455,10 +455,63 @@
 
 
 
+
 (defn fail-type-slice-view [{:keys [nav-position-a struct test-data-map params]}]
   (let [cache (atom {})
+
+        combine-maps (fn [m [k v]]
+                       (let [old-v (get m k 0)
+                             new-v (+ old-v v)]
+                         (assoc m k new-v)))
+
+        update-data-map (fn [id count coll path]
+                         (let [{c :count i :ids} (get coll path {:count 0 :ids nil})
+                               new-c (+ c count)
+                               new-i (conj i id)]
+                           (assoc coll path {:count new-c :ids new-i})))
+
+        mk-data-map (fn [coll [fails id]]
+                      (let [fails-sep (reduce conj [] (map (partial map identity) fails))
+                            ;_ (log-o "fails sep " fails-sep)
+                            fails-path (reduce (fn [coll [k v]]
+                                                 (conj coll [(string/split (name k) #"\.") v])) [] fails-sep)
+                            ;_ (log-o "fails path " fails-path)
+                            path-branched (map (fn [[p k]] [(s/create-branch p) k] ) fails-path)
+                            ;_ (log-o "path-branched " path-branched)
+                            data-map (reduce (fn [coll [paths count]]
+                                               (reduce (partial update-data-map id count) coll paths)) coll path-branched)
+                            ;_ (log-o "data-map " data-map)
+                            ]
+                        data-map))
+
         mk-fail-tree (fn [path]
-                       (let [sub-tree (get-in struct path)]))]
+                       (let [scens-path (map rest (s/find-leaf struct path))
+                             scens (map (partial get test-data-map) scens-path)
+                             scen-ids (map :id scens)
+                             fails (map #(get-in % [:summary :fails]) scens)
+
+                             fails-sep (reduce into [] (map (partial map identity) fails))
+                             fails-map (reduce combine-maps {}  fails-sep)
+                             fails-paths-map (reduce (fn [coll [k v]]
+                                                       (conj coll [(string/split (name k) #"\.") v])) [] fails-map)
+                             nested-fails-map (reduce (fn [coll [k v]]
+                                                        (assoc-in coll k v)) {} fails-paths-map)
+                             final-map (s/collapse-poor-branches nested-fails-map)
+                             ;_ (log-o "test data map" test-data-map)
+                             ;_ (log-o "scens path" scens-path)
+                             ;_ (log-o "scens " scens)
+                             ;_ (log-o "scens-ids " scen-ids)
+                             ;_ (log-o "fails sep " fails-sep)
+                             ;_ (log-o "fails-paths-map " fails-paths-map)
+                             ;_ (log-o "fails-map nested" nested-fails-map)
+                             ;_ (log-o "final map" final-map)
+
+                             fails-n-ids (map vector fails scen-ids)
+                             data-map (reduce mk-data-map {} fails-n-ids)
+                             ;_ (log-o "data-map " data-map)
+                             ]
+                         {:struct final-map
+                          :data-map data-map}))]
 
     (fn []
       (let [path @nav-position-a
@@ -469,7 +522,7 @@
                           tree)
                         cached-fail-tree)
             last-elem (peek (flatten-path path))
-            ;_ (log-o "path" path)
+            _ (log-o "fail-tree" fail-tree)
             ;_ (log-o "last-elem" last-elem)
             ]
         ;(log "slice")
