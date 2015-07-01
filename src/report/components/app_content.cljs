@@ -15,7 +15,7 @@
             [report.components.common.utils :as u]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
-            [report.routing :refer [path->uri]]
+            [report.routing :as routing :refer [path->uri]]
             [report.components.status-filter :refer [status-filter hovered? w-a-active? active? any-active?]]
             [report.test-results.path :refer [safe-path desafe-path flatten-path path->str]]
             [report.components.buttons :refer [state-button button]]
@@ -270,7 +270,7 @@
     {:component-did-update trigger-refresh-scroll
      :component-did-mount  trigger-refresh-scroll
      :component-function   (fn []
-                             (let [path @nav-position-a
+                             (let [path (routing/get-path @nav-position-a)
                                    node-title (path->str (peek path))
                                    node-status-map (get status-map (flatten-path path))
                                    statuses (sort-statuses-by-vis-order > (keys node-status-map))
@@ -455,20 +455,50 @@
 
 
 
+(defn fails-node [{:keys [struct data-map]} path mk-ref-f]
+  (let [sub-struct (if path
+                     (get-in struct path)
+                     struct)
+        _ (log-o "is-vector" (vector? path))
+        _ (log-o "path type" (type path))
+        _ (log-o "sub-struct" sub-struct)]
+    [:div
+     [:div.list-row.list-row--accent
+      [:div.list-column.list-column--grow.list-column--left "Fail Type:"]
+      [:div.list-column.list-column--width-l "Count:"]]
+     (for [[idx item] (map-indexed vector (keys sub-struct))
+           :let [_ (log-o "item " item)
+                 _ (log-o "path " path)
+                 full-path (flatten (conj path item))
+                 _ (log-o "full-path" full-path)
+                 c (get-in data-map [full-path :count] 0)]]
+       ^{:key idx} [:div.list-row.list-row--hoverable
+                    [:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
+                     [:a.custom-block-link {:href (mk-ref-f (conj path item))} [:span (path->str item)]]]
+                    [:div.list-column.list-column--width-l [badged-text :bad c]]])]))
 
-(defn fail-type-slice-view [{:keys [nav-position-a struct test-data-map params]}]
+(defn fails-leaf []
+  (log "leaf rendered")
+  [:div])
+
+
+(defn fail-type-slice-view [{:keys [nav-position-a struct fail-mapping test-data-map]}]
   (let [cache (atom {})
 
-        combine-maps (fn [m [k v]]
-                       (let [old-v (get m k 0)
-                             new-v (+ old-v v)]
-                         (assoc m k new-v)))
+        ;combine-maps (fn [m [k v]]
+        ;               (let [old-v (get m k 0)
+        ;                     new-v (+ old-v v)]
+        ;                 (assoc m k new-v)))
+
+        _ (log-o "test-data-map" test-data-map)
+        id->path (reduce (fn [coll [path {id :id}]] (assoc coll id path)) {} test-data-map)
+        _ (log-o "id->path" id->path)
 
         update-data-map (fn [id count coll path]
-                         (let [{c :count i :ids} (get coll path {:count 0 :ids nil})
-                               new-c (+ c count)
-                               new-i (conj i id)]
-                           (assoc coll path {:count new-c :ids new-i})))
+                          (let [{c :count i :ids} (get coll path {:count 0 :ids nil})
+                                new-c (+ c count)
+                                new-i (conj i id)]
+                            (assoc coll path {:count new-c :ids new-i})))
 
         mk-data-map (fn [coll [fails id]]
                       (let [fails-sep (reduce conj [] (map (partial map identity) fails))
@@ -476,7 +506,7 @@
                             fails-path (reduce (fn [coll [k v]]
                                                  (conj coll [(string/split (name k) #"\.") v])) [] fails-sep)
                             ;_ (log-o "fails path " fails-path)
-                            path-branched (map (fn [[p k]] [(s/create-branch p) k] ) fails-path)
+                            path-branched (map (fn [[p k]] [(s/create-branch p) k]) fails-path)
                             ;_ (log-o "path-branched " path-branched)
                             data-map (reduce (fn [coll [paths count]]
                                                (reduce (partial update-data-map id count) coll paths)) coll path-branched)
@@ -488,15 +518,22 @@
                        (let [scens-path (map rest (s/find-leaf struct path))
                              scens (map (partial get test-data-map) scens-path)
                              scen-ids (map :id scens)
-                             fails (map #(get-in % [:summary :fails]) scens)
-
-                             fails-sep (reduce into [] (map (partial map identity) fails))
-                             fails-map (reduce combine-maps {}  fails-sep)
-                             fails-paths-map (reduce (fn [coll [k v]]
-                                                       (conj coll [(string/split (name k) #"\.") v])) [] fails-map)
-                             nested-fails-map (reduce (fn [coll [k v]]
-                                                        (assoc-in coll k v)) {} fails-paths-map)
+                             fails-keyworded (map #(get-in % [:summary :fails]) scens)
+                             fails (map #(map vector (map name (keys %)) (vals %)) fails-keyworded)
+                             fails-keys (map keys fails)
+                             fails-combi (reduce into #{} fails-keys)
+                             fails-paths (map #(string/split (name %) #"\.") fails-combi)
+                             nested-fails-map (reduce #(assoc-in %1 %2 :leaf) {} fails-paths)
                              final-map (s/collapse-poor-branches nested-fails-map)
+                             ;_ (log-o "final map" final-map)
+
+                             ;fails-sep (reduce into [] (map (partial map identity) fails))
+                             ;fails-map (reduce combine-maps {}  fails-sep)
+                             ;fails-paths-map (reduce (fn [coll [k v]]
+                             ;                          (conj coll [(string/split (name k) #"\.") v])) [] fails-map)
+                             ;nested-fails-map (reduce (fn [coll [k v]]
+                             ;                           (assoc-in coll k v)) {} fails-paths-map)
+                             ;final-map (s/collapse-poor-branches nested-fails-map)
                              ;_ (log-o "test data map" test-data-map)
                              ;_ (log-o "scens path" scens-path)
                              ;_ (log-o "scens " scens)
@@ -510,11 +547,41 @@
                              data-map (reduce mk-data-map {} fails-n-ids)
                              ;_ (log-o "data-map " data-map)
                              ]
-                         {:struct final-map
-                          :data-map data-map}))]
+                         {:struct   final-map
+                          :data-map data-map}))
+
+        decode-path-item (fn [x]
+                           (if (re-find #"\." x)
+                             (string/split x #"\.")
+                             x))
+
+        encode-path (fn [x]
+                      (let [join-item (fn [x]
+                                        (if (vector? x)
+                                          (string/join "." x)
+                                          x))]
+                        (string/join "|" (mapv join-item x))))
+
+
+        params->str (fn [x]
+                      (string/join "&" (map (fn [[k v]] (str (name k) "=" v)) x)))
+
+        mk-href (fn [target-path params fail-path]
+                  (let [fail-path-encoded (encode-path fail-path)
+                        new-params (assoc params :path fail-path-encoded)]
+                    (str (path->uri target-path) "?" (params->str new-params))))
+
+        decode-path (fn [x]
+                      (let [x' (string/split x #"\|")
+                            x'' (map decode-path-item x')]
+                        (vec x'')))
+        ]
 
     (fn []
-      (let [path @nav-position-a
+      (let [nav-pos @nav-position-a
+            path (routing/get-path nav-pos)
+            _ (log-o "path vec?" (vector? path))
+            params (routing/get-query-params nav-pos)
             cached-fail-tree (get @cache path)
             fail-tree (if-not cached-fail-tree
                         (let [tree (mk-fail-tree path)
@@ -523,16 +590,25 @@
                         cached-fail-tree)
             last-elem (peek (flatten-path path))
             _ (log-o "fail-tree" fail-tree)
-            ;_ (log-o "last-elem" last-elem)
+            path-encoded (get params :path)
+            fail-path (decode-path path-encoded)
+            _ (log-o "path decoded" fail-path)
+            leaf? (= :leaf (get-in fail-tree (into [:struct] fail-path)))
+            _ (log-o "leaf?" leaf?)
+            ids (get-in fail-tree [:data-map (flatten fail-path) :ids])
+            _ (log-o "ids" ids)
             ]
         ;(log "slice")
         [:div
          [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
           [:div.list-column.list-column--grow.list-column--left
-           [:h1.margin-less [truncated-string last-elem]]]]]))))
+           [:h1.margin-less "Fail type slice: " [truncated-string last-elem]]]]
+         (if leaf?
+           [fails-leaf]
+           [fails-node fail-tree fail-path (partial mk-href path params)])]))))
 
 
-(defn app-content [{:keys [test-data-map quarantine runs struct status-map status-filter-a nav-position-a]}]
+(defn app-content [{:keys [test-data-map quarantine runs struct status-map fail-mapping status-filter-a nav-position-a]}]
   (r/create-class
     {
      :component-did-mount (fn [this]
@@ -540,8 +616,9 @@
                             (.on (js/$ (r/dom-node this)) "refresh-scroll" #(.resize (.getNiceScroll (js/$ (r/dom-node this)))))
                             (.niceScroll (js/$ (r/dom-node this))))
      :component-function  (fn []
-                            (let [path @nav-position-a
-                                  params (meta path)
+                            (let [nav-pos @nav-position-a
+                                  params (routing/get-query-params nav-pos)
+                                  path (routing/get-path nav-pos)
                                   fail-type-slice (= "failtype" (get params :slice))]
                               ;(log "app-content rerendered")
                               ;(log-o "path " path)
@@ -549,8 +626,8 @@
                                (if fail-type-slice
                                  [fail-type-slice-view {:nav-position-a nav-position-a
                                                         :struct         struct
-                                                        :test-data-map  test-data-map
-                                                        :params         params}]
+                                                        :fail-mapping   fail-mapping
+                                                        :test-data-map  test-data-map}]
                                  (cond
                                    (= path []) [home-view {:struct          struct
                                                            :runs            runs
@@ -575,13 +652,13 @@
                                                                                 :status-filter-a     status-filter-a
                                                                                 :scenario-info       scenario-info
                                                                                 :path                path}])
-                                   (is-run? struct path) (let [scenario-path (pop path)
-                                                               target (peek path)
-                                                               scenario-info (get test-data-map (rest (flatten-path scenario-path)))
-                                                               runs-id (get scenario-info :id)
-                                                               scen-quarantine (get quarantine runs-id)
-                                                               runs (get runs runs-id)
-                                                               run (get runs target)
-                                                               doc-strings (string/split (get scenario-info :doc) #"\n\n")]
-                                                           [run-view target scen-quarantine run doc-strings])
+                                   (is-run? test-data-map path) (let [scenario-path (pop path)
+                                                                      target (peek path)
+                                                                      scenario-info (get test-data-map (rest (flatten-path scenario-path)))
+                                                                      runs-id (get scenario-info :id)
+                                                                      scen-quarantine (get quarantine runs-id)
+                                                                      runs (get runs runs-id)
+                                                                      run (get runs target)
+                                                                      doc-strings (string/split (get scenario-info :doc) #"\n\n")]
+                                                                  [run-view target scen-quarantine run doc-strings])
                                    :else nil))]))}))

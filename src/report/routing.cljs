@@ -43,8 +43,18 @@
 
 (secretary/set-config! :prefix "#")
 
+
+(defprotocol NavPositionOps
+  (get-path [this])
+  (get-query-params [this]))
+
+(defrecord NavPosition [path query-params]
+  NavPositionOps
+  (get-path [_] path)
+  (get-query-params [_] query-params))
+
 (defroute "/*" {uri :* params :query-params}
-          (reset! nav-position (with-meta (uri->path uri) params)))
+          (reset! nav-position (NavPosition. (uri->path uri) params)))
 
 (let [h (History.)]
   (goog.events/listen h EventType.NAVIGATE #(secretary/dispatch! (.-token %)))

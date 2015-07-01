@@ -116,10 +116,18 @@
 (defn is-scenario? [struct path]
   (= leaf-content (get-in struct path)))
 
-(defn is-run? [struct path]
+(defn is-run? [test-data-map path]
+  (log-o "path is run" path)
   (if (empty? path)
     false
-    (is-scenario? struct (pop path))))
+    (let [test-path (-> path
+                        pop
+                        flatten
+                        rest)
+          _ (log-o "test-path" test-path)
+          res (not (nil? (get test-data-map test-path)))
+          _ (log-o "res" res)]
+      res)))
 
 
 (defn is-that-run? [target run]

@@ -1,7 +1,7 @@
 (ns report.components.app-bar
   (:require [report.test-results.statuses :as statuses]
             [report.utils.net :refer [set-href!]]
-            [report.routing :refer [path->uri]]
+            [report.routing :as routing :refer [path->uri]]
             [report.test-results.path :refer [path->str]]
             [report.utils.log :refer [log log-o]]
             [report.test-results.extra-params :refer [build-name]]
@@ -43,7 +43,7 @@
     {:component-did-mount  update-f
      :component-did-update update-f
      :component-function   (fn []
-                             (let [path @a-nav-position
+                             (let [path (routing/get-path @a-nav-position)
                                    root-status (get-status-fn [])]
                                [:div.breadcrumbs
                                 (if (< 0 (count path))
@@ -59,7 +59,7 @@
 
 (defn app-bar [get-status-fn a-nav-position]
   (fn []
-    (let [path @a-nav-position
+    (let [path (routing/get-path @a-nav-position)
           ;_ (log-o "path: " path)
           status (get-status-fn path)
           ;_ (log-o "status " status)
