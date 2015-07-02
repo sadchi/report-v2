@@ -104,10 +104,11 @@
 
 
 (defn- get-status [{:keys [test-data-map runs quarantine struct status-map path]}]
-  (let [run? (structure/is-run? test-data-map path)
-        ;_ (log-o "run? " run?)
+  (let [
+        run? (structure/is-run? test-data-map path)
+        _ (log-o "run? " run?)
         flat-path (path/flatten-path path)
-        ;_ (log-o "path " path)
+        _ (log-o "path " path)
         ;_ (log-o "flat-path " flat-path)
         ]
     (if run?

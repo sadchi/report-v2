@@ -30,3 +30,4 @@
                                                (.removeEventListener js/window "resize" @stored-func))
                      :component-function     (fn []
                                                [:span @final-string])})))
+

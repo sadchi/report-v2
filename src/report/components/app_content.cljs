@@ -459,30 +459,63 @@
   (let [sub-struct (if path
                      (get-in struct path)
                      struct)
-        _ (log-o "is-vector" (vector? path))
-        _ (log-o "path type" (type path))
-        _ (log-o "sub-struct" sub-struct)]
+        ;_ (log-o "is-vector" (vector? path))
+        ;_ (log-o "path type" (type path))
+        ;_ (log-o "sub-struct" sub-struct)
+        ]
     [:div
      [:div.list-row.list-row--accent
       [:div.list-column.list-column--grow.list-column--left "Fail Type:"]
       [:div.list-column.list-column--width-l "Count:"]]
      (for [[idx item] (map-indexed vector (keys sub-struct))
-           :let [_ (log-o "item " item)
-                 _ (log-o "path " path)
+           :let [
+                 ;_ (log-o "item " item)
+                 ;_ (log-o "path " path)
                  full-path (flatten (conj path item))
-                 _ (log-o "full-path" full-path)
+                 ;_ (log-o "full-path" full-path)
                  c (get-in data-map [full-path :count] 0)]]
        ^{:key idx} [:div.list-row.list-row--hoverable
                     [:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
                      [:a.custom-block-link {:href (mk-ref-f (conj path item))} [:span (path->str item)]]]
                     [:div.list-column.list-column--width-l [badged-text :bad c]]])]))
 
-(defn fails-leaf []
-  (log "leaf rendered")
-  [:div])
+(defn fails-leaf [{:keys [fail-mapping ids id->path runs fail-name]}]
+  (let [fails-per-id (map vector (map (partial get fail-mapping) ids) ids)
+        targets (reduce (fn [coll [m id]]
+                          (into coll (map vector (get m fail-name) (repeat id)))) [] fails-per-id)
+
+        runs-limit (r/atom default-runs-limit)
+        extend-limit #(swap! runs-limit (partial + default-runs-more-count))
+        unlim #(reset! runs-limit (count targets))
+        ;_ (log-o "targets " targets)
+
+        ]
+    [:div
+     [:div.list-row.list-row--accent
+      [:div.list-column.list-column--grow.list-column--left "Target:"]
+      [:div.list-column.list-column--width-l "Count:"]]
+
+     (for [[idx target] (map-indexed vector targets)
+           :let [[target id] target
+                 fails (get-in runs [id target :fails])
+                 ;_ (log-o "fails " fails)
+                 filtered-fails (filter #(= fail-name (get % :type)) fails)
+                 ;_ (log-o "filtered fails " filtered-fails)
+                 c (count filtered-fails)]]
+       ^{:key idx} [:div.list-row.list-row--hoverable
+                    [:div.list-column.list-column--grow.list-column--stretch.list-column--left
+                     [:a.custom-block-link {:href (path->uri (conj (get id->path id) target))} [:span target]]]
+                    [:div.list-column.list-column--width-l [badged-text :bad c]]])
+
+     [:div.vertical-block
+      [:div.list-row.list-row--border-less.list-row--no-padding.list-row--height-s
+       [:div.list-column.list-column--grow]
+       [:div.list-row__group
+        [:div..list-column.list-column--clickable.list-column--stretch.list-column--separator {:on-click extend-limit} "More"]
+        [:div..list-column.list-column--clickable.list-column--stretch.list-column--separator {:on-click unlim} "All"]]]]]))
 
 
-(defn fail-type-slice-view [{:keys [nav-position-a struct fail-mapping test-data-map]}]
+(defn fail-type-slice-view [{:keys [nav-position-a struct runs fail-mapping test-data-map]}]
   (let [cache (atom {})
 
         ;combine-maps (fn [m [k v]]
@@ -491,8 +524,10 @@
         ;                 (assoc m k new-v)))
 
         _ (log-o "test-data-map" test-data-map)
-        id->path (reduce (fn [coll [path {id :id}]] (assoc coll id path)) {} test-data-map)
+        id->path (reduce (fn [coll [path {id :id category :category}]] (assoc coll id (into [category] path))) {} test-data-map)
         _ (log-o "id->path" id->path)
+        ;id->fails (reduce (fn [coll [path {id :id summary :summary}]] (assoc coll id (get summary :fails)) ) {} test-data-map)
+        ;_ (log-o "id->fails" id->fails)
 
         update-data-map (fn [id count coll path]
                           (let [{c :count i :ids} (get coll path {:count 0 :ids nil})
@@ -514,16 +549,24 @@
                             ]
                         data-map))
 
+        keyword->str (fn [x]
+                       (if (keyword? x)
+                         (subs (str x) 1)
+                         x))
+
         mk-fail-tree (fn [path]
                        (let [scens-path (map rest (s/find-leaf struct path))
-                             scens (map (partial get test-data-map) scens-path)
+                             scens (map #(get test-data-map (flatten %)) scens-path)
                              scen-ids (map :id scens)
                              fails-keyworded (map #(get-in % [:summary :fails]) scens)
-                             fails (map #(map vector (map name (keys %)) (vals %)) fails-keyworded)
+                             _ (log-o "fails keyworded " fails-keyworded)
+                             fails (map #(map vector (map keyword->str (keys %)) (vals %)) fails-keyworded)
                              fails-keys (map keys fails)
+                             _ (log-o "fail keys " fails-keys)
                              fails-combi (reduce into #{} fails-keys)
-                             fails-paths (map #(string/split (name %) #"\.") fails-combi)
+                             fails-paths (map #(string/split (keyword->str %) #"\.") fails-combi)
                              nested-fails-map (reduce #(assoc-in %1 %2 :leaf) {} fails-paths)
+                             _ (log-o "nested-fails-map " nested-fails-map)
                              final-map (s/collapse-poor-branches nested-fails-map)
                              ;_ (log-o "final map" final-map)
 
@@ -534,18 +577,16 @@
                              ;nested-fails-map (reduce (fn [coll [k v]]
                              ;                           (assoc-in coll k v)) {} fails-paths-map)
                              ;final-map (s/collapse-poor-branches nested-fails-map)
-                             ;_ (log-o "test data map" test-data-map)
-                             ;_ (log-o "scens path" scens-path)
-                             ;_ (log-o "scens " scens)
-                             ;_ (log-o "scens-ids " scen-ids)
-                             ;_ (log-o "fails sep " fails-sep)
-                             ;_ (log-o "fails-paths-map " fails-paths-map)
-                             ;_ (log-o "fails-map nested" nested-fails-map)
-                             ;_ (log-o "final map" final-map)
+                             _ (log-o "test data map" test-data-map)
+                             _ (log-o "scens path" scens-path)
+                             _ (log-o "scens " scens)
+                             _ (log-o "scens-ids " scen-ids)
+                             _ (log-o "fails-map nested" nested-fails-map)
+                             _ (log-o "final map" final-map)
 
                              fails-n-ids (map vector fails scen-ids)
                              data-map (reduce mk-data-map {} fails-n-ids)
-                             ;_ (log-o "data-map " data-map)
+                             _ (log-o "data-map " data-map)
                              ]
                          {:struct   final-map
                           :data-map data-map}))
@@ -575,37 +616,51 @@
                       (let [x' (string/split x #"\|")
                             x'' (map decode-path-item x')]
                         (vec x'')))
+
+        fail-path->str (fn [x]
+                         (log-o "x" x)
+                         (string/replace x #"\|" "."))
         ]
 
-    (fn []
-      (let [nav-pos @nav-position-a
-            path (routing/get-path nav-pos)
-            _ (log-o "path vec?" (vector? path))
-            params (routing/get-query-params nav-pos)
-            cached-fail-tree (get @cache path)
-            fail-tree (if-not cached-fail-tree
-                        (let [tree (mk-fail-tree path)
-                              _ (swap! cache assoc path tree)]
-                          tree)
-                        cached-fail-tree)
-            last-elem (peek (flatten-path path))
-            _ (log-o "fail-tree" fail-tree)
-            path-encoded (get params :path)
-            fail-path (decode-path path-encoded)
-            _ (log-o "path decoded" fail-path)
-            leaf? (= :leaf (get-in fail-tree (into [:struct] fail-path)))
-            _ (log-o "leaf?" leaf?)
-            ids (get-in fail-tree [:data-map (flatten fail-path) :ids])
-            _ (log-o "ids" ids)
-            ]
-        ;(log "slice")
-        [:div
-         [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
-          [:div.list-column.list-column--grow.list-column--left
-           [:h1.margin-less "Fail type slice: " [truncated-string last-elem]]]]
-         (if leaf?
-           [fails-leaf]
-           [fails-node fail-tree fail-path (partial mk-href path params)])]))))
+    (r/create-class {:component-did-update trigger-refresh-scroll
+                     :component-did-mount  trigger-refresh-scroll
+                     :component-function   (fn []
+                                             (let [nav-pos @nav-position-a
+                                                   path (routing/get-path nav-pos)
+                                                   _ (log-o "path vec?" (vector? path))
+                                                   params (routing/get-query-params nav-pos)
+                                                   cached-fail-tree (get @cache path)
+                                                   fail-tree (if-not cached-fail-tree
+                                                               (let [tree (mk-fail-tree path)
+                                                                     _ (swap! cache assoc path tree)]
+                                                                 tree)
+                                                               cached-fail-tree)
+                                                   last-elem (peek (flatten-path path))
+                                                   _ (log-o "fail-tree" fail-tree)
+                                                   path-encoded (get params :path)
+                                                   fail-path (decode-path path-encoded)
+                                                   _ (log-o "path decoded" fail-path)
+                                                   leaf? (= :leaf (get-in fail-tree (into [:struct] fail-path)))
+                                                   _ (log-o "leaf?" leaf?)
+                                                   ids (get-in fail-tree [:data-map (flatten fail-path) :ids])
+                                                   _ (log-o "ids" ids)
+                                                   caption (if leaf?
+                                                             (fail-path->str path-encoded)
+                                                             (str "Fail type slice: " last-elem))
+                                                   _ (log-o "caption" caption)
+                                                   ]
+                                               ;(log "slice")
+                                               [:div
+                                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+                                                 [:div.list-column.list-column--grow.list-column--left
+                                                  [:h1.margin-less caption]]]
+                                                (if leaf?
+                                                  [fails-leaf {:fail-mapping fail-mapping
+                                                               :ids          ids
+                                                               :id->path     id->path
+                                                               :runs         runs
+                                                               :fail-name    (fail-path->str path-encoded)}]
+                                                  [fails-node fail-tree fail-path (partial mk-href path params)])]))})))
 
 
 (defn app-content [{:keys [test-data-map quarantine runs struct status-map fail-mapping status-filter-a nav-position-a]}]
@@ -626,6 +681,7 @@
                                (if fail-type-slice
                                  [fail-type-slice-view {:nav-position-a nav-position-a
                                                         :struct         struct
+                                                        :runs           runs
                                                         :fail-mapping   fail-mapping
                                                         :test-data-map  test-data-map}]
                                  (cond
