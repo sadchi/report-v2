@@ -24,8 +24,8 @@
 
 (extend-protocol ILookup
   object
-  (-lookup [m k] (let [key (name k)] (aget m key)))
-  (-lookup [m k not-found] (let [key (name k)] (or (aget m key) not-found))))
+  (-lookup ([m k] (let [key (name k)] (aget m key)))
+    ([m k not-found] (let [key (name k)] (or (aget m key) not-found)))))
 
 
 

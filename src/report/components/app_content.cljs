@@ -207,7 +207,7 @@
        :component-did-mount  trigger-refresh-scroll
        :component-function   (fn []
                                [:div
-                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
                                  [:div.list-column.list-column--grow.list-column--left
                                   [:h1.margin-less "Overview"]]
                                  (status-filter statuses root-status-map status-filter-a)]
@@ -285,7 +285,7 @@
                                    ;_ (log-o "flat list? " flat-list?)
                                    ]
                                [:div
-                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
                                  [:div.list-column.list-column--grow.list-column--left
                                   [:h1.margin-less [truncated-string node-title]]]
                                  (status-filter statuses node-status-map status-filter-a)]
@@ -375,12 +375,12 @@
                                [:div
                                 [:div.list-row.list-row--accent
                                  [:div.list-column.list-column--grow.list-column--left "Target"]
-                                 [:div.list-column "Status"]]
+                                 [:div.list-column.list-column--width-l "Status"]]
                                 (for [[idx target-status] (map-indexed vector target-status-coll)
                                       :let [[target status] target-status]]
                                   ^{:key idx} [:div.list-row.list-row--hoverable
                                                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
-                                                [:a.custom-block-link {:href (path->uri (conj path target))} [:span target]]]
+                                                [:a.custom-block-link {:href (path->uri (conj path target))} [truncated-string target]]]
                                                [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]])]))}))
 
 
@@ -402,7 +402,7 @@
             ]
         [:div
 
-         [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+         [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
           [:div.list-column.list-column--grow.list-column--left
            [:h1.margin-less [truncated-string scenario-name]]]
           (status-filter statuses scenario-status-map status-filter-a)]
@@ -588,7 +588,7 @@
                              data-map (reduce mk-data-map {} fails-n-ids)
                              _ (log-o "data-map " data-map)
                              ]
-                         {:struct   final-map
+                         {:struct   final-map               ;
                           :data-map data-map}))
 
         decode-path-item (fn [x]
@@ -651,7 +651,7 @@
                                                    ]
                                                ;(log "slice")
                                                [:div
-                                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m
+                                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
                                                  [:div.list-column.list-column--grow.list-column--left
                                                   [:h1.margin-less caption]]]
                                                 (if leaf?

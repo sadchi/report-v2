@@ -1,5 +1,6 @@
 (ns report.test-results.curried-styles.utils
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [report.utils.log :refer [log log-o]]))
 
 
 
@@ -14,11 +15,11 @@
 
 (defn overflow? [this]
   (let [dom-this (r/dom-node this)
-        ;_ (log-o "dom-this " dom-this)
+        _ (log-o "dom-this " dom-this)
         this-width (dom-width dom-this)
-        ;_ (log-o "this-width " this-width)
+        _ (log-o "this-width " this-width)
         p-width (parent-dom-width dom-this)
-        ;_ (log-o "parent-width " parent-width)
+        _ (log-o "parent-width " p-width)
         ]
     (> this-width p-width)))
 

@@ -18,7 +18,9 @@
         update-f-reset (fn[x]
                          (reset! final-string s)
                          (update-f x))
-        handler #(debounce (partial update-f-reset %) truncate-timeout)]
+        handler #(debounce (partial update-f-reset %) truncate-timeout)
+        ;_ (log-o "truncated-string for " s)
+        ]
     (r/create-class {:component-did-mount    (fn [x]
                                                #_(log "mounted")
                                                (update-f x)

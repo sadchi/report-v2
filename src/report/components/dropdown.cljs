@@ -15,9 +15,9 @@
                            :font-size    (px (get p/font-sizes :0))
                            :font-weight  "bold"
                            :border       "1px solid grey"
-                           :width        (px (get p/control-width :m))
-                           :height       (px (get p/control-height :m))
-                           :line-height  (px (get p/control-height :m))
+                           :width        (px (get p/big-units :m))
+                           :height       (px (get p/small-units :m))
+                           :line-height  (px (get p/small-units :m))
                            :text-align   "left"
                            :padding-left (px (* p/unit 2))
                            :cursor       "pointer"
@@ -31,7 +31,7 @@
     :right    (px 0)
     :top      (px 0)
     :bottom   (px 0)
-    :width    (px (get p/control-height :m))}
+    :width    (px (get p/small-units :m))}
    cs/iconic-font])
 
 (def dropdown-list--opened ^:css
@@ -46,7 +46,7 @@
 
 (def dropdown-list__items-pane ^:css [{:position   "absolute"
                                        :z-index    (get p/z-level :popup)
-                                       :top        (px (get p/control-height :m))
+                                       :top        (px (get p/small-units :m))
                                        :left       (px -1)
                                        :right      (px -1)
                                        :cursor     "pointer"
@@ -68,10 +68,10 @@
                                   :background (get p/purpose-colors :accent)
                                   :opacity    0.15}]])
 
-(def dropdown-list--s-width ^:css {:width (px (get p/control-width :s))})
-(def dropdown-list--m-width ^:css {:width (px (get p/control-width :m))})
-(def dropdown-list--l-width ^:css {:width (px (get p/control-width :l))})
-(def dropdown-list--xl-width ^:css {:width (px (get p/control-width :xl))})
+(def dropdown-list--s-width ^:css {:width (px (get p/big-units :s))})
+(def dropdown-list--m-width ^:css {:width (px (get p/big-units :m))})
+(def dropdown-list--l-width ^:css {:width (px (get p/big-units :l))})
+(def dropdown-list--xl-width ^:css {:width (px (get p/big-units :xl))})
 
 
 (defn dropdown [{:keys [coll current any? select-fn width]}]

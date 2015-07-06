@@ -62,20 +62,20 @@
      :semi-warning (c/rgb->hex (mix w n))
      }))
 
-(def control-width {:s  (* unit 10)
+(def big-units {:s  (* unit 10)
                     :m  (* unit 20)
                     :l  (* unit 30)
                     :xl (* unit 40)})
 
-(def control-height {:s   (* unit 2)
+(def small-units {:s   (* unit 2)
                      :m   (* unit 3)
                      :l   (* unit 4)
                      :xl  (* unit 5)
                      :xxl (* unit 6)})
 
-(def bar-height (get control-height :xxl))
+(def bar-height (get small-units :xxl))
 
-(def line-height (get control-height :l))
+(def line-height (get small-units :l))
 
 (def font-family {:content "Calibri , Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif"
                   :heading "Calibri , Candara, Segoe, 'Segoe UI', Optima, Arial, sans-serif" ;"'Segoe UI', Frutiger, 'Frutiger Linotype', 'Dejavu Sans', 'Helvetica Neue', Arial, sans-serif"
