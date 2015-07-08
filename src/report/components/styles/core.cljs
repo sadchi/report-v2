@@ -50,10 +50,13 @@
 (def hor-sub-block-l (with-meta (hor-sub-block :l) {:css true}))
 
 
+(def nowrap-white-space ^:css {:white-space "nowrap"})
+
+
 (defonce init
-  (let [ns-name (name (namespace ::x))
-        interns (ns-interns 'report.components.common.core)
-        ;_ (log-o "interns " interns)
-        css-classes (u/mk-ns-classes interns)]
-    (add-style! (u/css-w-prefixes {:pretty-print? true} css-classes))
-    (log (str ns-name " ... initialized"))))
+         (let [ns-name (name (namespace ::x))
+               interns (ns-interns 'report.components.styles.core)
+               ;_ (log-o "interns " interns)
+               css-classes (report.components.common.utils/mk-ns-classes interns)]
+           (report.components.common.utils/add-style! (report.components.common.utils/css-w-prefixes {:pretty-print? true} css-classes) :ns ns-name)
+           (log (str ns-name " ... initialized"))))

@@ -2,7 +2,9 @@
   (:require [reagent.core :as r]
             [report.utils.log :refer [log log-o]]
             [report.test-results.curried-styles.utils :refer [overflow?]]
-            [report.utils.events :refer [debounce]]))
+            [report.utils.events :refer [debounce]]
+            [report.components.styles.core :as sc]
+            [report.components.common.utils :as u]))
 
 (def ^:priivate truncate-step 10)
 (def ^:private truncate-timeout 500)
@@ -31,5 +33,5 @@
                                                #_(log "unmounted")
                                                (.removeEventListener js/window "resize" @stored-func))
                      :component-function     (fn []
-                                               [:span @final-string])})))
+                                               [:span (u/attr {:classes 'sc/nowrap-white-space}) @final-string])})))
 

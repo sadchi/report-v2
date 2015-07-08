@@ -8,7 +8,7 @@
 
 
 (def bar (list
-           ct/dark-greyish-theme
+           ct/dark-grey-theme
            {:position     "fixed"
             :overflow     "hidden"
             :left         0
@@ -28,7 +28,7 @@
                  :height       "100%"
                  :border-width 0}
                 f/content-font
-                ct/dark-greyish-theme])
+                ct/dark-grey-theme])
 
 (def nav-bar (list bar {:top 0}))
 
@@ -47,5 +47,6 @@
                interns (ns-interns 'report.components.styles.main-containers)
                ;_ (log-o "interns " interns)
                css-classes (report.components.common.utils/mk-ns-classes interns)]
-           (report.components.common.utils/add-style! (report.components.common.utils/css-w-prefixes {:pretty-print? true} css-classes))
+           (report.components.common.utils/add-style! (report.components.common.utils/css-w-prefixes {:pretty-print? true} css-classes) :ns ns-name)
            (log (str ns-name " ... initialized"))))
+

@@ -19,6 +19,8 @@
             [report.components.status-filter :refer [status-filter hovered? w-a-active? active? any-active?]]
             [report.test-results.path :refer [safe-path desafe-path flatten-path path->str]]
             [report.components.buttons :refer [state-button button]]
+            [report.components.styles.items-list :as il]
+            [report.components.styles.links :as l]
             [clojure.string :as string]))
 
 
@@ -376,11 +378,38 @@
                                 [:div.list-row.list-row--accent
                                  [:div.list-column.list-column--grow.list-column--left "Target"]
                                  [:div.list-column.list-column--width-l "Status"]]
+                                [:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--accent)})
+                                 [:div.list-column.list-column--grow.list-column--left "Target"]
+                                 [:div.list-column.list-column--width-l "Status"]]
+
+                                [:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--no-padding)})
+                                 [:a (u/attr {:classes 'l/neu-custom-block-link
+                                              :href    "#/"})
+                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow)})
+                                   [truncated-string "Call command Remove All Pontics and then calls command Auto Place Scalable Pontics then collect inspections of group"]]
+                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--more-grow)})
+                                   [:div [badged-text :bad "t1t1t1"]
+                                    [badged-text :bad "t1t1t2"]
+                                    [:span "t1t1t2"]
+                                    [:span "t1t1t3"]
+                                    [:span "t1t1t4"]
+                                    [:span "t1t1t5"]
+                                    ]
+                                   ;[:span "t1t1t9"]
+                                   ;[:span "t1t1t1"]
+                                   ;[:span "t1t1t3"]
+                                   ;[:span "t1t1t3"]
+                                   ;[:span "t1t1t4"]
+                                   ]
+                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--width-l)}) [badged-text (get-reputation "FAIL") "FAIL"]]
+                                  ]]
+
+
                                 (for [[idx target-status] (map-indexed vector target-status-coll)
                                       :let [[target status] target-status]]
                                   ^{:key idx} [:div.list-row.list-row--hoverable
                                                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
-                                                [:a.custom-block-link {:href (path->uri (conj path target))} [truncated-string target]]]
+                                                [:a.custom-block-link {:href (path->uri (conj path target))} target]]
                                                [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]])]))}))
 
 

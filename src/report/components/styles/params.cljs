@@ -34,6 +34,9 @@
                                 :border (lighten :grey 7)}
                     :white     {:back   (darken :white 1)
                                 :fore   (darken :grey 24)
+                                :border (darken :white 5)}
+                    :grey      {:back   (lighten :grey 31)
+                                :fore   (darken :grey 24)
                                 :border (darken :white 5)}})
 
 
@@ -63,15 +66,22 @@
      }))
 
 (def big-units {:s  (* unit 10)
-                    :m  (* unit 20)
-                    :l  (* unit 30)
-                    :xl (* unit 40)})
+                :m  (* unit 20)
+                :l  (* unit 30)
+                :xl (* unit 40)})
+
+
+(def medium-units {:s  (* unit 4)
+                   :m  (* unit 6)
+                   :l  (* unit 10)
+                   :xl (* unit 14)})
+
 
 (def small-units {:s   (* unit 2)
-                     :m   (* unit 3)
-                     :l   (* unit 4)
-                     :xl  (* unit 5)
-                     :xxl (* unit 6)})
+                  :m   (* unit 3)
+                  :l   (* unit 4)
+                  :xl  (* unit 5)
+                  :xxl (* unit 6)})
 
 (def bar-height (get small-units :xxl))
 

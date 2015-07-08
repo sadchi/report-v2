@@ -32,5 +32,5 @@
                interns (ns-interns 'report.components.styles.content-pane)
                ;_ (log-o "interns " interns)
                css-classes (report.components.common.utils/mk-ns-classes interns)]
-           (report.components.common.utils/add-style! (report.components.common.utils/css-w-prefixes {:pretty-print? true} css-classes))
+           (report.components.common.utils/add-style! (report.components.common.utils/css-w-prefixes {:pretty-print? true} css-classes) :ns ns-name)
            (log (str ns-name " ... initialized"))))
