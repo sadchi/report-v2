@@ -18,7 +18,7 @@
         ;_ (log-o "dom-this " dom-this)
         this-width (dom-width dom-this)
         ;_ (log-o "this-width " this-width)
-        p-width (parent-dom-width dom-this)
+        p-width (- (parent-dom-width dom-this) 10)
         ;_ (log-o "parent-width " p-width)
         ]
     (> this-width p-width)))

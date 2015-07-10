@@ -1,11 +1,16 @@
 (ns report.components.badges
-  (:require [report.test-results.statuses :refer [sort-statuses-by-weight bad-status? good-status? neutral-status? get-worse get-best]]
-            [report.test-results.curried-styles.status :refer [back-style]]))
+  (:require [report.utils.log :refer [log log-o]]
+    [report.test-results.statuses :refer [sort-statuses-by-weight bad-status? good-status? neutral-status? get-worse get-best]]
+            [report.components.common.utils :as u]
+            [report.components.styles.color-themes :as t]
+            [report.components.styles.badges :as b]))
 
 
 (defn badged-text [reputation text small]
-  (let [reputation-class (back-style reputation)
-        small-class (when small "badge--small")
-        class (str reputation-class " " small-class) ]
-    [:div.badge {:class class} text]))
+  (let [reputation-class (t/back-style-by-reputation reputation)
+        classes (list 'b/neu-badge reputation-class)
+        final-classes (if small
+                        (conj classes 'b/neu-badge--small)
+                        classes)]
+    [:div (u/attr {:classes final-classes}) text]))
 

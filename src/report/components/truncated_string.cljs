@@ -9,16 +9,28 @@
 (def ^:priivate truncate-step 10)
 (def ^:private truncate-timeout 500)
 
-(defn check-n-truncate [str-a this]
+(defn- check-n-truncate [str-a this]
   (when (overflow? this)
-    (reset! str-a (str "\u2026"(subs @str-a truncate-step)))))
+    (swap! str-a (fn [[current initial]]
+                   [(str "\u2026" (subs current truncate-step)) initial]))))
+
+(defn- reset-s! [s-atom]
+  (swap! s-atom (fn [[current initial]] [initial initial])))
 
 (defn truncated-string [s]
-  (let [final-string (r/atom s)
+  (let [
+        atom? (satisfies? cljs.core/IAtom s)
+        double-v (fn [x] [x x])
+        final-string (if atom?
+                       (do
+                         (swap! s double-v)
+                         s)
+                       (r/atom [s s]))
+
         stored-func (atom nil)
         update-f #(check-n-truncate final-string %)
-        update-f-reset (fn[x]
-                         (reset! final-string s)
+        update-f-reset (fn [x]
+                         (reset-s! final-string)
                          (update-f x))
         handler #(debounce (partial update-f-reset %) truncate-timeout)
         ;_ (log-o "truncated-string for " s)
@@ -33,5 +45,8 @@
                                                #_(log "unmounted")
                                                (.removeEventListener js/window "resize" @stored-func))
                      :component-function     (fn []
-                                               [:span (u/attr {:classes 'sc/nowrap-white-space}) @final-string])})))
+                                               (let [final-string-val @final-string
+                                                     _ (when-not (vector? final-string-val)
+                                                         (swap! final-string double-v))]
+                                                 [:span (u/attr {:classes 'sc/nowrap-white-space}) (first @final-string)]))})))
 

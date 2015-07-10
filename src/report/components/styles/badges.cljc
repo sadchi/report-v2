@@ -9,18 +9,21 @@
             [garden.color :as c]))
 
 
-(def sizes {:s (* 2 p/unit)
-            :m (* 2.5 p/unit)
-            :l (* 3 p/unit)})
+(def sizes {:xs (/ p/unit 2)
+            :s  (* 2 p/unit)
+            :m  (* 2.5 p/unit)
+            :l  (* 3 p/unit)})
 
-(def neu-badge ^:css {:height (px (get sizes :m))
-                      :line-height (px (get sizes :m))
-                      :display "inline-block"
-                      :padding "0 2px"
+(def neu-badge ^:css {:height       (px (get sizes :m))
+                      :line-height  (px (get sizes :m))
+                      :display      "inline-block"
+                      :padding      [[0 (px (get sizes :xs))]]
+                      :margin-left  (px (get sizes :xs))
+                      :margin-right (px (get sizes :xs))
                       :border-style "solid"
                       :border-width "1px"})
 
-(def neu-badge--small ^:css {:height (px (get sizes :s))
+(def neu-badge--small ^:css {:height      (px (get sizes :s))
                              :line-height (px (get sizes :s))})
 
 

@@ -56,6 +56,11 @@
 
 (def css-w-prefixes
   (partial css {:vendors     ["webkit" "mos" "ms"]
-                :auto-prefix #{:flex :flex-grow :flex-shrink :flex-direction :align-content :align-self :justify-content :flex-basis}}))
+                :auto-prefix #{:flex :flex-grow :flex-shrink :flex-direction :align-content :align-self :justify-content :align-items :flex-basis}}))
+
+(defn wrap-f [x]
+  (if (fn? x)
+    x
+    (fn [] x)))
 
 

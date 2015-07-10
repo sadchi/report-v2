@@ -63,6 +63,8 @@
                              :width           (px 58)
                              :flex-basis      (px 58)}])
 
+(def neu-list-column--left-padded ^:css {:padding-left (px (get p/small-units :s))})
+
 (def neu-list-column--auto-width ^:css {:width      "auto"
                                         :flex-basis "auto"})
 
@@ -88,8 +90,8 @@
 
 (def neu-list-column--more-grow ^:css {:flex-grow 2})
 
-(def neu-list-column--left ^:css {:align-items "felx-start"})
-(def neu-list-column--right ^:css {:align-items "felx-end"})
+(def neu-list-column--left ^:css {:align-items "flex-start"})
+(def neu-list-column--right ^:css {:align-items "flex-end"})
 
 
 (defonce init

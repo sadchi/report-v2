@@ -10,6 +10,7 @@
             [report.components.assets-list :refer [assets-list]]
             [report.components.truncated-string :refer [truncated-string]]
             [report.components.tooltip :as tooltip]
+            [report.components.block-link :as bl]
             [report.components.dropdown :refer [dropdown]]
             [report.components.styles.content-pane :as cp]
             [report.components.common.utils :as u]
@@ -50,43 +51,12 @@
   (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
 
 
-(defn- list-row-status-names [{:keys [text statuses accent status-filter-a]}]
-  (let [status-names (map name statuses)
-        accent-class (when accent "list-row--accent")
-        status-filter @status-filter-a]
-    [:div.list-row {:class accent-class}
-     [:div.list-column.list-column--grow.list-column--left text]
-     (for [[idx status] (map-indexed vector status-names)
-           :let [
-                 ;_ (log-o "status " status)
-                 active (w-a-active? status status-filter)
-                 ;_ (log-o "active " active)
-                 class (when-not active "list-column--shadowed")
-                 ]]
-       ^{:key idx} [:div.list-column (merge {:class class} (mk-tooltip-map status :center)) status])]))
-
-
 (defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
   (let [
-        status-names (map name (keys statuses))
-        ;_ (log "1")
-        worse-status (get-worse status-names)
-        ;_ (log "2")
-        best-status (get-best status-names)
-        ;_ (log-o "worse-status " worse-status)
-        ;_ (log "3")
-        status-class nil
-        #_(cond
-                       (good-status? worse-status) "list-row--success"
-                       (bad-status? worse-status) "list-row--error"
-                       (and (neutral-status? worse-status) (good-status? best-status)) "list-row--success"
-                       :else "")
-        ;_ (log-o "status-class " status-class)
-
         accent-class (when accent "list-row--accent")
         ;_ (log "4")
         ;style (when href {:cursor "pointer"})
-        extra-classes (str accent-class " " status-class)
+        extra-classes (str accent-class)
         ;_ (log "4")
         status-filter (when status-filter-a @status-filter-a)
         ;_ (log "5")
@@ -268,52 +238,55 @@
                       [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
 
 (defn node-view [{:keys [struct runs test-data-map status-map status-filter-a nav-position-a]}]
-  (r/create-class
-    {:component-did-update trigger-refresh-scroll
-     :component-did-mount  trigger-refresh-scroll
-     :component-function   (fn []
-                             (let [path (routing/get-path @nav-position-a)
-                                   node-title (path->str (peek path))
-                                   node-status-map (get status-map (flatten-path path))
-                                   statuses (sort-statuses-by-vis-order > (keys node-status-map))
-                                   ;_ (log "node-view rendered")
-                                   ;_ (log-o "statuses " statuses)
-                                   ;_ (log-o "node-map " node-status-map)
-                                   sub-items (keys (get-in struct path))
-                                   ;_ (log-o "sub-items " sub-items)
-                                   flat-list? (is-flat-list? {:status-map  status-map
-                                                              :parent-path path
-                                                              :items       sub-items})
-                                   ;_ (log-o "flat list? " flat-list?)
-                                   ]
-                               [:div
-                                [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
-                                 [:div.list-column.list-column--grow.list-column--left
-                                  [:h1.margin-less [truncated-string node-title]]]
-                                 (status-filter statuses node-status-map status-filter-a)]
+  (let [title (r/atom nil)]
+    (r/create-class
+     {:component-did-update trigger-refresh-scroll
+      :component-did-mount  trigger-refresh-scroll
+      :component-function   (fn []
+                              (let [path (routing/get-path @nav-position-a)
+                                    node-title (path->str (peek path))
+                                    node-status-map (get status-map (flatten-path path))
+                                    statuses (sort-statuses-by-vis-order > (keys node-status-map))
+                                    ;_ (log "node-view rendered")
+                                    ;_ (log-o "statuses " statuses)
+                                    ;_ (log-o "node-map " node-status-map)
+                                    sub-items (keys (get-in struct path))
+                                    ;_ (log-o "sub-items " sub-items)
+                                    flat-list? (is-flat-list? {:status-map  status-map
+                                                               :parent-path path
+                                                               :items       sub-items})
+                                    ;_ (log-o "flat list? " flat-list?)
 
-                                (if-not flat-list?
-                                  (list
-                                    ^{:key 1} [:div.list-row.list-row--accent
-                                               [:div.list-column.list-column--grow.list-column--left "Path:"]]
+                                    ]
+                                (reset! title node-title)
+                                [:div
+                                 [:div.list-row.list-row--height-xl.list-row--border-less.list-row--m-bottom-m.list-row--no-padding
+                                  [:div.list-column.list-column--grow.list-column--left
+                                   [:h1.margin-less [truncated-string title]]]
+                                  (status-filter statuses node-status-map status-filter-a)]
 
-                                    ^{:key 2} [sub-struct-list {:status-map      status-map
-                                                                :sub-items       sub-items
-                                                                :parent-statuses statuses
-                                                                :parent-path     path
-                                                                :status-filter-a status-filter-a
-                                                                :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
-                                                                                                 :struct        struct
-                                                                                                 :runs          runs
-                                                                                                 :parent-path   path})}])
-                                  [flat-list {:status-map      status-map
-                                              :parent-path     path
-                                              :items           sub-items
-                                              :status-filter-a status-filter-a
-                                              :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
-                                                                               :runs          runs
-                                                                               :struct        struct
-                                                                               :parent-path   path})}])]))}))
+                                 (if-not flat-list?
+                                   (list
+                                     ^{:key 1} [:div.list-row.list-row--accent
+                                                [:div.list-column.list-column--grow.list-column--left "Path:"]]
+
+                                     ^{:key 2} [sub-struct-list {:status-map      status-map
+                                                                 :sub-items       sub-items
+                                                                 :parent-statuses statuses
+                                                                 :parent-path     path
+                                                                 :status-filter-a status-filter-a
+                                                                 :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                                                  :struct        struct
+                                                                                                  :runs          runs
+                                                                                                  :parent-path   path})}])
+                                   [flat-list {:status-map      status-map
+                                               :parent-path     path
+                                               :items           sub-items
+                                               :status-filter-a status-filter-a
+                                               :get-href-fn     (gen-uri-jumps {:test-data-map test-data-map
+                                                                                :runs          runs
+                                                                                :struct        struct
+                                                                                :parent-path   path})}])]))})))
 
 
 
@@ -375,19 +348,19 @@
                                    ;_ (log-o "target-statuses: " target-status-coll)
                                    ]
                                [:div
-                                [:div.list-row.list-row--accent
-                                 [:div.list-column.list-column--grow.list-column--left "Target"]
-                                 [:div.list-column.list-column--width-l "Status"]]
                                 [:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--accent)})
-                                 [:div.list-column.list-column--grow.list-column--left "Target"]
-                                 [:div.list-column.list-column--width-l "Status"]]
+                                 [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left)}) "Target"]
+                                 [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--width-l)}) "Status"]]
 
-                                [:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--no-padding)})
-                                 [:a (u/attr {:classes 'l/neu-custom-block-link
+                                #_[:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--no-padding)})
+
+                                 #_[bl/block-link :href "#/" :sub-items (list [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
+                                                                             [truncated-string "Call command Remove All Pontics and then calls command Auto Place Scalable Pontics then collect inspections of group"]])]
+                                 #_[:a (u/attr {:classes 'l/neu-custom-block-link
                                               :href    "#/"})
-                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow)})
+                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
                                    [truncated-string "Call command Remove All Pontics and then calls command Auto Place Scalable Pontics then collect inspections of group"]]
-                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--more-grow)})
+                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--more-grow il/neu-list-column--right)})
                                    [:div [badged-text :bad "t1t1t1"]
                                     [badged-text :bad "t1t1t2"]
                                     [:span "t1t1t2"]
@@ -407,7 +380,14 @@
 
                                 (for [[idx target-status] (map-indexed vector target-status-coll)
                                       :let [[target status] target-status]]
-                                  ^{:key idx} [:div.list-row.list-row--hoverable
+                                  ^{:key idx} [:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--no-padding)})
+                                               [bl/block-link :href (path->uri (conj path target))
+                                                :sub-items (list
+                                                             [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
+                                                              [truncated-string target]]
+                                                             [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--width-l)})
+                                                              [badged-text (get-reputation status) status]])]]
+                                  #_[:div.list-row.list-row--hoverable
                                                [:div.list-column.list-column--grow.list-column--stretch.list-column--left
                                                 [:a.custom-block-link {:href (path->uri (conj path target))} target]]
                                                [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]])]))}))
