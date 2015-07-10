@@ -19,7 +19,7 @@
 
 (defn truncated-string [s]
   (let [
-        atom? (satisfies? cljs.core/IAtom s)
+        atom? (instance? reagent.ratom/RAtom s)
         double-v (fn [x] [x x])
         final-string (if atom?
                        (do
