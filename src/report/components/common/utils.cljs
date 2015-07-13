@@ -50,7 +50,7 @@
 (defn attr [m]
   (let [classes-v (get m :classes)
         class (if (or (vector? classes-v) (seq? classes-v))
-                (apply class-names classes-v)
+                (apply class-names (filter some? classes-v))
                 (class-names classes-v))]
     (assoc m :class class)))
 

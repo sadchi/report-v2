@@ -94,6 +94,19 @@
 (def neu-list-column--right ^:css {:align-items "flex-end"})
 
 
+(def neu-list-column--hovered ^:css [[:&:after {:position   "absolute"
+                                                :content    "\" \""
+                                                :top        0
+                                                :bottom     0
+                                                :left       0
+                                                :right      0
+                                                :opacity    0.1
+                                                :background (get p/purpose-colors :accent)}]])
+
+(def neu-list-column--shadowed ^:css [{:opacity 0.2}
+                                      [:&:hover:after {:opacity 0.7}]
+                                      [:&:after {:opacity 0.7}]])
+
 (defonce init
          (let [ns-name (name (namespace ::x))
                interns (ns-interns 'report.components.styles.items-list)

@@ -53,29 +53,34 @@
 
 (defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
   (let [
-        accent-class (when accent "list-row--accent")
-        ;_ (log "4")
-        ;style (when href {:cursor "pointer"})
-        extra-classes (str accent-class)
+        accent-class (when accent 'il/neu-list-row--accent)
         ;_ (log "4")
         status-filter (when status-filter-a @status-filter-a)
         ;_ (log "5")
         vis (any-active? (keys statuses) status-filter)
         ;_ (log "6")
         ]
-    (when vis [:div.list-row.list-row--hoverable {:class extra-classes}
-               [:div.list-column.list-column--grow.list-column--stretch.list-column--left
-                [:a.custom-block-link {:href href} [:span text]]]
-               (for [[idx status] (map-indexed vector parent-statuses)
-                     :let [status-count (get statuses status nil)
-                           active (w-a-active? status status-filter)
-                           hover (hovered? status status-filter)
-                           active-status (when-not active "list-column--shadowed")
-                           hover-status (when hover "list-column--hovered")
-                           class (str active-status " " hover-status)]]
-                 (if status-count
-                   ^{:key idx} [:div.list-column {:class class} [badged-text (get-reputation status) status-count]]
-                   ^{:key idx} [:div.list-column {:class class}]))])))
+    (when vis [:div (u/attr {:classes (list 'il/neu-list-row
+                                            'il/neu-list-row--no-padding
+                                            accent-class)})
+               [bl/block-link :href href :sub-items
+                (into
+                  [[:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
+                    [truncated-string text]]]
+                  (for [[idx status] (map-indexed vector parent-statuses)
+                       :let [status-count (get statuses status nil)
+                             active (w-a-active? status status-filter)
+                             hover (hovered? status status-filter)
+                             active-status (when-not active 'il/neu-list-column--shadowed)
+                             hover-status (when hover 'il/neu-list-column--hovered)]]
+                   (if status-count
+                     ^{:key idx} [:div (u/attr {:classes (list 'il/neu-list-column
+                                                                           active-status
+                                                                           hover-status)})
+                                  [badged-text (get-reputation status) status-count]]
+                     ^{:key idx} [:div  (u/attr {:classes (list 'il/neu-list-column
+                                                                active-status
+                                                                hover-status)})])))]])))
 
 
 
@@ -216,9 +221,16 @@
 (defn flat-list [{:keys [status-map parent-path items status-filter-a get-href-fn]}]
   (let [status-filter @status-filter-a]
     [:div
-     [:div.list-row.list-row--accent
-      [:div.list-column.list-column--grow.list-column--left "Path:"]
-      [:div.list-column "Status"]]
+     [:div (u/attr {:classes (list 'il/neu-list-row
+                                   'il/neu-list-row--accent)})
+      ;.list-row.list-row--accent
+      [:div (u/attr {:classes (list 'il/neu-list-column
+                                    'il/neu-list-column--grow
+                                    'il/neu-list-column--left)})
+       ;.list-column.list-column--grow.list-column--left
+       "Path:"]
+      [:div (u/attr {:classes (list 'il/neu-list-column
+                                    'il/neu-list-column--width-l)}) "Status"]]
      (for [[idx item] (map-indexed vector items)
            :let [full-path (flatten-path (conj parent-path item))
                  item-status-map (get status-map full-path)
@@ -232,10 +244,19 @@
                  str-item (path->str item)
                  ]]
        (when vis
-         ^{:key idx} [:div.list-row.list-row--hoverable
-                      [:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
+         ^{:key idx} [:div (u/attr {:classes 'il/neu-list-row})
+                      ;.list-row.list-row--hoverable
+                      [bl/block-link :href (get-href-fn item)
+                       :sub-items [[:div (u/attr {:classes (list 'il/neu-list-column
+                                                                 'il/neu-list-column--grow
+                                                                 'il/neu-list-column--left)})
+                                    [truncated-string str-item]]
+                                   [:div (u/attr {:classes (list 'il/neu-list-column
+                                                                 'il/neu-list-column--width-l)})
+                                    [badged-text (get-reputation status) status]]]]
+                      #_[:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
                        [:a.custom-block-link {:href (get-href-fn item)} [:span str-item]]]
-                      [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
+                      #_[:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
 
 (defn node-view [{:keys [struct runs test-data-map status-map status-filter-a nav-position-a]}]
   (let [title (r/atom nil)]
