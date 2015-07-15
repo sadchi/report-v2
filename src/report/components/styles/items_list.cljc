@@ -65,6 +65,9 @@
 
 (def neu-list-column--left-padded ^:css {:padding-left (px (get p/small-units :s))})
 
+(def neu-list-column--padded ^:css {:padding-left  (px (get p/small-units :s))
+                                    :padding-right (px (get p/small-units :s))})
+
 (def neu-list-column--auto-width ^:css {:width      "auto"
                                         :flex-basis "auto"})
 
@@ -87,6 +90,9 @@
                                          {:position "absolute"}]]])
 
 (def neu-list-column--grow ^:css {:flex-grow 1})
+
+(def neu-lsit-column--overflow-hidden ^:css {:oveflow "hidden"})
+
 
 (def neu-list-column--more-grow ^:css {:flex-grow 2})
 

@@ -54,6 +54,12 @@
                 (class-names classes-v))]
     (assoc m :class class)))
 
+(defn at [& {classes :classes :as full-map}]
+  (assoc full-map :class (if (or (vector? classes) (seq? classes))
+                           (apply class-names (filter some? classes))
+                           (class-names classes))))
+
+
 (def css-w-prefixes
   (partial css {:vendors     ["webkit" "mos" "ms"]
                 :auto-prefix #{:flex :flex-grow :flex-shrink :flex-direction :align-content :align-self :justify-content :align-items :flex-basis}}))

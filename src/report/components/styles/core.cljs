@@ -52,6 +52,9 @@
 
 (def nowrap-white-space ^:css {:white-space "nowrap"})
 
+(def text-align-right ^:css {:text-align "right"})
+
+(def width-100 ^:css {:width "100%"})
 
 (defonce init
          (let [ns-name (name (namespace ::x))

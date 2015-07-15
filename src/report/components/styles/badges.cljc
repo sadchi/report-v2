@@ -18,8 +18,7 @@
                       :line-height  (px (get sizes :m))
                       :display      "inline-block"
                       :padding      [[0 (px (get sizes :xs))]]
-                      :margin-left  (px (get sizes :xs))
-                      :margin-right (px (get sizes :xs))
+                      :margin       "1px 2px"
                       :border-style "solid"
                       :border-width "1px"})
 

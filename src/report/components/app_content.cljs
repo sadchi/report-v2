@@ -22,6 +22,7 @@
             [report.components.buttons :refer [state-button button]]
             [report.components.styles.items-list :as il]
             [report.components.styles.links :as l]
+            [report.components.styles.core :as sc]
             [clojure.string :as string]))
 
 
@@ -68,17 +69,17 @@
                   [[:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
                     [truncated-string text]]]
                   (for [[idx status] (map-indexed vector parent-statuses)
-                       :let [status-count (get statuses status nil)
-                             active (w-a-active? status status-filter)
-                             hover (hovered? status status-filter)
-                             active-status (when-not active 'il/neu-list-column--shadowed)
-                             hover-status (when hover 'il/neu-list-column--hovered)]]
-                   (if status-count
-                     ^{:key idx} [:div (u/attr {:classes (list 'il/neu-list-column
-                                                                           active-status
-                                                                           hover-status)})
-                                  [badged-text (get-reputation status) status-count]]
-                     ^{:key idx} [:div  (u/attr {:classes (list 'il/neu-list-column
+                        :let [status-count (get statuses status nil)
+                              active (w-a-active? status status-filter)
+                              hover (hovered? status status-filter)
+                              active-status (when-not active 'il/neu-list-column--shadowed)
+                              hover-status (when hover 'il/neu-list-column--hovered)]]
+                    (if status-count
+                      ^{:key idx} [:div (u/attr {:classes (list 'il/neu-list-column
+                                                                active-status
+                                                                hover-status)})
+                                   [badged-text (get-reputation status) status-count]]
+                      ^{:key idx} [:div (u/attr {:classes (list 'il/neu-list-column
                                                                 active-status
                                                                 hover-status)})])))]])))
 
@@ -244,12 +245,14 @@
                  str-item (path->str item)
                  ]]
        (when vis
-         ^{:key idx} [:div (u/attr {:classes 'il/neu-list-row})
+         ^{:key idx} [:div (u/attr {:classes (list 'il/neu-list-row
+                                                   'il/neu-list-row--no-padding)})
                       ;.list-row.list-row--hoverable
                       [bl/block-link :href (get-href-fn item)
                        :sub-items [[:div (u/attr {:classes (list 'il/neu-list-column
                                                                  'il/neu-list-column--grow
-                                                                 'il/neu-list-column--left)})
+                                                                 'il/neu-list-column--left
+                                                                 'il/neu-list-column--padded)})
                                     [truncated-string str-item]]
                                    [:div (u/attr {:classes (list 'il/neu-list-column
                                                                  'il/neu-list-column--width-l)})
@@ -358,65 +361,117 @@
           (recur new-limit new-rest-targets new-acc))))))
 
 
+(defn- extract-target-summary [{:keys [fails errors badges]}]
+  (let [get-type (fn [x] (get x :type))
+        only-types-fails (map get-type fails)
+        only-types-errors (map get-type errors)]
+    {:errors only-types-errors
+     :fails  only-types-fails
+     :badges badges}))
 
+
+
+(defn- extract-target [get-runs-fn scen-quarantine limit active?]
+  (let [runs (get-runs-fn)
+        run-targets (.keys js/Object runs)]
+    (into [] (take limit
+                   (sequence
+                     (comp (map (fn [target]
+                                  (let [run-info (get runs target)
+                                        status (get run-info :status)
+                                        new-status (if (contains? scen-quarantine target)
+                                                     (str status "_Q") status)]
+                                    (if (active? new-status)
+                                      [target new-status (extract-target-summary run-info)]
+                                      nil))))
+                           (filter some?))
+                     run-targets)))))
+
+
+
+(defn- count-f [m x]
+  (->> (get m x 0)
+       inc
+       (assoc m x)))
+
+(defn common-prefix [paths]
+  (if (some? paths)
+    (let [parts-per-path (map #(drop-last (string/split % #"\.")) paths)
+          ;_ (log-o "parts-per-path" parts-per-path)
+          parts-per-position (apply map vector parts-per-path)
+          ;_ (log-o "parts-per-position" parts-per-position)
+          prefix (string/join "."
+                              (for [parts parts-per-position :while (apply = parts)]
+                                (first parts)))]
+      (if-not (empty? prefix) (str prefix ".")))
+    ""))
+
+
+(defn- mk-badges-list [items reputation ids-a]
+  (for [item items
+        :let [id (swap! ids-a inc)]]
+    ^{:key id} [badged-text reputation item]))
+
+
+(defn- prepare-badge-str-f [prefix-l [k v]]
+  (str (subs k prefix-l) " " v))
 
 (defn- scenario-runs [{:keys [get-runs-fn scen-quarantine status-filter-a runs-limit path]}]
   (r/create-class
     {:component-did-update trigger-refresh-scroll
      :component-function   (fn []
                              ;(log "scenario runs")
-                             (let [target-status-coll (extract-target-status get-runs-fn scen-quarantine @runs-limit #(active? % status-filter-a))
-                                   ;_ (log-o "target-statuses: " target-status-coll)
+                             (let [target-data (extract-target get-runs-fn scen-quarantine @runs-limit #(active? % status-filter-a))
+                                   ;_ (log-o "target-data: " target-data)
                                    ]
                                [:div
-                                [:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--accent)})
-                                 [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left)}) "Target"]
-                                 [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--width-l)}) "Status"]]
-
-                                #_[:div (u/attr {:classes '(il/neu-list-row il/neu-list-row--no-padding)})
-
-                                 #_[bl/block-link :href "#/" :sub-items (list [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
-                                                                             [truncated-string "Call command Remove All Pontics and then calls command Auto Place Scalable Pontics then collect inspections of group"]])]
-                                 [:a (u/attr {:classes 'l/neu-custom-block-link
-                                              :href    "#/"})
-                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
-                                   [truncated-string "Call command Remove All Pontics and then calls command Auto Place Scalable Pontics then collect inspections of group"]]
-                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--more-grow il/neu-list-column--right)})
-                                   [:div [badged-text :bad "t1t1t1"]
-                                    [badged-text :bad "t1t1t2"]
-                                    [badged-text :accent "t1t1t2"]
-                                    [badged-text :bad "t1t1t2"]
-                                    [badged-text :good "t1t1t2"]
-                                    [:span "t1t1t5"]
-                                    ]
-                                   ;[:span "t1t1t9"]
-                                   ;[:span "t1t1t1"]
-                                   ;[:span "t1t1t3"]
-                                   ;[:span "t1t1t3"]
-                                   ;[:span "t1t1t4"]
-                                   ]
-                                  [:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--width-l)}) [badged-text (get-reputation "FAIL") "FAIL"]]
-                                  ]]
-
-
-                                (for [[idx target-status] (map-indexed vector target-status-coll)
-                                      :let [[target status] target-status]]
-                                  ^{:key idx} [:div (u/attr {:classes '(il/neu-list-row
-                                                                         il/neu-list-row--no-padding)})
+                                [:div (u/at :classes '(il/neu-list-row il/neu-list-row--accent))
+                                 [:div (u/at :classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left)) "Target"]
+                                 [:div (u/at :classes '(il/neu-list-column
+                                                         il/neu-list-column--more-grow
+                                                         il/neu-list-column--padded
+                                                         il/neu-list-column--right)) "Badges"]
+                                 [:div (u/at :classes '(il/neu-list-column il/neu-list-column--width-l)) "Status"]]
+                                (for [[idx target-item] (map-indexed vector target-data)
+                                      :let [[target status summary] target-item
+                                            {:keys [errors fails badges]} summary
+                                            errors-counted (reduce count-f {} errors)
+                                            errors-common-prefix-length (count (common-prefix (keys errors-counted)))
+                                            errors-prepared (map (partial prepare-badge-str-f errors-common-prefix-length)
+                                                                 errors-counted)
+                                            ;_ (log-o "errors-common-prefix-length " errors-common-prefix-length)
+                                            fails-counted (reduce count-f {} fails)
+                                            ;_ (log-o "fails-counted " fails-counted)
+                                            fails-common-prefix-length (count (common-prefix (keys fails-counted)))
+                                            ;_ (log-o "fails-common-prefix-length " fails-common-prefix-length)
+                                            fails-prepared (map (partial prepare-badge-str-f fails-common-prefix-length)
+                                                                fails-counted)
+                                            ;_ (log-o "fails-prepared " fails-prepared)
+                                            total-count (apply + [(count errors-prepared) (count fails-prepared) (count badges)])
+                                            ids (atom 0)
+                                            ]]
+                                  ^{:key idx} [:div (u/at :classes '(il/neu-list-row
+                                                                      il/neu-list-row--no-padding))
                                                [bl/block-link :href (path->uri (conj path target))
                                                 :sub-items (list
                                                              [:div (u/attr {:classes '(il/neu-list-column
                                                                                         il/neu-list-column--grow
                                                                                         il/neu-list-column--left
-                                                                                        il/neu-list-column--left-padded)})
-                                                              [truncated-string target]]
+                                                                                        il/neu-list-column--padded)})
+                                                              [:div (u/at :classes 'sc/width-100)
+                                                               [truncated-string target]]]
+                                                             (if (pos? total-count)
+                                                               [:div (u/at :classes '(il/neu-list-column
+                                                                                       il/neu-list-column--more-grow
+                                                                                       il/neu-list-column--padded
+                                                                                       il/neu-list-column--right))
+                                                                [:div (u/at :classes 'sc/text-align-right)
+                                                                 (mk-badges-list badges :neutral ids)
+                                                                 (mk-badges-list errors-prepared :accent ids)
+                                                                 (mk-badges-list fails-prepared :bad ids)]])
                                                              [:div (u/attr {:classes '(il/neu-list-column
                                                                                         il/neu-list-column--width-l)})
-                                                              [badged-text (get-reputation status) status]])]]
-                                  #_[:div.list-row.list-row--hoverable
-                                               [:div.list-column.list-column--grow.list-column--stretch.list-column--left
-                                                [:a.custom-block-link {:href (path->uri (conj path target))} target]]
-                                               [:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]])]))}))
+                                                              [badged-text (get-reputation status) status]])]])]))}))
 
 
 (defn doc [doc-strings]
@@ -499,9 +554,13 @@
         ;_ (log-o "sub-struct" sub-struct)
         ]
     [:div
-     [:div.list-row.list-row--accent
-      [:div.list-column.list-column--grow.list-column--left "Fail Type:"]
-      [:div.list-column.list-column--width-l "Count:"]]
+     [:div (u/at :classes '(il/neu-list-row
+                             il/neu-list-row--accent))
+      [:div (u/at :classes '(il/neu-list-column
+                              il/neu-list-column--grow
+                              il/neu-list-column--left)) "Fail Type:"]
+      [:div (u/at :classes '(il/neu-list-column
+                              il/neu-list-column--width-l)) "Count:"]]
      (for [[idx item] (map-indexed vector (keys sub-struct))
            :let [
                  ;_ (log-o "item " item)
@@ -509,10 +568,15 @@
                  full-path (flatten (conj path item))
                  ;_ (log-o "full-path" full-path)
                  c (get-in data-map [full-path :count] 0)]]
-       ^{:key idx} [:div.list-row.list-row--hoverable
-                    [:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
-                     [:a.custom-block-link {:href (mk-ref-f (conj path item))} [:span (path->str item)]]]
-                    [:div.list-column.list-column--width-l [badged-text :bad c]]])]))
+       ^{:key idx} [:div (u/at :classes (list 'il/neu-list-row
+                                              'il/neu-list-row--no-padding))
+                    [bl/block-link :href (mk-ref-f (conj path item))
+                     :sub-items [[:div (u/at :classes (list 'il/neu-list-column
+                                                            'il/neu-list-column--grow
+                                                            'il/neu-list-column--left
+                                                            'il/neu-list-column--left-padded)) [truncated-string (path->str item)]]
+                                 [:div (u/at :classes (list 'il/neu-list-column
+                                                            'il/neu-list-column--width-l)) [badged-text :bad c]]]]])]))
 
 (defn fails-leaf [{:keys [fail-mapping ids id->path runs fail-name]}]
   (let [fails-per-id (map vector (map (partial get fail-mapping) ids) ids)
@@ -526,9 +590,13 @@
 
         ]
     [:div
-     [:div.list-row.list-row--accent
-      [:div.list-column.list-column--grow.list-column--left "Target:"]
-      [:div.list-column.list-column--width-l "Count:"]]
+     [:div (u/at :classes '(il/neu-list-row
+                             il/neu-list-row--accent))
+      [:div (u/at :classes '(il/neu-list-column
+                              il/neu-list-column--grow
+                              il/neu-list-column--left)) "Target:"]
+      [:div (u/at :classes '(il/neu-list-column
+                              il/neu-list-column--width-l)) "Count:"]]
 
      (for [[idx target] (map-indexed vector targets)
            :let [[target id] target
@@ -537,10 +605,18 @@
                  filtered-fails (filter #(= fail-name (get % :type)) fails)
                  ;_ (log-o "filtered fails " filtered-fails)
                  c (count filtered-fails)]]
-       ^{:key idx} [:div.list-row.list-row--hoverable
-                    [:div.list-column.list-column--grow.list-column--stretch.list-column--left
+       ^{:key idx} [:div (u/at :classes (list 'il/neu-list-row
+                                              'il/neu-list-row--no-padding))
+                    [bl/block-link :href (path->uri (conj (get id->path id) target))
+                     :sub-items [[:div (u/at :classes (list 'il/neu-list-column
+                                                            'il/neu-list-column--grow
+                                                            'il/neu-list-column--left
+                                                            'il/neu-list-column--left-padded)) [truncated-string target]]
+                                 [:div (u/at :classes (list 'il/neu-list-column
+                                                            'il/neu-list-column--width-l)) [badged-text :bad c]]]]
+                    #_[:div.list-column.list-column--grow.list-column--stretch.list-column--left
                      [:a.custom-block-link {:href (path->uri (conj (get id->path id) target))} [:span target]]]
-                    [:div.list-column.list-column--width-l [badged-text :bad c]]])
+                    #_[:div.list-column.list-column--width-l [badged-text :bad c]]])
 
      [:div.vertical-block
       [:div.list-row.list-row--border-less.list-row--no-padding.list-row--height-s
