@@ -52,7 +52,37 @@
   (.trigger (js/$ (r/dom-node this)) "refresh-scroll"))
 
 
-(defn- list-row [{:keys [text statuses parent-statuses status-filter-a href accent]}]
+(defn common-prefix [paths]
+  (if (some? paths)
+    (let [parts-per-path (map #(drop-last (string/split (name %) #"\.")) paths)
+          _ (log-o "parts-per-path" parts-per-path)
+          parts-per-position (apply map vector parts-per-path)
+          _ (log-o "parts-per-position" parts-per-position)
+          prefix (string/join "."
+                              (for [parts parts-per-position :while (apply = parts)]
+                                (first parts)))]
+      (if-not (empty? prefix) (str prefix ".")))
+    ""))
+
+(defn- mk-badges-list [items reputation ids-a]
+  (for [item items
+        :let [id (swap! ids-a inc)]]
+    ^{:key id} [badged-text reputation item]))
+
+(defn- prepare-badge-str-f [prefix-l [k v]]
+  (let [
+        ;_ (log-o "k " k)
+        ;_ (log-o "v " v)
+        ;_ (log-o "prefx-l " prefix-l)
+        postfix (if (> v 1)
+                  (str " x" v)
+                  "")
+        ;_ (log-o "postfix " postfix)
+        ]
+    (str (subs (name k) prefix-l) postfix)))
+
+
+(defn- list-row [{:keys [text statuses summary parent-statuses status-filter-a href accent]}]
   (let [
         accent-class (when accent 'il/neu-list-row--accent)
         ;_ (log "4")
@@ -60,6 +90,11 @@
         ;_ (log "5")
         vis (any-active? (keys statuses) status-filter)
         ;_ (log "6")
+        ;_ (when (some? summary) (log-o "summary " summary))
+        summary-count (if-not summary
+                        0
+                        (reduce + 0 (into [] (filter some? (flatten (map vals (vals summary)))))))
+        ;_ (log-o "summary count " summary-count)
         ]
     (when vis [:div (u/attr {:classes (list 'il/neu-list-row
                                             'il/neu-list-row--no-padding
@@ -67,7 +102,26 @@
                [bl/block-link :href href :sub-items
                 (into
                   [[:div (u/attr {:classes '(il/neu-list-column il/neu-list-column--grow il/neu-list-column--left il/neu-list-column--left-padded)})
-                    [truncated-string text]]]
+                    [truncated-string text]]
+                   (if (pos? summary-count)
+                     (let [
+                           ;_ (log "1")
+                           errors-common-prefix-l (count (common-prefix (keys (get summary :errors))))
+                           ;_ (log "2")
+                           failss-common-prefix-l (count (common-prefix (keys (get summary :fails))))
+                           ;_ (log "3")
+                           ids (atom 0)
+                           ]
+                       [:div (u/at :classes '(il/neu-list-column
+                                               il/neu-list-column--more-grow
+                                               il/neu-list-column--padded
+                                               il/neu-list-column--right))
+                        [:div (u/at :classes 'sc/text-align-right)
+                         (mk-badges-list (map (partial prepare-badge-str-f 0) (get summary :badges)) :neutral ids)
+                         (mk-badges-list (map (partial prepare-badge-str-f errors-common-prefix-l)
+                                              (get summary :errors)) :accent ids)
+                         (mk-badges-list (map (partial prepare-badge-str-f failss-common-prefix-l)
+                                              (get summary :fails)) :bad ids)]]))]
                   (for [[idx status] (map-indexed vector parent-statuses)
                         :let [status-count (get statuses status nil)
                               active (w-a-active? status status-filter)
@@ -85,7 +139,7 @@
 
 
 
-(defn- sub-struct-list [{:keys [status-map sub-items parent-statuses parent-path status-filter-a get-href-fn]}]
+(defn- sub-struct-list [{:keys [status-map sub-items parent-statuses summary-map parent-path status-filter-a get-href-fn]}]
   ;(log "sub-struct-list")
   ;(log-o "sub-items " sub-items)
   [:div
@@ -93,9 +147,14 @@
          :let [
                ;_ (log-o "item " item)
                item-path (conj parent-path item)
-               item-statuses (get status-map (flatten-path item-path))]]
+               flat-item-path (flatten-path item-path)
+               item-statuses (get status-map flat-item-path)
+               ;_ (log-o "item-path " flat-item-path)
+               ;_ (log-o "scen-info " (get summary-map flat-item-path))
+               ]]
      ^{:key idx} [list-row {:text            (path->str item)
                             :statuses        item-statuses
+                            :summary         (get summary-map flat-item-path)
                             :parent-statuses parent-statuses
                             :status-filter-a status-filter-a
                             :href            (get-href-fn item)
@@ -219,7 +278,7 @@
 
 
 
-(defn flat-list [{:keys [status-map parent-path items status-filter-a get-href-fn]}]
+(defn flat-list [{:keys [status-map parent-path summary-map items status-filter-a get-href-fn]}]
   (let [status-filter @status-filter-a]
     [:div
      [:div (u/attr {:classes (list 'il/neu-list-row
@@ -235,6 +294,10 @@
      (for [[idx item] (map-indexed vector items)
            :let [full-path (flatten-path (conj parent-path item))
                  item-status-map (get status-map full-path)
+                 summary (get summary-map full-path)
+                 summary-count (if-not summary
+                                 0
+                                 (reduce + 0 (into [] (filter some? (flatten (map vals (vals summary)))))))
                  status (name (first (keys item-status-map)))
                  ;status-class (cond
                  ;               (good-status? status) "list-row--success"
@@ -254,14 +317,30 @@
                                                                  'il/neu-list-column--left
                                                                  'il/neu-list-column--padded)})
                                     [truncated-string str-item]]
+                                   (if (pos? summary-count)
+                                     (let [
+                                           ;_ (log "1")
+                                           errors-common-prefix-l (count (common-prefix (keys (get summary :errors))))
+                                           ;_ (log "2")
+                                           failss-common-prefix-l (count (common-prefix (keys (get summary :fails))))
+                                           ;_ (log "3")
+                                           ids (atom 0)
+                                           ]
+                                       [:div (u/at :classes '(il/neu-list-column
+                                                               il/neu-list-column--more-grow
+                                                               il/neu-list-column--padded
+                                                               il/neu-list-column--right))
+                                        [:div (u/at :classes 'sc/text-align-right)
+                                         (mk-badges-list (map (partial prepare-badge-str-f 0) (get summary :badges)) :neutral ids)
+                                         (mk-badges-list (map (partial prepare-badge-str-f errors-common-prefix-l)
+                                                              (get summary :errors)) :accent ids)
+                                         (mk-badges-list (map (partial prepare-badge-str-f failss-common-prefix-l)
+                                                              (get summary :fails)) :bad ids)]]))
                                    [:div (u/attr {:classes (list 'il/neu-list-column
                                                                  'il/neu-list-column--width-l)})
-                                    [badged-text (get-reputation status) status]]]]
-                      #_[:div.list-column.list-column--grow.list-column--stretch.list-column--left #_{:class status-class}
-                       [:a.custom-block-link {:href (get-href-fn item)} [:span str-item]]]
-                      #_[:div.list-column.list-column--width-l [badged-text (get-reputation status) status]]]))]))
+                                    [badged-text (get-reputation status) status]]]]]))]))
 
-(defn node-view [{:keys [struct runs test-data-map status-map status-filter-a nav-position-a]}]
+(defn node-view [{:keys [struct runs summary-map test-data-map status-map status-filter-a nav-position-a]}]
   (let [title (r/atom nil)]
     (r/create-class
       {:component-did-update trigger-refresh-scroll
@@ -295,6 +374,7 @@
                                                  [:div.list-column.list-column--grow.list-column--left "Path:"]]
 
                                       ^{:key 2} [sub-struct-list {:status-map      status-map
+                                                                  :summary-map     summary-map
                                                                   :sub-items       sub-items
                                                                   :parent-statuses statuses
                                                                   :parent-path     path
@@ -304,6 +384,7 @@
                                                                                                    :runs          runs
                                                                                                    :parent-path   path})}])
                                     [flat-list {:status-map      status-map
+                                                :summary-map     summary-map
                                                 :parent-path     path
                                                 :items           sub-items
                                                 :status-filter-a status-filter-a
@@ -394,27 +475,6 @@
        inc
        (assoc m x)))
 
-(defn common-prefix [paths]
-  (if (some? paths)
-    (let [parts-per-path (map #(drop-last (string/split % #"\.")) paths)
-          ;_ (log-o "parts-per-path" parts-per-path)
-          parts-per-position (apply map vector parts-per-path)
-          ;_ (log-o "parts-per-position" parts-per-position)
-          prefix (string/join "."
-                              (for [parts parts-per-position :while (apply = parts)]
-                                (first parts)))]
-      (if-not (empty? prefix) (str prefix ".")))
-    ""))
-
-
-(defn- mk-badges-list [items reputation ids-a]
-  (for [item items
-        :let [id (swap! ids-a inc)]]
-    ^{:key id} [badged-text reputation item]))
-
-
-(defn- prepare-badge-str-f [prefix-l [k v]]
-  (str (subs k prefix-l) " " v))
 
 (defn- scenario-runs [{:keys [get-runs-fn scen-quarantine status-filter-a runs-limit path]}]
   (r/create-class
@@ -487,6 +547,7 @@
     (fn []
       (let [statuses (sort-statuses-by-vis-order > (keys scenario-status-map))
             doc-strings (string/split (get scenario-info :doc) #"\n\n")
+            overview (get scenario-info :overview)
             ;_ (log-o "scenario-info: " scenario-info)
             ;_ (log-o "doc strings: " doc-strings)
             ]
@@ -498,6 +559,7 @@
           (status-filter statuses scenario-status-map status-filter-a)]
 
          [doc doc-strings]
+         [meta-data-render overview :header "Overview"]
          [scenario-runs {:get-runs-fn     get-runs-fn
                          :scen-quarantine scen-quarantine
                          :status-filter-a status-filter-a
@@ -774,7 +836,7 @@
                                                   [fails-node fail-tree fail-path (partial mk-href path params)])]))})))
 
 
-(defn app-content [{:keys [test-data-map quarantine runs struct status-map fail-mapping status-filter-a nav-position-a]}]
+(defn app-content [{:keys [test-data-map quarantine summary-map runs struct status-map fail-mapping status-filter-a nav-position-a]}]
   (r/create-class
     {
      :component-did-mount (fn [this]
@@ -803,6 +865,7 @@
                                                            :status-filter-a status-filter-a}]
                                    (is-node? struct path) [node-view {:struct          struct
                                                                       :runs            runs
+                                                                      :summary-map     summary-map
                                                                       :test-data-map   test-data-map
                                                                       :status-map      status-map
                                                                       :status-filter-a status-filter-a

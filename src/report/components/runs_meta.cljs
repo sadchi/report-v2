@@ -42,12 +42,13 @@
 
 
 
-(defn meta-data-render [meta-data]
-  [:div
-   [:h3 "Meta information:"]
-   (for [[idx meta-item] (map-indexed vector meta-data)]
-     (case (:type meta-item)
-       "text" ^{:key idx} [meta-text meta-item]
-       "table" ^{:key idx} [meta-table meta-item]
-       "pivot-table" ^{:key idx} [meta-pivot-table meta-item]
-       nil))])
+(defn meta-data-render [meta-data & {:keys [header]}]
+  (when-not (empty? meta-data)
+    [:div
+     [:h3 (or header "Meta Information") ":"]
+     (for [[idx meta-item] (map-indexed vector meta-data)]
+       (case (:type meta-item)
+         "text" ^{:key idx} [meta-text meta-item]
+         "table" ^{:key idx} [meta-table meta-item]
+         "pivot-table" ^{:key idx} [meta-pivot-table meta-item]
+         nil))]))

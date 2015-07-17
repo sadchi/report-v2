@@ -75,8 +75,8 @@
                                      :flex-basis (px 58)})
 
 
-(def neu-list-column--width-l ^:css {:width      (px 90)
-                                     :flex-basis (px 90)})
+(def neu-list-column--width-l ^:css {:width      (px 108)
+                                     :flex-basis (px 108)})
 
 (def neu-list-column--width-xl ^:css {:width      (px 168)
                                       :flex-basis (px 168)})

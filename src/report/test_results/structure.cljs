@@ -91,6 +91,9 @@
               (assoc coll k (+ old-val v))))]
     (reduce f x y)))
 
+
+
+
 (defn mk-status-lists [test-data get-statuses-map-fn mk-path-fn]
   (let [path-status-map (map (fn [x]
                                (let [path (mk-path-fn x)
@@ -109,6 +112,39 @@
               (reduce (partial f-add-status statuses) coll branch)))]
     (reduce f {} path-status-map)))
 
+
+
+(defn- add-2-m [m1 m2]
+  (let [f (fn [coll [k v]]
+            (assoc coll k (+ v (get coll k 0))))]
+    (reduce f m1 m2)))
+
+(defn- add-summary [new old]
+  (if (nil? old)
+    new
+    (let [{a-errors :errors a-fails :fails a-badges :badges } old
+          {b-errors :errors b-fails :fails b-badges :badges } new
+          badges (add-2-m a-badges b-badges)
+          errors (add-2-m a-errors b-errors)
+          fails (add-2-m a-fails b-fails)]
+      {:badges badges
+       :errors errors
+       :fails fails})))
+
+(defn- mk-tree-map [coll get-attr-f add-attr-f mk-path-f]
+  (let [path-n-attrs (map (fn [x] [(mk-path-f x) (get-attr-f x)]) coll)
+
+        apply-attr (fn [new-attr coll path]
+                     (update coll path add-attr-f new-attr))
+
+        f (fn [coll [path attr]]
+            (let [branch (create-branch path)]
+              (reduce (partial apply-attr attr) coll branch)))]
+    (reduce f {} path-n-attrs)))
+
+
+(defn mk-summary-map [coll get-attr-f  mk-path-f]
+  (mk-tree-map coll get-attr-f  add-summary mk-path-f))
 
 (defn is-node? [struct path]
   (map? (get-in struct path)))

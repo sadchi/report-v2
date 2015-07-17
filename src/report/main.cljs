@@ -24,7 +24,8 @@
 
 (extend-protocol ILookup
   object
-  (-lookup ([m k] (let [key (name k)] (aget m key)))
+  (-lookup
+    ([m k] (let [key (name k)] (aget m key)))
     ([m k not-found] (let [key (name k)] (or (aget m key) not-found)))))
 
 
@@ -91,11 +92,13 @@
 
 
 
-(def status-map (structure/mk-status-lists (vals test-data-quarantined) #(get % :status) path/mk-path-combi))
-
-
-
+(def status-map (structure/mk-status-lists (vals test-data-quarantined) #(get-in % [:summary :status]) path/mk-path-combi))
 (log-o "status map: " status-map)
+
+(def summary-map (structure/mk-summary-map (vals test-data-quarantined) #(get % :summary) path/mk-path-combi))
+(log-o "summary-map: " summary-map)
+
+
 
 (def status-filter-a (r/atom {}))
 
@@ -103,7 +106,7 @@
 
 
 
-(defn- get-status [{:keys [test-data-map runs quarantine struct status-map path]}]
+(defn- get-status [{:keys [test-data-map runs quarantine status-map path]}]
   (let [
         run? (structure/is-run? test-data-map path)
         ;_ (log-o "run? " run?)
@@ -177,6 +180,7 @@
                                                 :path          %}) routing/nav-position)
                      (app-content {:test-data-map   test-data-quarantined
                                    :quarantine      quarantine
+                                   :summary-map     summary-map
                                    :runs            runs
                                    :struct          test-data-structure
                                    :fail-mapping    extra-params/fail-mapping
