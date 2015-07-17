@@ -55,9 +55,9 @@
 (defn common-prefix [paths]
   (if (some? paths)
     (let [parts-per-path (map #(drop-last (string/split (name %) #"\.")) paths)
-          _ (log-o "parts-per-path" parts-per-path)
+          ;_ (log-o "parts-per-path" parts-per-path)
           parts-per-position (apply map vector parts-per-path)
-          _ (log-o "parts-per-position" parts-per-position)
+          ;_ (log-o "parts-per-position" parts-per-position)
           prefix (string/join "."
                               (for [parts parts-per-position :while (apply = parts)]
                                 (first parts)))]

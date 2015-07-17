@@ -237,10 +237,10 @@
             (let [[id q-list] x
                   path (get id->path id)
                   scenario (get test-data-map path)
-                  status-map (get scenario :status)
+                  status-map (get-in scenario [:status :summary])
                   new-status-map (reduce apply-q status-map (vals q-list))
                   ]
-              (assoc-in coll [path :status] new-status-map)))]
+              (assoc-in coll [path :summary :status] new-status-map)))]
     (reduce f test-data-map quarantine)))
 
 
