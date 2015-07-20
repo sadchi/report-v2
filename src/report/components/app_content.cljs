@@ -14,6 +14,7 @@
             [report.components.dropdown :refer [dropdown]]
             [report.components.styles.content-pane :as cp]
             [report.components.common.utils :as u]
+            [report.utils.string :refer [keyword->str]]
             [report.utils.log :refer [log log-o]]
             [report.utils.net :refer [set-href!]]
             [report.routing :as routing :refer [path->uri]]
@@ -54,13 +55,15 @@
 
 (defn common-prefix [paths]
   (if (some? paths)
-    (let [parts-per-path (map #(drop-last (string/split (name %) #"\.")) paths)
+    (let [parts-per-path (map #(drop-last (string/split (keyword->str %) #"\.")) paths)
           ;_ (log-o "parts-per-path" parts-per-path)
           parts-per-position (apply map vector parts-per-path)
           ;_ (log-o "parts-per-position" parts-per-position)
           prefix (string/join "."
                               (for [parts parts-per-position :while (apply = parts)]
-                                (first parts)))]
+                                (first parts)))
+          ;_ (log-o "prefix" prefix)
+          ]
       (if-not (empty? prefix) (str prefix ".")))
     ""))
 
@@ -79,7 +82,7 @@
                   "")
         ;_ (log-o "postfix " postfix)
         ]
-    (str (subs (name k) prefix-l) postfix)))
+    (str (subs (keyword->str k) prefix-l) postfix)))
 
 
 (defn- list-row [{:keys [text statuses summary parent-statuses status-filter-a href accent]}]
@@ -106,16 +109,18 @@
                    (if (pos? summary-count)
                      (let [
                            ;_ (log "1")
+                           ;_ (log-o "summary " summary)
                            errors-common-prefix-l (count (common-prefix (keys (get summary :errors))))
+
                            ;_ (log "2")
                            failss-common-prefix-l (count (common-prefix (keys (get summary :fails))))
                            ;_ (log "3")
-                           ids (atom 0)
-                           ]
+                           ids (atom 0)]
                        [:div (u/at :classes '(il/neu-list-column
                                                il/neu-list-column--more-grow
                                                il/neu-list-column--padded
-                                               il/neu-list-column--right))
+                                               il/neu-list-column--right
+                                               il/neu-list-column--overflow-hidden))
                         [:div (u/at :classes 'sc/text-align-right)
                          (mk-badges-list (map (partial prepare-badge-str-f 0) (get summary :badges)) :neutral ids)
                          (mk-badges-list (map (partial prepare-badge-str-f errors-common-prefix-l)
@@ -329,7 +334,8 @@
                                        [:div (u/at :classes '(il/neu-list-column
                                                                il/neu-list-column--more-grow
                                                                il/neu-list-column--padded
-                                                               il/neu-list-column--right))
+                                                               il/neu-list-column--right
+                                                               il/neu-list-column--overflow-hidden))
                                         [:div (u/at :classes 'sc/text-align-right)
                                          (mk-badges-list (map (partial prepare-badge-str-f 0) (get summary :badges)) :neutral ids)
                                          (mk-badges-list (map (partial prepare-badge-str-f errors-common-prefix-l)

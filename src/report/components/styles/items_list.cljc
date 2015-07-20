@@ -91,7 +91,7 @@
 
 (def neu-list-column--grow ^:css {:flex-grow 1})
 
-(def neu-lsit-column--overflow-hidden ^:css {:oveflow "hidden"})
+(def neu-list-column--overflow-hidden ^:css {:overflow "hidden"})
 
 
 (def neu-list-column--more-grow ^:css {:flex-grow 2})

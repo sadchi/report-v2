@@ -15,6 +15,12 @@
   (string/replace s #"  " "\u00A0\u00A0"))
 
 
+(def keyword->str (fn [x]
+                (if (keyword? x)
+                  (subs (str x) 1)
+                  x)))
+
+
 (defn spanes-every [s every]
   (let [pattern (re-pattern (gstring/format  ".{1,%d}" every))
         split-s (re-seq pattern s)

@@ -172,12 +172,14 @@
         uri (routing/path->uri path)]
     (str uri "?slice=failtype")))
 
-(r/render-component [app (app-bar #(get-status {:test-data-map test-data-quarantined
-                                                :quarantine    quarantine
-                                                :runs          runs
-                                                :struct        test-data-structure
-                                                :status-map    status-map
-                                                :path          %}) routing/nav-position)
+
+(r/render-component [app
+                     (app-bar #(get-status {:test-data-map test-data-quarantined
+                                            :quarantine    quarantine
+                                            :runs          runs
+                                            :struct        test-data-structure
+                                            :status-map    status-map
+                                            :path          %}) routing/nav-position)
                      (app-content {:test-data-map   test-data-quarantined
                                    :quarantine      quarantine
                                    :summary-map     summary-map
