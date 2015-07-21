@@ -18,11 +18,13 @@
                       :line-height  (px (get sizes :m))
                       :display      "inline-block"
                       :padding      [[0 (px (get sizes :xs))]]
-                      :margin       "1px 2px"
+                      :margin       "2px 2px"
                       :border-style "solid"
                       :border-width "1px"})
 
-(def neu-badge--small ^:css {:height      (px (get sizes :s))
+(def neu-badge--small ^:css {
+                             ;:font-size   (px (get p/font-sizes :-1))
+                             :height      (px (get sizes :s))
                              :line-height (px (get sizes :s))})
 
 

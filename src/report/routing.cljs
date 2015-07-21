@@ -3,7 +3,7 @@
             [goog.events :as events]
             [reagent.core :as r]
             [report.utils.log :refer [log log-o]]
-            [report.test-results.path :refer [desafe-path]]
+            [report.test-results.path :refer [safe-path desafe-path]]
             [clojure.string :as string])
   (:import goog.History
            goog.history.EventType))
@@ -25,9 +25,14 @@
 
 
 
+(defn- log-n-return [x]
+  (log-o "xx " x)
+  x)
+
 (defn path->uri [path]
   (->> path
        (mapv encode-vec)
+       (mapv safe-path)
        (mapv js/encodeURI)
        (mapv js/encodeURIComponent)
        (string/join "/")
@@ -36,9 +41,13 @@
 (defn- uri->path [uri]
   ;(log-o "uri: " uri)
   (->> (string/split uri #"/")
+       ;(log-n-return)
        (mapv js/decodeURIComponent)
+       ;(log-n-return)
        (mapv js/decodeURI)
+       ;(log-n-return)
        (mapv desafe-path)
+       ;(log-n-return)
        (mapv decode-vec)))
 
 (secretary/set-config! :prefix "#")

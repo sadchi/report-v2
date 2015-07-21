@@ -70,7 +70,7 @@
 (defn- mk-badges-list [items reputation ids-a]
   (for [item items
         :let [id (swap! ids-a inc)]]
-    ^{:key id} [badged-text reputation item]))
+    ^{:key id} [badged-text reputation item true]))
 
 (defn- prepare-badge-str-f [prefix-l [k v]]
   (let [
@@ -121,7 +121,8 @@
                                                il/neu-list-column--padded
                                                il/neu-list-column--right
                                                il/neu-list-column--overflow-hidden))
-                        [:div (u/at :classes 'sc/text-align-right)
+                        [:div (u/at :classes (list 'sc/text-align-right
+                                                   'sc/quarter-unit-padding))
                          (mk-badges-list (map (partial prepare-badge-str-f 0) (get summary :badges)) :neutral ids)
                          (mk-badges-list (map (partial prepare-badge-str-f errors-common-prefix-l)
                                               (get summary :errors)) :accent ids)
@@ -336,7 +337,8 @@
                                                                il/neu-list-column--padded
                                                                il/neu-list-column--right
                                                                il/neu-list-column--overflow-hidden))
-                                        [:div (u/at :classes 'sc/text-align-right)
+                                        [:div (u/at :classes (list 'sc/text-align-right
+                                                                   'sc/quarter-unit-padding))
                                          (mk-badges-list (map (partial prepare-badge-str-f 0) (get summary :badges)) :neutral ids)
                                          (mk-badges-list (map (partial prepare-badge-str-f errors-common-prefix-l)
                                                               (get summary :errors)) :accent ids)
@@ -531,7 +533,8 @@
                                                                                        il/neu-list-column--more-grow
                                                                                        il/neu-list-column--padded
                                                                                        il/neu-list-column--right))
-                                                                [:div (u/at :classes 'sc/text-align-right)
+                                                                [:div (u/at :classes (list 'sc/text-align-right
+                                                                                           'sc/quarter-unit-padding))
                                                                  (mk-badges-list badges :neutral ids)
                                                                  (mk-badges-list errors-prepared :accent ids)
                                                                  (mk-badges-list fails-prepared :bad ids)]])

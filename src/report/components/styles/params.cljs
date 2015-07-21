@@ -95,19 +95,21 @@
 (def font-sizes-ratio 1.25)
 (def font-size-base 14)
 (def font-sizes
-  (let [s1 (* font-size-base font-sizes-ratio)
+  (let [s-1 (- font-size-base 2)
+        s1 (* font-size-base font-sizes-ratio)
         s2 (* s1 font-sizes-ratio)
         s3 (* s2 font-sizes-ratio)
         s4 (* s3 font-sizes-ratio)
         s5 (* s4 font-sizes-ratio)
         s6 (* s5 font-sizes-ratio)]
-    {:0 font-size-base
-     :1 s1
-     :2 s2
-     :3 s3
-     :4 s4
-     :5 s5
-     :6 s6}))
+    {:-1 s-1
+     :0  font-size-base
+     :1  s1
+     :2  s2
+     :3  s3
+     :4  s4
+     :5  s5
+     :6  s6}))
 
 
 (def z-level {:ground          5

@@ -54,6 +54,8 @@
 
 (def text-align-right ^:css {:text-align "right"})
 
+(def quarter-unit-padding ^:css {:padding (px (/ p/unit 4))})
+
 (def width-100 ^:css {:width "100%"})
 
 (defonce init
